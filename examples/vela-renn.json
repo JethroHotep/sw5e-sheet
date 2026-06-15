@@ -122,12 +122,14 @@
     ],
     "customRolls": [
       {
+        "kind": "roll",
         "id": "scanner-check",
         "name": "Scanner Sweep",
         "formula": "1d20 + @int + @prof",
         "notes": "Technology check using scanner tools"
       },
       {
+        "kind": "roll",
         "id": "jump-check",
         "name": "Emergency Leap",
         "formula": "1d20 + @str",

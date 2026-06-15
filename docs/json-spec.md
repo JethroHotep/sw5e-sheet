@@ -33,7 +33,7 @@ The format is intentionally explicit. Derived values such as ability modifiers, 
 | `combat` | object | yes | AC, HP, speed, and initiative. |
 | `attacks` | array | no | Weapons or attack-like actions. |
 | `resources` | array | no | Trackable expendable resources. |
-| `customRolls` | array | no | Hand-authored clickable formulas. |
+| `customRolls` | array | no | Hand-authored clickable rolls and reference actions. |
 | `notes` | string | no | Freeform player notes. |
 
 ## Abilities
@@ -120,15 +120,18 @@ Damage parts:
 | `bonus` | number | no | Flat bonus or penalty. Defaults to `0`. |
 | `type` | string | no | Damage type text. |
 
-## Custom Rolls
+## Custom Rolls And References
 
-Custom rolls are public Roll20 template rolls. The app resolves placeholders before sending.
+Custom entries are public Roll20 template actions. Use `kind: "roll"` for actions with dice or math formulas. Use `kind: "reference"` for powers, features, or reminders that should post notes to Roll20 without a fake dice result.
+
+When `kind` is omitted, the app should treat the entry as `roll` for backward compatibility.
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
+| `kind` | string | no | `roll` or `reference`. Defaults to `roll`. |
 | `id` | string | yes | Stable id. |
 | `name` | string | yes | Display and Roll20 title. |
-| `formula` | string | yes | Roll formula using supported placeholders. |
+| `formula` | string | for `roll` | Roll formula using supported placeholders. Omit for `reference`. |
 | `notes` | string | no | Extra Roll20 note text. |
 
 Supported placeholders:
@@ -143,10 +146,22 @@ Example:
 
 ```json
 {
+  "kind": "roll",
   "id": "scanner-check",
   "name": "Scanner Sweep",
   "formula": "1d20 + @int + @prof",
   "notes": "Technology check using scanner tools"
+}
+```
+
+Reference example:
+
+```json
+{
+  "kind": "reference",
+  "id": "energy-shield",
+  "name": "Energy Shield",
+  "notes": "Reaction defense; when hit by an attack, gain +5 AC until the start of your next turn."
 }
 ```
 
@@ -166,6 +181,12 @@ The first formatter should use the universal default template:
 
 ```text
 &{template:default} {{name=Character - Roll Name}} {{roll=[[1d20 + 5]]}} {{notes=Optional note}}
+```
+
+Reference actions should omit roll fields:
+
+```text
+&{template:default} {{name=Character - Energy Shield}} {{notes=Reaction defense; gain +5 AC until the start of your next turn.}}
 ```
 
 Attacks should include attack and damage fields:

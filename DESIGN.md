@@ -73,7 +73,7 @@ Start with vanilla TypeScript, Vite, and plain CSS. This keeps the app local, fa
 
 ## JSON Shape
 
-Use a versioned JSON format so we can evolve the sheet without breaking old characters. The first version is hand-authored. See `docs/json-spec.md` for the contract and `examples/vela-renn.json` for a complete starter character.
+Use a versioned JSON format so we can evolve the sheet without breaking old characters. The first version is hand-authored. See `docs/json-spec.md` for the contract, `examples/vela-renn.json` for a compact starter character, and `examples/nim-sw5e.json` for a fuller real-character example.
 
 ```json
 {
@@ -132,6 +132,7 @@ Use a versioned JSON format so we can evolve the sheet without breaking old char
     ],
     "customRolls": [
       {
+        "kind": "roll",
         "id": "scanner-check",
         "name": "Scanner Sweep",
         "formula": "1d20 + @int + @prof",
@@ -176,6 +177,7 @@ First pass should include:
 - Initiative with `&{tracker}` as an optional toggle.
 - Weapon attacks and damage.
 - Custom rolls.
+- Reference actions that post public Roll20 notes without dice.
 - Advantage, disadvantage, normal roll mode.
 - Global modifier input, such as bless, cover, temporary bonus, or penalty.
 - Roll output history.
@@ -212,6 +214,8 @@ The loader should catch:
 - Unknown ability keys.
 - Attacks without a name or damage formula.
 - Roll formulas containing unsupported placeholders.
+- Custom roll entries with unsupported `kind` values.
+- `kind: "roll"` entries without formulas.
 
 The app should still render partial data when possible and show warnings rather than failing the entire sheet.
 

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SW5e Sheet</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">SW5e Roll20 Sheet</p>
+        <h1 id="characterName">Loading character...</h1>
+        <p id="characterMeta" class="muted">Preparing dashboard</p>
+      </div>
+      <div class="header-actions">
+        <label class="file-button">
+          Load JSON
+          <input id="fileInput" type="file" accept="application/json,.json">
+        </label>
+        <button id="loadNimButton" type="button">Load Nim</button>
+        <button id="loadVelaButton" type="button">Load Vela</button>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="toolbar" aria-label="Roll settings">
+        <div class="field-group">
+          <span class="label">Roll mode</span>
+          <div class="segmented" role="group" aria-label="Roll mode">
+            <button class="segment active" type="button" data-roll-mode="normal">Normal</button>
+            <button class="segment" type="button" data-roll-mode="advantage">Advantage</button>
+            <button class="segment" type="button" data-roll-mode="disadvantage">Disadvantage</button>
+          </div>
+        </div>
+        <label class="field-group">
+          <span class="label">Global modifier</span>
+          <input id="globalModifier" type="text" inputmode="text" value="0" aria-label="Global modifier">
+        </label>
+        <label class="field-group checkbox-row">
+          <input id="initiativeTracker" type="checkbox">
+          <span>Add initiative to tracker</span>
+        </label>
+        <p id="statusMessage" class="status" role="status">Ready</p>
+      </section>
+
+      <section id="validationPanel" class="validation" hidden></section>
+
+      <div class="dashboard">
+        <section class="panel identity-panel" aria-labelledby="identityHeading">
+          <div class="section-heading">
+            <h2 id="identityHeading">Character</h2>
+          </div>
+          <div id="combatStats" class="stat-grid"></div>
+          <div id="initiativeAction" class="initiative-action"></div>
+          <div id="abilities" class="ability-grid"></div>
+          <div id="resources" class="resource-list"></div>
+        </section>
+
+        <section class="panel rolls-panel" aria-labelledby="rollsHeading">
+          <div class="section-heading">
+            <h2 id="rollsHeading">Rolls</h2>
+          </div>
+          <div class="two-column">
+            <div>
+              <h3>Saving Throws</h3>
+              <div id="savingThrows" class="roll-list"></div>
+            </div>
+            <div>
+              <h3>Skills</h3>
+              <div id="skills" class="roll-list"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel actions-panel" aria-labelledby="actionsHeading">
+          <div class="section-heading">
+            <h2 id="actionsHeading">Actions</h2>
+          </div>
+          <h3>Attacks</h3>
+          <div id="attacks" class="action-list"></div>
+          <h3>Custom Rolls</h3>
+          <div id="customRolls" class="action-list"></div>
+          <h3>References</h3>
+          <div id="references" class="action-list"></div>
+        </section>
+
+        <aside class="panel outbox-panel" aria-labelledby="outboxHeading">
+          <div class="section-heading">
+            <h2 id="outboxHeading">Roll20 Outbox</h2>
+            <button id="copyLatestButton" type="button">Copy Latest</button>
+          </div>
+          <textarea id="latestCommand" aria-label="Latest Roll20 command" readonly></textarea>
+          <div id="history" class="history-list"></div>
+        </aside>
+      </div>
+    </main>
+
+    <template id="rollRowTemplate">
+      <button class="roll-row" type="button">
+        <span class="roll-title"></span>
+        <span class="roll-detail"></span>
+      </button>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>

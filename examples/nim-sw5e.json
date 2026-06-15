@@ -1,0 +1,363 @@
+﻿{
+    "schemaVersion":  1,
+    "character":  {
+                      "name":  "Dr. Fedu Nimum (Nim)",
+                      "level":  5,
+                      "class":  "Engineer (Gadgeteer)",
+                      "background":  "Scientist",
+                      "proficiencyBonus":  3,
+                      "abilities":  {
+                                        "str":  8,
+                                        "dex":  15,
+                                        "con":  14,
+                                        "int":  20,
+                                        "wis":  10,
+                                        "cha":  10
+                                    },
+                      "savingThrows":  {
+                                           "str":  false,
+                                           "dex":  false,
+                                           "con":  true,
+                                           "int":  true,
+                                           "wis":  false,
+                                           "cha":  false
+                                       },
+                      "skills":  {
+                                     "acrobatics":  {
+                                                        "ability":  "dex",
+                                                        "proficient":  false,
+                                                        "expertise":  false,
+                                                        "bonus":  0
+                                                    },
+                                     "athletics":  {
+                                                       "ability":  "str",
+                                                       "proficient":  false,
+                                                       "expertise":  false,
+                                                       "bonus":  0
+                                                   },
+                                     "deception":  {
+                                                       "ability":  "cha",
+                                                       "proficient":  false,
+                                                       "expertise":  false,
+                                                       "bonus":  0
+                                                   },
+                                     "insight":  {
+                                                     "ability":  "wis",
+                                                     "proficient":  false,
+                                                     "expertise":  false,
+                                                     "bonus":  0
+                                                 },
+                                     "intimidation":  {
+                                                          "ability":  "cha",
+                                                          "proficient":  false,
+                                                          "expertise":  false,
+                                                          "bonus":  0
+                                                      },
+                                     "investigation":  {
+                                                           "ability":  "int",
+                                                           "proficient":  true,
+                                                           "expertise":  false,
+                                                           "bonus":  0
+                                                       },
+                                     "lore":  {
+                                                  "ability":  "int",
+                                                  "proficient":  true,
+                                                  "expertise":  false,
+                                                  "bonus":  0
+                                              },
+                                     "medicine":  {
+                                                      "ability":  "wis",
+                                                      "proficient":  true,
+                                                      "expertise":  false,
+                                                      "bonus":  0
+                                                  },
+                                     "nature":  {
+                                                    "ability":  "int",
+                                                    "proficient":  false,
+                                                    "expertise":  false,
+                                                    "bonus":  0
+                                                },
+                                     "perception":  {
+                                                        "ability":  "wis",
+                                                        "proficient":  false,
+                                                        "expertise":  false,
+                                                        "bonus":  0
+                                                    },
+                                     "performance":  {
+                                                         "ability":  "cha",
+                                                         "proficient":  false,
+                                                         "expertise":  false,
+                                                         "bonus":  0
+                                                     },
+                                     "persuasion":  {
+                                                        "ability":  "cha",
+                                                        "proficient":  false,
+                                                        "expertise":  false,
+                                                        "bonus":  0
+                                                    },
+                                     "piloting":  {
+                                                      "ability":  "dex",
+                                                      "proficient":  true,
+                                                      "expertise":  false,
+                                                      "bonus":  0
+                                                  },
+                                     "sleightOfHand":  {
+                                                           "ability":  "dex",
+                                                           "proficient":  false,
+                                                           "expertise":  false,
+                                                           "bonus":  0
+                                                       },
+                                     "stealth":  {
+                                                     "ability":  "dex",
+                                                     "proficient":  false,
+                                                     "expertise":  false,
+                                                     "bonus":  0
+                                                 },
+                                     "survival":  {
+                                                      "ability":  "wis",
+                                                      "proficient":  false,
+                                                      "expertise":  false,
+                                                      "bonus":  0
+                                                  },
+                                     "technology":  {
+                                                        "ability":  "int",
+                                                        "proficient":  true,
+                                                        "expertise":  true,
+                                                        "bonus":  0
+                                                    }
+                                 },
+                      "combat":  {
+                                     "armorClass":  14,
+                                     "initiativeBonus":  0,
+                                     "speed":  30,
+                                     "hitPoints":  {
+                                                       "max":  38,
+                                                       "current":  38,
+                                                       "temporary":  0
+                                                   }
+                                 },
+                      "attacks":  [
+                                      {
+                                          "id":  "light-pistol",
+                                          "name":  "Light Pistol",
+                                          "attackAbility":  "dex",
+                                          "proficient":  true,
+                                          "attackBonus":  0,
+                                          "damage":  [
+                                                         {
+                                                             "formula":  "1d4",
+                                                             "ability":  "dex",
+                                                             "bonus":  0,
+                                                             "type":  "energy"
+                                                         }
+                                                     ],
+                                          "properties":  [
+                                                             "ammunition",
+                                                             "range",
+                                                             "reload"
+                                                         ],
+                                          "notes":  "Simple blaster starting option; uses Dexterity for ranged attack and damage."
+                                      },
+                                      {
+                                          "id":  "vibrodagger",
+                                          "name":  "Vibrodagger",
+                                          "attackAbility":  "dex",
+                                          "proficient":  true,
+                                          "attackBonus":  0,
+                                          "damage":  [
+                                                         {
+                                                             "formula":  "1d4",
+                                                             "ability":  "dex",
+                                                             "bonus":  0,
+                                                             "type":  "kinetic"
+                                                         }
+                                                     ],
+                                          "properties":  [
+                                                             "finesse",
+                                                             "light",
+                                                             "thrown",
+                                                             "range 20/60"
+                                                         ],
+                                          "notes":  "Emergency cutting tool; sheet uses Dexterity via finesse/thrown-friendly build."
+                                      }
+                                  ],
+                      "resources":  [
+                                        {
+                                            "id":  "tech-points",
+                                            "name":  "Tech Points (after harness overage)",
+                                            "current":  9,
+                                            "max":  9
+                                        },
+                                        {
+                                            "id":  "potent-aptitude",
+                                            "name":  "Potent Aptitude Uses (d6)",
+                                            "current":  5,
+                                            "max":  5
+                                        },
+                                        {
+                                            "id":  "hit-dice",
+                                            "name":  "Hit Dice (d8)",
+                                            "current":  5,
+                                            "max":  5
+                                        },
+                                        {
+                                            "id":  "sentry-turrets",
+                                            "name":  "Sentry Turrets",
+                                            "current":  5,
+                                            "max":  5
+                                        },
+                                        {
+                                            "id":  "oil-spill",
+                                            "name":  "Oil Spill Contraption",
+                                            "current":  1,
+                                            "max":  1
+                                        },
+                                        {
+                                            "id":  "techie-repair-droid",
+                                            "name":  "Techie: Free Repair Droid",
+                                            "current":  1,
+                                            "max":  1
+                                        },
+                                        {
+                                            "id":  "power-cells",
+                                            "name":  "Power Cells",
+                                            "current":  2,
+                                            "max":  2
+                                        }
+                                    ],
+                      "customRolls":  [
+                                          {
+                                              "id":  "tech-save-dc",
+                                              "name":  "Tech Save DC Reference",
+                                              "notes":  "Reference only: Tech save DC 16 normally; DC 17 while using the Gadgeteer Harness with Integrated Inhibitor.",
+                                              "kind":  "reference"
+                                          },
+                                          {
+                                              "id":  "tech-attack-modifier",
+                                              "name":  "Tech Attack Modifier Reference",
+                                              "notes":  "Reference only: ranged tech attack is +8. If Integrated Targeter is later installed, change this note to +9.",
+                                              "kind":  "reference"
+                                          },
+                                          {
+                                              "id":  "technology-computers",
+                                              "name":  "Computer Slicing / Technology",
+                                              "formula":  "1d20 + @int + @prof + @prof",
+                                              "notes":  "Technology check for computers; Nim\u0027s Bith Programmer trait and Techie-style expertise are represented here.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "investigation-close",
+                                              "name":  "Close Investigation",
+                                              "formula":  "1d20 + @int + @prof",
+                                              "notes":  "Bith Detail Oriented: roll with advantage when scouring for details within 5 feet.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "perception-hearing-smell",
+                                              "name":  "Hearing/Smell Perception",
+                                              "formula":  "1d20 + @wis",
+                                              "notes":  "Bith Keen Hearing and Smell: roll with advantage when the check involves hearing or smell.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "potent-aptitude-die",
+                                              "name":  "Potent Aptitude Die",
+                                              "formula":  "1d6",
+                                              "notes":  "Bonus action to give an ally within 60 feet a d6 for one ability check, attack roll, or saving throw within 10 minutes. Uses refresh on short or long rest at Engineer 5.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "projected-barrier-environmental",
+                                              "name":  "Projected Barrier: Environmental",
+                                              "formula":  "1d6 + @level",
+                                              "notes":  "Bonus action; spends Potent Aptitude. Barrier HP vs one chosen damage type: acid, cold, fire, force, lightning, necrotic, poison, psychic, or sonic.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "projected-barrier-physical",
+                                              "name":  "Projected Barrier: Physical",
+                                              "formula":  "1d6 + 2",
+                                              "notes":  "Bonus action; spends Potent Aptitude. Barrier HP vs one chosen physical damage type: energy, ion, or kinetic. Half engineer level rounded down is already entered as +2.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "shocking-barrier-retaliation",
+                                              "name":  "Shocking Barrier Retaliation",
+                                              "formula":  "1d6",
+                                              "notes":  "When a creature protected by Nim\u0027s barrier is damaged by a creature within 5 feet, the protected creature can deal this lightning damage to the attacker.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "sentry-turret-damage",
+                                              "name":  "Sentry Turret Damage",
+                                              "formula":  "1d4",
+                                              "notes":  "A deployed sentry targets a hostile creature within 10 feet at end of Nim\u0027s turn. Target makes Dex save DC 17 or takes damage and gains 1 slowed level.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "oil-spill",
+                                              "name":  "Oil Spill",
+                                              "notes":  "Action; cast oil slick without tech points or concentration. Recharges on short or long rest.",
+                                              "kind":  "reference"
+                                          },
+                                          {
+                                              "id":  "ion-blast",
+                                              "name":  "Ion Blast",
+                                              "formula":  "2d4",
+                                              "notes":  "At-will tech power. One target within 60 feet, or two within 5 feet of each other, makes Dex save DC 17 or takes ion damage.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "kolto-pack",
+                                              "name":  "Kolto Pack",
+                                              "formula":  "1d4 + @int",
+                                              "notes":  "1st-level tech power; emergency bonus-action healing. Costs 2 tech points.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "repair-droid",
+                                              "name":  "Repair Droid",
+                                              "formula":  "1d8 + @int",
+                                              "notes":  "Touch a droid or construct to restore hit points. Techie can cast once without tech points; normally costs 2 tech points at 1st level.",
+                                              "kind":  "roll"
+                                          },
+                                          {
+                                              "id":  "tactical-barrier",
+                                              "name":  "Tactical Barrier",
+                                              "notes":  "Bonus action; concentration up to 10 minutes; target within 60 feet gains +2 AC. Costs 2 tech points.",
+                                              "kind":  "reference"
+                                          },
+                                          {
+                                              "id":  "energy-shield",
+                                              "name":  "Energy Shield",
+                                              "notes":  "Reaction defense; when hit by an attack, gain +5 AC until the start of Nim\u0027s next turn. Costs 2 tech points.",
+                                              "kind":  "reference"
+                                          },
+                                          {
+                                              "id":  "hold-droid",
+                                              "name":  "Hold Droid",
+                                              "notes":  "2nd-level tech power; one droid or construct within 60 feet makes Con save DC 17 or is paralyzed. Concentration up to 1 minute. Costs 3 tech points.",
+                                              "kind":  "reference"
+                                          },
+                                          {
+                                              "id":  "lock",
+                                              "name":  "Lock",
+                                              "notes":  "2nd-level tech power; touch a door, window, gate, chest, or entryway to lock it and increase break/pick DC by 10. Costs 3 tech points.",
+                                              "kind":  "reference"
+                                          },
+                                          {
+                                              "id":  "invisibility-to-cameras",
+                                              "name":  "Invisibility to Cameras",
+                                              "notes":  "3rd-level tech power; up to four creatures become undetectable to electronic sensors and cameras. Concentration up to 1 minute. Costs 4 tech points.",
+                                              "kind":  "reference"
+                                          },
+                                          {
+                                              "id":  "scramble-interface",
+                                              "name":  "Scramble Interface",
+                                              "notes":  "3rd-level tech power prepared for Separatist droids and systems. Use Tech save DC 17 while harness-focused. Costs 4 tech points.",
+                                              "kind":  "reference"
+                                          }
+                                      ],
+                      "notes":  "Bith Gadgeteer Engineer built for a level 5 Clone Wars Republic mission. Species traits: speed 30, Detail Oriented, Keen Hearing and Smell, Musician, Programmer. Languages: Galactic Basic, Bith, binary/droid-oriented mission language by GM approval. Saving throws: Constitution and Intelligence. Skills: Investigation, Technology, Piloting, Lore, Medicine. Technology is marked expertise for app simplicity; if your GM wants Bith Programmer to apply only to computer-related Technology checks, set technology.expertise to false and use the Computer Slicing custom roll instead. Engineer 5 core values: 12 tech powers known, 10 base tech points, max power level 3rd, Potent Aptitude d6, 5 modification slots. Nim is using 4 harness modifications, one over proficiency bonus, so tech point max is entered as 9. Harness modifications assumed: Integrated Inhibitor, Sentry Turret, Oil Spill, Shocking Barrier. Tech powers known: Ion Blast, Mending, On/Off, Analyze, Energy Shield, Kolto Pack, Smoke Cloud, Tactical Barrier, Repair Droid, Hold Droid, Lock, Invisibility to Cameras, Scramble Interface. Combat gear: combat suit infused to +1 AC, light pistol, vibrodagger, wristpad, tinker\u0027s implements, gadgeteer\u0027s implements. Personality: precise, over-formal, nasal technical specialist who protects allies with barriers, complains politely about unsafe equipment, and treats droid warfare as an engineering hygiene problem."
+                  }
+}
