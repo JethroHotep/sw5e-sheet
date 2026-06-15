@@ -1,0 +1,175 @@
+# SW5e Sheet JSON Spec
+
+This document defines schema version `1` for hand-authored SW5e character files.
+
+The format is intentionally explicit. Derived values such as ability modifiers, skill totals, attack totals, and damage totals should be calculated by the app so the JSON stays readable.
+
+## Top Level
+
+```json
+{
+  "schemaVersion": 1,
+  "character": {}
+}
+```
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `schemaVersion` | number | yes | Must be `1` for the first implementation. |
+| `character` | object | yes | Character payload. |
+
+## Character
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `name` | string | yes | Used in the Roll20 template name. |
+| `level` | number | yes | Total character level. |
+| `class` | string | yes | Display value, such as `Scout` or `Guardian`. |
+| `background` | string | no | Display value. |
+| `proficiencyBonus` | number | yes | Stored directly for hand-authored simplicity. |
+| `abilities` | object | yes | Six SW5e ability scores. |
+| `savingThrows` | object | yes | Proficiency flags by ability. |
+| `skills` | object | yes | Skill definitions keyed by skill id. |
+| `combat` | object | yes | AC, HP, speed, and initiative. |
+| `attacks` | array | no | Weapons or attack-like actions. |
+| `resources` | array | no | Trackable expendable resources. |
+| `customRolls` | array | no | Hand-authored clickable formulas. |
+| `notes` | string | no | Freeform player notes. |
+
+## Abilities
+
+Ability keys must be:
+
+```text
+str, dex, con, int, wis, cha
+```
+
+Ability scores should be integers from `1` to `30`. The app calculates modifiers using:
+
+```text
+floor((score - 10) / 2)
+```
+
+## Saving Throws
+
+Saving throw keys match ability keys. Each value is a boolean proficiency flag.
+
+```json
+{
+  "dex": true,
+  "int": true
+}
+```
+
+Missing keys should be treated as `false` with a validation warning.
+
+## Skills
+
+Each skill entry has:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `ability` | string | yes | One of the ability keys. |
+| `proficient` | boolean | yes | Adds proficiency bonus. |
+| `expertise` | boolean | no | Adds proficiency twice when true. |
+| `bonus` | number | no | Flat modifier for items or features. Defaults to `0`. |
+
+Example:
+
+```json
+{
+  "technology": {
+    "ability": "int",
+    "proficient": true,
+    "expertise": false,
+    "bonus": 0
+  }
+}
+```
+
+## Combat
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `armorClass` | number | yes | Display only for now. |
+| `initiativeBonus` | number | no | Additional bonus beyond Dexterity modifier. Defaults to `0`. |
+| `speed` | number | yes | Walking speed. |
+| `hitPoints` | object | yes | Current/max/temp HP. |
+
+## Attacks
+
+Attack entries represent weapons, powers, or any action with attack and damage rolls.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | string | yes | Stable id for UI keys and history. |
+| `name` | string | yes | Display and Roll20 title. |
+| `attackAbility` | string | no | Ability modifier for attack roll. Omit if attack uses only `attackBonus`. |
+| `proficient` | boolean | no | Adds proficiency bonus when true. |
+| `attackBonus` | number | no | Flat bonus or penalty. Defaults to `0`. |
+| `damage` | array | no | Damage parts. |
+| `properties` | array | no | Display notes, such as `range` or `two-handed`. |
+| `notes` | string | no | Extra Roll20 note text. |
+
+Damage parts:
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `formula` | string | yes | Dice expression without ability bonus, such as `1d8` or `2d6`. |
+| `ability` | string | no | Ability modifier to add to damage. |
+| `bonus` | number | no | Flat bonus or penalty. Defaults to `0`. |
+| `type` | string | no | Damage type text. |
+
+## Custom Rolls
+
+Custom rolls are public Roll20 template rolls. The app resolves placeholders before sending.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | string | yes | Stable id. |
+| `name` | string | yes | Display and Roll20 title. |
+| `formula` | string | yes | Roll formula using supported placeholders. |
+| `notes` | string | no | Extra Roll20 note text. |
+
+Supported placeholders:
+
+| Placeholder | Meaning |
+| --- | --- |
+| `@prof` | Proficiency bonus. |
+| `@str`, `@dex`, `@con`, `@int`, `@wis`, `@cha` | Ability modifiers. |
+| `@level` | Character level. |
+
+Example:
+
+```json
+{
+  "id": "scanner-check",
+  "name": "Scanner Sweep",
+  "formula": "1d20 + @int + @prof",
+  "notes": "Technology check using scanner tools"
+}
+```
+
+## Roll Modes
+
+Roll mode is UI state, not character data.
+
+| Mode | Roll20 formula |
+| --- | --- |
+| Normal | `[[1d20 + modifier]]` |
+| Advantage | `[[2d20kh1 + modifier]]` |
+| Disadvantage | `[[2d20kl1 + modifier]]` |
+
+## Public Roll20 Output
+
+The first formatter should use the universal default template:
+
+```text
+&{template:default} {{name=Character - Roll Name}} {{roll=[[1d20 + 5]]}} {{notes=Optional note}}
+```
+
+Attacks should include attack and damage fields:
+
+```text
+&{template:default} {{name=Character - Blaster Rifle}} {{attack=[[1d20 + 6]]}} {{damage=[[1d8 + 3]] energy}} {{notes=range, two-handed}}
+```
