@@ -34,7 +34,7 @@ Opening `index.html` directly still allows manual JSON loading, but browser secu
 
 ## Character JSON
 
-See [docs/json-spec.md](docs/json-spec.md) and [examples/nim-sw5e-v5.json](examples/nim-sw5e-v5.json).
+See [docs/json-spec.md](docs/json-spec.md) and [examples/nim-sw5e-v6.json](examples/nim-sw5e-v6.json).
 
 The app header includes a `Download JSON` button for the current character and a `JSON Schema` link for [`docs/sw5e-character.schema.json`](docs/sw5e-character.schema.json).
 

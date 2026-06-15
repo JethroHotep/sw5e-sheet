@@ -8,11 +8,11 @@
     "proficiencyBonus": 3,
     "abilities": {
       "str": 8,
-      "dex": 15,
+      "dex": 16,
       "con": 14,
       "int": 20,
       "wis": 10,
-      "cha": 10
+      "cha": 9
     },
     "savingThrows": {
       "str": false,
@@ -127,7 +127,7 @@
       }
     },
     "combat": {
-      "armorClass": 16,
+      "armorClass": 17,
       "initiativeBonus": 0,
       "speed": 30,
       "hitPoints": {
@@ -277,7 +277,7 @@
       {
         "id": "armor-ac-reference",
         "name": "AC Reference: Infused Fiber Armor + Shield",
-        "notes": "AC 16 = fiber armor 12 + Dex mod 2 + Infuse Item 1 + light shield generator 1.",
+        "notes": "AC 17 = fiber armor 12 + Dex mod 3 + Infuse Item 1 + light shield generator 1.",
         "kind": "reference"
       },
       {
@@ -610,7 +610,7 @@
         "kind": "roll"
       }
     ],
-    "notes": "Bith Gadgeteer Engineer built for a level 5 Clone Wars Republic mission. Species traits: speed 30, Detail Oriented, Keen Hearing and Smell, Musician, Programmer. Languages: Galactic Basic, Bith, binary/droid-oriented mission language by GM approval. Saving throws: Constitution and Intelligence. Skills: Investigation, Technology, Piloting, Lore, Medicine. Technology is marked expertise for app simplicity; if your GM wants Bith Programmer to apply only to computer-related Technology checks, set technology.expertise to false and use the Computer Slicing custom roll instead. Engineer 5 core values: 12 tech powers known, 10 base tech points, max power level 3rd, Potent Aptitude d6, 5 modification slots. Nim is using 4 harness modifications, one over proficiency bonus, so tech point max is entered as 9. Harness modifications assumed: Integrated Inhibitor, Sentry Turret, Oil Spill, Shocking Barrier. Tech powers known: Ion Blast, Mending, On/Off, Analyze, Energy Shield, Kolto Pack, Smoke Cloud, Tactical Barrier, Repair Droid, Hold Droid, Lock, Invisibility to Cameras, Scramble Interface. Combat gear: infused fiber armor, light shield generator, light pistol, vibrodagger, wristpad, tinker's implements, slicer's kit, gadgeteer's implements, and Gadgeteer Harness. Personality: precise, over-formal, nasal technical specialist who protects allies with barriers, complains politely about unsafe equipment, and treats droid warfare as an engineering hygiene problem. Inventory update: spent 4,995 of 5,000 credits on infused fiber armor, light shield generator, security kit, pocket scrambler, holotrace device, comm jammer, repair kit, 2 medpacs, traumakit, and 12 additional power cells. Combat AC is now 16 from infused fiber armor plus light shield generator. Power cell resource is 14 total including 2 starting cells. Basic inventory update: added Engineer starting gear, Scientist background gear, Gadgeteer-specific tools, dungeoneer's pack contents, and Nim's visual/personal gear: magnifying monocular, tiny-tool bandolier, bright pink insulated gloves, Aurebesh warning tags, diagnostic probes, blank datacards, spare parts, dust wraps, and Republic contractor badge. Resource-depletion update: actions and inventory items now use depletes/depletionOptions hooks. The light pistol contains a loaded power cell tracked as an item-contained resource; spare power cells are tracked separately.",
+    "notes": "Bith Gadgeteer Engineer built for a level 5 Clone Wars Republic mission. Species traits: speed 30, Detail Oriented, Keen Hearing and Smell, Musician, Programmer. Languages: Galactic Basic, Bith, binary/droid-oriented mission language by GM approval. Saving throws: Constitution and Intelligence. Skills: Investigation, Technology, Piloting, Lore, Medicine. Technology is marked expertise for app simplicity; if your GM wants Bith Programmer to apply only to computer-related Technology checks, set technology.expertise to false and use the Computer Slicing custom roll instead. Engineer 5 core values: 12 tech powers known, 10 base tech points, max power level 3rd, Potent Aptitude d6, 5 modification slots. Nim is using 4 harness modifications, one over proficiency bonus, so tech point max is entered as 9. Harness modifications assumed: Integrated Inhibitor, Sentry Turret, Oil Spill, Shocking Barrier. Tech powers known: Ion Blast, Mending, On/Off, Analyze, Energy Shield, Kolto Pack, Smoke Cloud, Tactical Barrier, Repair Droid, Hold Droid, Lock, Invisibility to Cameras, Scramble Interface. Combat gear: infused fiber armor, light shield generator, light pistol, vibrodagger, wristpad, tinker's implements, slicer's kit, gadgeteer's implements, and Gadgeteer Harness. Personality: precise, over-formal, nasal technical specialist who protects allies with barriers, complains politely about unsafe equipment, and treats droid warfare as an engineering hygiene problem. Inventory update: spent 4,995 of 5,000 credits on infused fiber armor, light shield generator, security kit, pocket scrambler, holotrace device, comm jammer, repair kit, 2 medpacs, traumakit, and 12 additional power cells. Combat AC is now 16 from infused fiber armor plus light shield generator. Power cell resource is 14 total including 2 starting cells. Basic inventory update: added Engineer starting gear, Scientist background gear, Gadgeteer-specific tools, dungeoneer's pack contents, and Nim's visual/personal gear: magnifying monocular, tiny-tool bandolier, bright pink insulated gloves, Aurebesh warning tags, diagnostic probes, blank datacards, spare parts, dust wraps, and Republic contractor badge. Resource-depletion update: actions and inventory items now use depletes/depletionOptions hooks. The light pistol contains a loaded power cell tracked as an item-contained resource; spare power cells are tracked separately. Cybernetic update: Dexterity Enhancement (Basic) purchased for 200 cr; Dex is now 16 and Cha is now 9 due to the side effect. AC is now 17 with infused fiber armor plus light shield generator.",
     "inventory": [
       {
         "id": "fiber-armor-infused",
@@ -621,7 +621,7 @@
         "equipped": true,
         "infused": true,
         "armorClassFormula": "12 + Dex mod + 1 infusion",
-        "notes": "Light armor. Nim infuses this armor after a long rest. With Dex +2, armor gives AC 15 before shield."
+        "notes": "Light armor. Nim infuses this armor after a long rest. With Dex +3, armor gives AC 16 before shield."
       },
       {
         "id": "light-shield-generator",
@@ -630,7 +630,7 @@
         "quantity": 1,
         "cost": 125,
         "equipped": true,
-        "notes": "Adds +1 AC while active/equipped. Combined with infused fiber armor, Nim has AC 16."
+        "notes": "Adds +1 AC while active/equipped. Combined with infused fiber armor, Nim has AC 17."
       },
       {
         "id": "security-kit",
@@ -1079,13 +1079,23 @@
           }
         ],
         "notes": "Tracked as a resource so the app can decrement days."
+      },
+      {
+        "id": "dexterity-enhancement-basic",
+        "name": "Dexterity Enhancement (Basic)",
+        "category": "cybernetic augmentation",
+        "quantity": 1,
+        "cost": 200,
+        "equipped": true,
+        "source": "Purchased cybernetic augmentation",
+        "notes": "Cybernetic augmentation. Dexterity score increases by 1; side effect reduces Charisma score by 1. Applied in abilities as Dex 16 and Cha 9."
       }
     ],
     "credits": {
       "starting": 5000,
-      "spent": 4765,
-      "remaining": 235,
-      "notes": "Purchased mission gear package; fiber armor is infused after a long rest."
+      "spent": 4965,
+      "remaining": 35,
+      "notes": "Purchased mission gear package; fiber armor is infused after a long rest. Added Dexterity Enhancement (Basic) cybernetic augmentation for 200 cr."
     }
   }
 }

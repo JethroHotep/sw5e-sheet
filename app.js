@@ -72,7 +72,7 @@ const elements = {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
-  loadExample("examples/nim-sw5e-v5.json", true);
+  loadExample("examples/nim-sw5e-v6.json", true);
 });
 
 function bindEvents() {
@@ -113,7 +113,7 @@ function bindEvents() {
   });
 
   elements.downloadJsonButton.addEventListener("click", downloadCurrentJson);
-  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v5.json"));
+  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v6.json"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
   elements.sendLatestButton.addEventListener("click", () => sendCommandToBridge(state.latestCommand));
   window.addEventListener("message", handleBridgeResponse);

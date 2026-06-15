@@ -1,12 +1,13 @@
 {
   "manifest_version": 3,
   "name": "SW5e Roll20 Bridge",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Relays SW5e Sheet Roll20 chat commands from the local sheet app to an open Roll20 game tab.",
   "permissions": ["tabs"],
   "host_permissions": [
     "http://127.0.0.1:*/*",
     "http://localhost:*/*",
+    "https://jethrohotep.github.io/sw5e-sheet/*",
     "https://app.roll20.net/*"
   ],
   "background": {
@@ -14,7 +15,11 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://127.0.0.1:*/*", "http://localhost:*/*"],
+      "matches": [
+        "http://127.0.0.1:*/*",
+        "http://localhost:*/*",
+        "https://jethrohotep.github.io/sw5e-sheet/*"
+      ],
       "js": ["sheet-content.js"]
     },
     {
