@@ -47,7 +47,7 @@ const elements = {
   characterMeta: document.querySelector("#characterMeta"),
   fileInput: document.querySelector("#fileInput"),
   downloadJsonButton: document.querySelector("#downloadJsonButton"),
-  loadVelaButton: document.querySelector("#loadVelaButton"),
+  loadNimButton: document.querySelector("#loadNimButton"),
   globalModifier: document.querySelector("#globalModifier"),
   initiativeTracker: document.querySelector("#initiativeTracker"),
   autoBridge: document.querySelector("#autoBridge"),
@@ -72,7 +72,7 @@ const elements = {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
-  loadCharacterData(createBlankCharacterData(), "blank character");
+  loadExample("examples/nim-sw5e-v5.json", true);
 });
 
 function bindEvents() {
@@ -113,7 +113,7 @@ function bindEvents() {
   });
 
   elements.downloadJsonButton.addEventListener("click", downloadCurrentJson);
-  elements.loadVelaButton.addEventListener("click", () => loadExample("examples/vela-renn.json"));
+  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v5.json"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
   elements.sendLatestButton.addEventListener("click", () => sendCommandToBridge(state.latestCommand));
   window.addEventListener("message", handleBridgeResponse);
@@ -179,13 +179,18 @@ function createBlankCharacterData() {
   };
 }
 
-async function loadExample(path) {
+async function loadExample(path, fallbackToBlank = false) {
   try {
     const response = await fetch(path);
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     const data = await response.json();
     loadCharacterData(data, path);
   } catch (error) {
+    if (fallbackToBlank) {
+      loadCharacterData(createBlankCharacterData(), "blank character");
+      setStatus(`Could not load ${path}; started with a blank character.`, true);
+      return;
+    }
     setStatus(`Could not load ${path}. Use Load JSON or run through a local server.`, true);
   }
 }

@@ -4,7 +4,7 @@ A local, JavaScript-based SW5e character sheet that loads hand-authored JSON and
 
 ## Current Prototype
 
-- Starts with a blank character template by default.
+- Starts with Nim's example character by default.
 - Can load any compatible local JSON file.
 - Renders abilities, saves, skills, combat stats, resources, attacks, custom rolls, and reference actions.
 - Displays inventory grouped by category, plus credit totals when present in the JSON.
@@ -34,7 +34,7 @@ Opening `index.html` directly still allows manual JSON loading, but browser secu
 
 ## Character JSON
 
-See [docs/json-spec.md](docs/json-spec.md), [examples/vela-renn.json](examples/vela-renn.json), and [examples/nim-sw5e.json](examples/nim-sw5e.json).
+See [docs/json-spec.md](docs/json-spec.md) and [examples/nim-sw5e-v5.json](examples/nim-sw5e-v5.json).
 
 The app header includes a `Download JSON` button for the current character and a `JSON Schema` link for [`docs/sw5e-character.schema.json`](docs/sw5e-character.schema.json).
 
