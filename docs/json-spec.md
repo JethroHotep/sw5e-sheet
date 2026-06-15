@@ -162,7 +162,7 @@ Credits:
 
 ## Resource Depletion
 
-Actions, custom rolls, references, and inventory items may include `depletes` entries. When the action is clicked, the app subtracts the amount from the referenced resource and rerenders the sheet.
+Actions, custom rolls, references, and inventory items may include `depletes` entries. When the action is clicked, the app subtracts the amount from the referenced resource and rerenders the sheet. The same values can also be adjusted manually in the app; use Download JSON after play to save the updated state.
 
 Character-level resource target:
 
@@ -186,6 +186,27 @@ Inventory-contained resource target:
   },
   "amount": 1,
   "trigger": "onAttack"
+}
+```
+
+Hit point target:
+
+```json
+{
+  "target": { "scope": "hitPoints", "id": "current" },
+  "amount": 4,
+  "trigger": "onUse",
+  "notes": "Self-inflicted strain, environmental damage, or similar table-specific cost."
+}
+```
+
+Inventory quantity target:
+
+```json
+{
+  "target": { "scope": "inventoryQuantity", "id": "medpac" },
+  "amount": 1,
+  "trigger": "onUse"
 }
 ```
 

@@ -377,6 +377,40 @@ h3 {
   text-transform: uppercase;
 }
 
+.editable-stat strong {
+  margin-bottom: 7px;
+}
+
+.stepper {
+  display: grid;
+  grid-template-columns: 28px minmax(42px, 1fr) 28px;
+  gap: 4px;
+  align-items: center;
+}
+
+.stepper button {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 0;
+  color: var(--accent-strong);
+  font-size: 0.95rem;
+  font-weight: 900;
+}
+
+.stepper input {
+  min-width: 0;
+  width: 100%;
+  height: 28px;
+  padding: 2px 4px;
+  border: 1px solid rgba(126, 213, 221, 0.35);
+  border-radius: 6px;
+  background: rgba(3, 8, 12, 0.78);
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: center;
+}
+
 .ability button {
   width: 100%;
   margin-top: 8px;
@@ -499,6 +533,10 @@ h3 {
   font-weight: 800;
 }
 
+.quantity-stepper {
+  width: 94px;
+}
+
 .contained-resources {
   display: grid;
   gap: 5px;
@@ -508,6 +546,11 @@ h3 {
 .contained-resource .resource-meter {
   height: 5px;
   margin-top: 3px;
+}
+
+.contained-resource .stepper {
+  max-width: 128px;
+  margin-top: 5px;
 }
 
 .spend-line {

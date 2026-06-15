@@ -718,6 +718,15 @@
             "amount": 1,
             "trigger": "onUse",
             "notes": "Use one medpac."
+          },
+          {
+            "target": {
+              "scope": "inventoryQuantity",
+              "id": "medpac"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Remove one carried medpac."
           }
         ]
       },
@@ -738,6 +747,15 @@
             "amount": 1,
             "trigger": "onUse",
             "notes": "Use the traumakit."
+          },
+          {
+            "target": {
+              "scope": "inventoryQuantity",
+              "id": "traumakit"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Remove one carried traumakit."
           }
         ]
       },
@@ -1055,9 +1073,18 @@
             "amount": 1,
             "trigger": "onUse",
             "notes": "Activate or expend one glow rod."
+          },
+          {
+            "target": {
+              "scope": "inventoryQuantity",
+              "id": "glow-rods"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Remove one carried glow rod."
           }
         ],
-        "notes": "Tracked as a resource so the app can decrement uses."
+        "notes": "Tracked as both a resource and inventory quantity so the app can decrement uses."
       },
       {
         "id": "field-rations",
@@ -1076,9 +1103,18 @@
             "amount": 1,
             "trigger": "onUse",
             "notes": "Consume one day of rations."
+          },
+          {
+            "target": {
+              "scope": "inventoryQuantity",
+              "id": "field-rations"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Remove one carried ration."
           }
         ],
-        "notes": "Tracked as a resource so the app can decrement days."
+        "notes": "Tracked as both a resource and inventory quantity so the app can decrement days."
       }
     ],
     "credits": {

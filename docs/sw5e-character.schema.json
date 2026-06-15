@@ -536,7 +536,7 @@
     },
     "resourceRef": {
       "type": "object",
-      "description": "Reference to a character-level resource or to a contained resource inside an inventory item.",
+      "description": "Reference to a character-level resource, HP field, inventory item quantity, or a contained resource inside an inventory item.",
       "additionalProperties": false,
       "required": [
         "scope",
@@ -546,19 +546,21 @@
         "scope": {
           "enum": [
             "character",
-            "inventoryItem"
+            "inventoryItem",
+            "hitPoints",
+            "inventoryQuantity"
           ],
-          "description": "character = character.resources[].id; inventoryItem = inventory[].containedResources[].id on a specific item."
+          "description": "character = character.resources[].id; inventoryItem = inventory[].containedResources[].id on a specific item; hitPoints = combat.hitPoints current/temporary/max; inventoryQuantity = inventory[].quantity."
         },
         "id": {
           "type": "string",
           "minLength": 1,
-          "description": "Resource id. For inventoryItem scope, this is the contained resource id."
+          "description": "Resource id. For inventoryItem scope, this is the contained resource id. For hitPoints, use current, temporary, or max. For inventoryQuantity, this may be the inventory item id."
         },
         "itemId": {
           "type": "string",
           "minLength": 1,
-          "description": "Required when scope is inventoryItem; inventory item id that contains the resource."
+          "description": "Required when scope is inventoryItem; optional alias for the inventory item id when scope is inventoryQuantity."
         }
       },
       "allOf": [

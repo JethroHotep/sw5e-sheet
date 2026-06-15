@@ -10,6 +10,7 @@ This optional unpacked browser extension relays chat commands from the local SW5
 4. Select this folder: `roll20-extension`.
 5. Open or reload your Roll20 game tab.
 6. Open the local sheet at `http://127.0.0.1:8765/index.html`.
+7. After changing files in this folder, click `Reload` on the extension card and reload both the sheet and Roll20 tabs.
 
 When `Auto-send to Roll20 bridge` is enabled, clicking a roll still copies the command to the clipboard and also asks the extension to post it to Roll20 chat.
 

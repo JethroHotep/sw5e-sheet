@@ -37,6 +37,7 @@ const state = {
   rollMode: "both",
   chatTarget: "roll20",
   bridgePending: new Set(),
+  bridgeDetected: false,
   latestCommand: "",
   history: []
 };
@@ -116,6 +117,8 @@ function bindEvents() {
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
   elements.sendLatestButton.addEventListener("click", () => sendCommandToBridge(state.latestCommand));
   window.addEventListener("message", handleBridgeResponse);
+  pingBridge();
+  window.setInterval(pingBridge, 5000);
 }
 
 function createBlankCharacterData() {
@@ -309,15 +312,23 @@ function renderSheet() {
 function renderCombatStats(character) {
   const hp = character.combat?.hitPoints || {};
   const stats = [
-    ["AC", character.combat?.armorClass ?? "-"],
-    ["HP", `${hp.current ?? "-"} / ${hp.max ?? "-"}`],
-    ["Temp", hp.temporary ?? 0],
-    ["Speed", `${character.combat?.speed ?? "-"} ft`],
-    ["Prof", formatModifier(character.proficiencyBonus)],
-    ["Init", formatModifier(getInitiativeModifier(character))]
+    makeStat("AC", character.combat?.armorClass ?? "-"),
+    makeNumberStat("HP", hp.current ?? 0, (value) => {
+      hp.current = clampNumber(value, 0, Number(hp.max) || Infinity);
+      renderSheet();
+      setStatus(`HP set to ${hp.current}.`);
+    }, { maxLabel: hp.max ?? "-", step: 1, min: 0, max: Number(hp.max) || Infinity }),
+    makeNumberStat("Temp", hp.temporary ?? 0, (value) => {
+      hp.temporary = clampNumber(value, 0, Infinity);
+      renderSheet();
+      setStatus(`Temporary HP set to ${hp.temporary}.`);
+    }, { step: 1, min: 0 }),
+    makeStat("Speed", `${character.combat?.speed ?? "-"} ft`),
+    makeStat("Prof", formatModifier(character.proficiencyBonus)),
+    makeStat("Init", formatModifier(getInitiativeModifier(character)))
   ];
 
-  elements.combatStats.replaceChildren(...stats.map(([label, value]) => makeStat(label, value)));
+  elements.combatStats.replaceChildren(...stats);
   const initiative = getInitiativeModifier(character);
   const detail = elements.initiativeTracker.checked ? `${formatModifier(initiative)} - tracker` : formatModifier(initiative);
   const initiativeRow = makeInitiativeAction(detail, () => handleInitiativeRoll(initiative));
@@ -355,6 +366,11 @@ function renderResources(character) {
       <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
       ${resource.notes ? `<p class="small">${escapeHtml(resource.notes)}</p>` : ""}
     `;
+    wrapper.append(makeStepper(current, (value) => {
+      resource.current = clampNumber(value, 0, max || Infinity);
+      renderSheet();
+      setStatus(`${resource.name} set to ${resource.current}.`);
+    }, { min: 0, max: max || Infinity, label: resource.name }));
     return wrapper;
   });
 
@@ -416,7 +432,7 @@ function renderInventory(character) {
       row.innerHTML = `
         <div>
           <strong>${escapeHtml(item.name)}</strong>
-          <div class="small">${inventoryMeta(item)}</div>
+          <div class="small">${inventoryMeta(item, false)}</div>
           ${depletionSummary(item) ? `<p class="small spend-line">${escapeHtml(depletionSummary(item))}</p>` : ""}
           ${containedResourcesHtml(item)}
           ${item.notes ? `<p class="small">${escapeHtml(item.notes)}</p>` : ""}
@@ -431,6 +447,14 @@ function renderInventory(character) {
       if (useButton) {
         useButton.addEventListener("click", () => applyEntityDepletion(item, item.name));
       }
+      bindContainedResourceControls(row, item);
+      const quantityControl = makeStepper(item.quantity ?? 1, (value) => {
+        item.quantity = clampNumber(value, 0, Infinity);
+        renderSheet();
+        setStatus(`${item.name} quantity set to ${item.quantity}.`);
+      }, { min: 0, label: `${item.name} quantity` });
+      quantityControl.classList.add("quantity-stepper");
+      row.querySelector(".inventory-side").prepend(quantityControl);
       const optionActions = depletionOptionActions(item);
       if (optionActions.length) {
         const secondary = document.createElement("div");
@@ -569,6 +593,55 @@ function makeStat(label, value) {
   node.className = "stat";
   node.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong>`;
   return node;
+}
+
+function makeNumberStat(label, value, onChange, options = {}) {
+  const node = document.createElement("div");
+  node.className = "stat editable-stat";
+  node.innerHTML = `
+    <span>${escapeHtml(label)}</span>
+    <strong>${escapeHtml(String(value))}${options.maxLabel !== undefined ? ` / ${escapeHtml(String(options.maxLabel))}` : ""}</strong>
+  `;
+  node.append(makeStepper(value, onChange, { ...options, label }));
+  return node;
+}
+
+function makeStepper(value, onChange, options = {}) {
+  const min = options.min ?? 0;
+  const max = options.max ?? Infinity;
+  const step = options.step ?? 1;
+  const label = options.label || "value";
+  const wrapper = document.createElement("div");
+  wrapper.className = "stepper";
+
+  const minus = document.createElement("button");
+  minus.type = "button";
+  minus.textContent = "-";
+  minus.title = `Decrease ${label}`;
+  minus.setAttribute("aria-label", `Decrease ${label}`);
+
+  const input = document.createElement("input");
+  input.type = "number";
+  input.inputMode = "numeric";
+  input.step = String(step);
+  input.min = Number.isFinite(min) ? String(min) : "";
+  input.max = Number.isFinite(max) ? String(max) : "";
+  input.value = String(value);
+  input.setAttribute("aria-label", label);
+
+  const plus = document.createElement("button");
+  plus.type = "button";
+  plus.textContent = "+";
+  plus.title = `Increase ${label}`;
+  plus.setAttribute("aria-label", `Increase ${label}`);
+
+  const commit = (nextValue) => onChange(clampNumber(nextValue, min, max));
+  minus.addEventListener("click", () => commit((Number(input.value) || 0) - step));
+  plus.addEventListener("click", () => commit((Number(input.value) || 0) + step));
+  input.addEventListener("change", () => commit(Number(input.value)));
+
+  wrapper.append(minus, input, plus);
+  return wrapper;
 }
 
 function makeRollRow(title, detail, onClick, flags = []) {
@@ -810,14 +883,28 @@ function sendCommandToBridge(command) {
   window.setTimeout(() => {
     if (!state.bridgePending.has(id)) return;
     state.bridgePending.delete(id);
-    setStatus("Copied. Roll20 bridge not detected; paste manually or install the extension.", true);
-  }, 900);
+    const detail = state.bridgeDetected
+      ? "Copied. Roll20 bridge is installed but did not answer; reload the Roll20 tab and the sheet tab."
+      : "Copied. Roll20 bridge not detected on this sheet page; reload the extension, then reload this page.";
+    setStatus(detail, true);
+  }, 2500);
+}
+
+function pingBridge() {
+  window.postMessage({
+    source: "sw5e-sheet",
+    type: "ROLL20_BRIDGE_PING"
+  }, window.location.origin);
 }
 
 function handleBridgeResponse(event) {
   if (event.source !== window) return;
   const message = event.data;
   if (!message || message.source !== "sw5e-roll20-bridge") return;
+  if (message.type === "ROLL20_BRIDGE_PONG") {
+    state.bridgeDetected = true;
+    return;
+  }
   if (message.id) state.bridgePending.delete(message.id);
 
   if (message.ok) {
@@ -880,9 +967,9 @@ function describeDepletion(depletion) {
   const resolved = resolveDepletionTarget(depletion.target);
   const amount = Number(depletion.amount) || 0;
   if (!resolved) return `${amount} unknown resource`;
-  const unit = resolved.resource.unit ? ` ${resolved.resource.unit}` : "";
+  const unit = resolved.unit ? ` ${resolved.unit}` : "";
   const itemLabel = resolved.item ? ` (${resolved.item.name})` : "";
-  return `${amount} ${resolved.resource.name}${unit}${itemLabel}`;
+  return `${amount} ${resolved.name}${unit}${itemLabel}`;
 }
 
 function applyEntityDepletion(entity, label) {
@@ -905,10 +992,10 @@ function applyDepletions(depletions, label) {
       return;
     }
 
-    const before = Number(resolved.resource.current) || 0;
-    resolved.resource.current = Math.max(0, before - amount);
+    const before = resolved.getCurrent();
+    resolved.setCurrent(Math.max(0, before - amount));
     const itemLabel = resolved.item ? ` (${resolved.item.name})` : "";
-    applied.push(`${resolved.resource.name}${itemLabel} -${Math.min(before, amount)}`);
+    applied.push(`${resolved.name}${itemLabel} -${Math.min(before, amount)}`);
   });
 
   if (state.character) renderSheet();
@@ -926,13 +1013,55 @@ function resolveDepletionTarget(target) {
 
   if (target.scope === "character") {
     const resource = (state.character.resources || []).find((item) => item.id === target.id);
-    return resource ? { resource } : null;
+    return resource ? {
+      name: resource.name,
+      unit: resource.unit,
+      getCurrent: () => Number(resource.current) || 0,
+      setCurrent: (value) => {
+        resource.current = clampNumber(value, 0, Number(resource.max) || Infinity);
+      }
+    } : null;
   }
 
   if (target.scope === "inventoryItem") {
     const item = (state.character.inventory || []).find((inventoryItem) => inventoryItem.id === target.itemId);
     const resource = item?.containedResources?.find((contained) => contained.id === target.id);
-    return resource ? { resource, item } : null;
+    return resource ? {
+      name: resource.name,
+      unit: resource.unit,
+      item,
+      getCurrent: () => Number(resource.current) || 0,
+      setCurrent: (value) => {
+        resource.current = clampNumber(value, 0, Number(resource.max) || Infinity);
+      }
+    } : null;
+  }
+
+  if (target.scope === "hitPoints") {
+    const hp = state.character.combat?.hitPoints;
+    const field = target.id || target.field || "current";
+    if (!hp || !["current", "temporary", "max"].includes(field)) return null;
+    return {
+      name: field === "temporary" ? "Temporary HP" : field === "max" ? "Max HP" : "HP",
+      unit: "hp",
+      getCurrent: () => Number(hp[field]) || 0,
+      setCurrent: (value) => {
+        hp[field] = clampNumber(value, 0, field === "current" ? Number(hp.max) || Infinity : Infinity);
+      }
+    };
+  }
+
+  if (["inventoryQuantity", "inventoryItemQuantity", "inventoryItemCount"].includes(target.scope)) {
+    const item = (state.character.inventory || []).find((inventoryItem) => inventoryItem.id === (target.itemId || target.id));
+    return item ? {
+      name: "Quantity",
+      unit: "item",
+      item,
+      getCurrent: () => Number(item.quantity ?? 1) || 0,
+      setCurrent: (value) => {
+        item.quantity = clampNumber(value, 0, Infinity);
+      }
+    } : null;
   }
 
   return null;
@@ -947,12 +1076,25 @@ function containedResourcesHtml(item) {
     const max = Number(resource.max) || 0;
     const percentage = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
     return `
-      <div class="contained-resource">
+      <div class="contained-resource" data-contained-resource="${escapeHtml(resource.id)}">
         <div class="small">${escapeHtml(resource.name)}: ${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
         <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
       </div>
     `;
   }).join("")}</div>`;
+}
+
+function bindContainedResourceControls(row, item) {
+  (item.containedResources || []).forEach((resource) => {
+    const container = row.querySelector(`[data-contained-resource="${cssEscape(resource.id)}"]`);
+    if (!container) return;
+    const max = Number(resource.max) || 0;
+    container.append(makeStepper(Number(resource.current) || 0, (value) => {
+      resource.current = clampNumber(value, 0, max || Infinity);
+      renderSheet();
+      setStatus(`${item.name} ${resource.name} set to ${resource.current}.`);
+    }, { min: 0, max: max || Infinity, label: `${item.name} ${resource.name}` }));
+  });
 }
 
 function customEntryKind(entry) {
@@ -1112,9 +1254,9 @@ function labelFromSlug(value) {
   return titleCase(String(value).replace(/[-_]+/g, " "));
 }
 
-function inventoryMeta(item) {
+function inventoryMeta(item, includeQuantity = true) {
   return [
-    `Qty ${item.quantity ?? 1}`,
+    includeQuantity ? `Qty ${item.quantity ?? 1}` : "",
     item.cost !== undefined ? `${item.cost} cr` : "",
     item.equipped ? "equipped" : "",
     item.infused ? "infused" : ""
@@ -1151,8 +1293,18 @@ function slugify(value) {
   return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "sw5e-character";
 }
 
+function clampNumber(value, min, max) {
+  const number = Number.isFinite(value) ? Math.round(value) : min;
+  return Math.max(min, Math.min(max, number));
+}
+
+function cssEscape(value) {
+  if (window.CSS?.escape) return CSS.escape(String(value));
+  return String(value).replace(/["\\]/g, "\\$&");
+}
+
 function escapeHtml(value) {
-  return value
+  return String(value)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
