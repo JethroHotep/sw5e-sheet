@@ -4,6 +4,8 @@ This document defines schema version `1` for hand-authored SW5e character files.
 
 The format is intentionally explicit. Derived values such as ability modifiers, skill totals, attack totals, and damage totals should be calculated by the app so the JSON stays readable.
 
+A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](sw5e-character.schema.json).
+
 ## Top Level
 
 ```json
@@ -176,9 +178,9 @@ D20 roll mode is UI state, not character data. The app should offer normal, adva
 | Disadvantage | Emit one `[[2d20kl1 + modifier]]` field. |
 | Both | Emit two independent `[[1d20 + modifier]]` fields. Use the first for normal, higher for advantage, lower for disadvantage. |
 
-## Public Roll20 Output
+## Public VTT Output
 
-The first formatter should use the universal default template:
+Roll20 output should use the universal default template:
 
 ```text
 &{template:default} {{name=Character - Roll Name}} {{roll 1=[[1d20 + 5]]}} {{roll 2=[[1d20 + 5]]}} {{notes=Optional note}}
@@ -197,3 +199,13 @@ Attacks should include attack and damage fields:
 ```
 
 For attacks, prefer native-sheet-like field order: item name, character/modifier, attack roll, details/properties, damage type rows, notes.
+
+Foundry output should use plain chat text with inline rolls:
+
+```text
+**Blaster Rifle**
+**Character:** Character (+6)
+**Attack:** [[/r 1d20 + 6]]   [[/r 1d20 + 6]]
+**Details:** range, two-handed
+**Energy:** [[/r 1d8 + 3]]
+```

@@ -2,9 +2,9 @@
 
 ## Goal
 
-Build a local JavaScript web app that loads an SW5e character from JSON, displays a usable character sheet, lets the player click attacks/checks/saves/features, and sends Roll20-compatible chat commands to an open Roll20 game.
+Build a local JavaScript web app that loads an SW5e character from JSON, displays a usable character sheet, lets the player click attacks/checks/saves/features, and sends VTT-compatible chat commands to an open game.
 
-The app should be useful at the table before it is beautiful: fast load, readable stats, obvious roll targets, and reliable Roll20 output.
+The app should be useful at the table before it is beautiful: fast load, readable stats, obvious roll targets, and reliable VTT output.
 
 ## Main User Flow
 
@@ -12,9 +12,9 @@ The app should be useful at the table before it is beautiful: fast load, readabl
 2. Player loads a character JSON file.
 3. App validates the JSON and renders the character sheet.
 4. Player clicks a weapon, skill, saving throw, force/tech power, feature, or custom roll.
-5. App builds a Roll20 chat command using the character data and current toggles.
-6. App sends the Roll20 formula to the Roll20 game chat.
-7. Roll20 evaluates the dice and posts the result to the session chat.
+5. App builds a Roll20 or Foundry chat command using the character data and current toggles.
+6. App copies or sends the VTT command to game chat.
+7. The VTT evaluates the dice and posts the result to the session chat.
 
 ## Roll20 Integration Strategy
 
@@ -41,6 +41,10 @@ Directly sending text into "another browser page" has browser security constrain
    Useful only if the game has access to Roll20 Mods and the GM installs a script. It can listen to Roll20 chat once messages arrive, but it does not solve cross-site browser sending by itself.
 
 Recommended path: implement manual copy first, then add a browser extension bridge once the sheet and JSON format are stable. The Roll20 game is assumed to be open in the same browser profile as the sheet app, and all rolls are public.
+
+## Foundry VTT Integration Strategy
+
+Foundry output uses pasteable chat text with inline rolls, such as `[[/r 1d20 + 5]]`. Foundry support starts as clipboard-only; the Roll20 browser bridge is disabled while Foundry is selected.
 
 ## App Architecture
 
@@ -181,6 +185,7 @@ First pass should include:
 - Custom rolls.
 - Reference actions that post public Roll20 notes without dice.
 - D20 mode selector for normal, advantage, disadvantage, or both. `Both` outputs two independent d20 results; use the first for normal, the higher for advantage, and the lower for disadvantage.
+- Chat target selector for Roll20 or Foundry VTT.
 - Global modifier input, such as bless, cover, temporary bonus, or penalty.
 - Roll output history.
 
@@ -238,7 +243,7 @@ The extension/userscript bridge should send only chat text, not scrape character
 
 ## Decisions
 
-- Roll20 performs all dice rolls. The app builds formulas and sends them.
+- The VTT performs all dice rolls. The app builds formulas and sends or copies them.
 - D20 rolls default to `Both`, but the player can choose normal, advantage, or disadvantage at the top of the sheet.
 - The UI should be a web-native play dashboard, not a recreation of the fillable PDF.
 - JSON is hand-authored for now.

@@ -35,6 +35,7 @@ const state = {
   character: null,
   warnings: [],
   rollMode: "both",
+  chatTarget: "roll20",
   bridgePending: new Set(),
   latestCommand: "",
   history: []
@@ -44,7 +45,7 @@ const elements = {
   characterName: document.querySelector("#characterName"),
   characterMeta: document.querySelector("#characterMeta"),
   fileInput: document.querySelector("#fileInput"),
-  loadNimButton: document.querySelector("#loadNimButton"),
+  downloadJsonButton: document.querySelector("#downloadJsonButton"),
   loadVelaButton: document.querySelector("#loadVelaButton"),
   globalModifier: document.querySelector("#globalModifier"),
   initiativeTracker: document.querySelector("#initiativeTracker"),
@@ -68,7 +69,7 @@ const elements = {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
-  loadExample("examples/nim-sw5e.json");
+  loadCharacterData(createBlankCharacterData(), "blank character");
 });
 
 function bindEvents() {
@@ -79,6 +80,18 @@ function bindEvents() {
         item.classList.toggle("active", item === button);
       });
       setStatus(`D20 mode set to ${button.textContent}.`);
+    });
+  });
+
+  document.querySelectorAll("[data-chat-target]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.chatTarget = button.dataset.chatTarget;
+      document.querySelectorAll("[data-chat-target]").forEach((item) => {
+        item.classList.toggle("active", item === button);
+      });
+      elements.autoBridge.disabled = state.chatTarget !== "roll20";
+      if (state.chatTarget !== "roll20") elements.autoBridge.checked = false;
+      setStatus(`Chat target set to ${button.textContent}.`);
     });
   });
 
@@ -96,11 +109,62 @@ function bindEvents() {
     }
   });
 
-  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e.json"));
+  elements.downloadJsonButton.addEventListener("click", downloadCurrentJson);
   elements.loadVelaButton.addEventListener("click", () => loadExample("examples/vela-renn.json"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
   elements.sendLatestButton.addEventListener("click", () => sendCommandToBridge(state.latestCommand));
   window.addEventListener("message", handleBridgeResponse);
+}
+
+function createBlankCharacterData() {
+  const blankSkills = Object.fromEntries(Object.entries(SKILL_LABELS).map(([id]) => [id, {
+    ability: defaultSkillAbility(id),
+    proficient: false,
+    expertise: false,
+    bonus: 0
+  }]));
+
+  return {
+    schemaVersion: 1,
+    character: {
+      name: "New Character",
+      level: 1,
+      class: "Unassigned",
+      background: "",
+      proficiencyBonus: 2,
+      abilities: {
+        str: 10,
+        dex: 10,
+        con: 10,
+        int: 10,
+        wis: 10,
+        cha: 10
+      },
+      savingThrows: {
+        str: false,
+        dex: false,
+        con: false,
+        int: false,
+        wis: false,
+        cha: false
+      },
+      skills: blankSkills,
+      combat: {
+        armorClass: 10,
+        initiativeBonus: 0,
+        speed: 30,
+        hitPoints: {
+          max: 1,
+          current: 1,
+          temporary: 0
+        }
+      },
+      attacks: [],
+      resources: [],
+      customRolls: [],
+      notes: ""
+    }
+  };
 }
 
 async function loadExample(path) {
@@ -129,6 +193,24 @@ function loadCharacterData(data, sourceName) {
   renderSheet();
   renderValidation(result.warnings, false);
   setStatus(`Loaded ${state.character.name} from ${sourceName}.`);
+}
+
+function downloadCurrentJson() {
+  const data = {
+    schemaVersion: 1,
+    character: state.character || createBlankCharacterData().character
+  };
+  const json = `${JSON.stringify(data, null, 2)}\n`;
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `${slugify(data.character.name || "sw5e-character")}.json`;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+  setStatus("Downloaded character JSON.");
 }
 
 function validateCharacterData(data) {
@@ -415,11 +497,17 @@ function makeActionItem(title, meta, notes, buttonText, onClick) {
 }
 
 function handleSimpleRoll(title, modifier, notes) {
-  const command = formatTemplate(title, {
-    character: state.character.name,
-    ...d20Fields("roll", modifier + parseGlobalModifier()),
-    detail: notes
-  });
+  const command = state.chatTarget === "foundry"
+    ? formatFoundryCard(title, [
+        ["Character", state.character.name],
+        ...foundryD20Rows("Roll", addFormulaModifier("1d20", modifier + parseGlobalModifier())),
+        ["Detail", notes]
+      ])
+    : formatTemplate(title, {
+        character: state.character.name,
+        ...d20Fields("roll", modifier + parseGlobalModifier()),
+        detail: notes
+      });
   publishCommand(title, command);
 }
 
@@ -429,16 +517,37 @@ function handleInitiativeRoll(modifier) {
   Object.keys(fields).forEach((key) => {
     fields[key] = inline(`${stripInline(fields[key])}${tracker}`);
   });
-  const command = formatTemplate("Initiative", {
-    character: state.character.name,
-    ...fields,
-    detail: elements.initiativeTracker.checked ? "initiative tracker" : "initiative"
-  });
+  const foundryFormula = `${addFormulaModifier("1d20", modifier + parseGlobalModifier())}${tracker}`;
+  const command = state.chatTarget === "foundry"
+    ? formatFoundryCard("Initiative", [
+        ["Character", state.character.name],
+        ...foundryD20Rows("Roll", foundryFormula),
+        ["Detail", elements.initiativeTracker.checked ? "initiative tracker" : "initiative"]
+      ])
+    : formatTemplate("Initiative", {
+        character: state.character.name,
+        ...fields,
+        detail: elements.initiativeTracker.checked ? "initiative tracker" : "initiative"
+      });
   publishCommand("Initiative", command);
 }
 
 function buildAttackCommand(character, attack) {
   const attackModifier = attackRollModifier(character, attack) + parseGlobalModifier();
+  if (state.chatTarget === "foundry") {
+    const rows = [
+      ["Character", `${character.name} (${formatModifier(attackModifier)})`],
+      ...foundryD20Rows("Attack", addFormulaModifier("1d20", attackModifier))
+    ];
+    const details = attackDetails(attack);
+    if (details) rows.push(["Details", details]);
+    (attack.damage || []).map((part) => damageFormula(character, part)).forEach((part, index) => {
+      rows.push([part.type ? titleCase(part.type) : `Damage ${index + 1}`, foundryInline(part.formula)]);
+    });
+    if (attack.notes) rows.push(["Notes", attack.notes]);
+    return formatFoundryCard(attack.name, rows);
+  }
+
   const fields = {
     character: `${character.name} (${formatModifier(attackModifier)})`,
     ...nativeAttackFields(attackModifier)
@@ -460,6 +569,14 @@ function buildAttackCommand(character, attack) {
 
 function buildCustomRollCommand(character, entry) {
   const resolved = addFormulaModifier(resolveFormula(character, entry.formula), parseGlobalModifier());
+  if (state.chatTarget === "foundry") {
+    return formatFoundryCard(entry.name, [
+      ["Character", character.name],
+      ...(formulaUsesD20(resolved) ? foundryD20Rows("Roll", resolved) : [["Roll", foundryInline(resolved)]]),
+      entry.notes ? ["Details", entry.notes] : null
+    ].filter(Boolean));
+  }
+
   const fields = {
     character: character.name,
     ...(formulaUsesD20(resolved) ? d20FormulaFields("roll", resolved) : { roll: inline(resolved) })
@@ -469,10 +586,15 @@ function buildCustomRollCommand(character, entry) {
 }
 
 function buildReferenceCommand(character, entry) {
-  return formatTemplate(entry.name, {
-    character: character.name,
-    details: entry.notes || "Reference"
-  });
+  return state.chatTarget === "foundry"
+    ? formatFoundryCard(entry.name, [
+        ["Character", character.name],
+        ["Details", entry.notes || "Reference"]
+      ])
+    : formatTemplate(entry.name, {
+        character: character.name,
+        details: entry.notes || "Reference"
+      });
 }
 
 function formatTemplate(title, fields) {
@@ -490,8 +612,8 @@ function publishCommand(title, command) {
   state.history.unshift({ title, command });
   state.history = state.history.slice(0, 10);
   renderOutbox();
-  copyCommand(command, "Copied Roll20 command to clipboard.");
-  if (elements.autoBridge.checked) {
+  copyCommand(command, `Copied ${chatTargetLabel()} command to clipboard.`);
+  if (state.chatTarget === "roll20" && elements.autoBridge.checked) {
     sendCommandToBridge(command);
   }
 }
@@ -602,6 +724,13 @@ function d20FormulaFields(label, formula) {
   };
 }
 
+function foundryD20Rows(label, formula) {
+  if (state.rollMode === "normal") return [[label, foundryInline(formula)]];
+  if (state.rollMode === "advantage") return [[label, foundryInline(toAdvantageFormula(formula))]];
+  if (state.rollMode === "disadvantage") return [[label, foundryInline(toDisadvantageFormula(formula))]];
+  return [[label, `${foundryInline(formula)}   ${foundryInline(duplicateFirstD20(formula))}`]];
+}
+
 function formulaUsesD20(formula) {
   return /\b1d20\b/i.test(formula);
 }
@@ -650,6 +779,19 @@ function inline(formula) {
   return `[[${formula}]]`;
 }
 
+function foundryInline(formula) {
+  return `[[/r ${formula}]]`;
+}
+
+function formatFoundryCard(title, rows) {
+  return [
+    `**${cleanFoundry(title)}**`,
+    ...rows
+      .filter((row) => row && row[1] !== undefined && row[1] !== null && row[1] !== "")
+      .map(([label, value]) => `**${cleanFoundry(label)}:** ${cleanFoundry(String(value))}`)
+  ].join("\n");
+}
+
 function formatModifier(value) {
   const number = Number(value) || 0;
   return number >= 0 ? `+${number}` : String(number);
@@ -667,6 +809,29 @@ function labelForSkill(id) {
   return SKILL_LABELS[id] || id.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase());
 }
 
+function defaultSkillAbility(id) {
+  return {
+    acrobatics: "dex",
+    animalHandling: "wis",
+    athletics: "str",
+    deception: "cha",
+    insight: "wis",
+    intimidation: "cha",
+    investigation: "int",
+    lore: "int",
+    medicine: "wis",
+    nature: "int",
+    perception: "wis",
+    performance: "cha",
+    persuasion: "cha",
+    piloting: "dex",
+    sleightOfHand: "dex",
+    stealth: "dex",
+    survival: "wis",
+    technology: "int"
+  }[id] || "int";
+}
+
 function titleCase(value) {
   return value.replace(/\w\S*/g, (word) => word[0].toUpperCase() + word.slice(1).toLowerCase());
 }
@@ -676,8 +841,20 @@ function setStatus(message, isProblem = false) {
   elements.statusMessage.style.color = isProblem ? "var(--danger)" : "var(--muted)";
 }
 
+function chatTargetLabel() {
+  return state.chatTarget === "foundry" ? "Foundry VTT" : "Roll20";
+}
+
 function cleanRoll20(value) {
   return value.replace(/[{}]/g, "");
+}
+
+function cleanFoundry(value) {
+  return value.replace(/[<>]/g, "");
+}
+
+function slugify(value) {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "sw5e-character";
 }
 
 function escapeHtml(value) {

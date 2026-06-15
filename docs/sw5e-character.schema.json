@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/JethroHotep/sw5e-sheet/docs/sw5e-character.schema.json",
+  "title": "SW5e Character Sheet",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "character"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "character": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "level",
+        "class",
+        "proficiencyBonus",
+        "abilities",
+        "savingThrows",
+        "skills",
+        "combat"
+      ],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "level": { "type": "integer", "minimum": 1, "maximum": 20 },
+        "class": { "type": "string" },
+        "background": { "type": "string" },
+        "proficiencyBonus": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "abilities": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["str", "dex", "con", "int", "wis", "cha"],
+          "properties": {
+            "str": { "$ref": "#/$defs/abilityScore" },
+            "dex": { "$ref": "#/$defs/abilityScore" },
+            "con": { "$ref": "#/$defs/abilityScore" },
+            "int": { "$ref": "#/$defs/abilityScore" },
+            "wis": { "$ref": "#/$defs/abilityScore" },
+            "cha": { "$ref": "#/$defs/abilityScore" }
+          }
+        },
+        "savingThrows": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["str", "dex", "con", "int", "wis", "cha"],
+          "properties": {
+            "str": { "type": "boolean" },
+            "dex": { "type": "boolean" },
+            "con": { "type": "boolean" },
+            "int": { "type": "boolean" },
+            "wis": { "type": "boolean" },
+            "cha": { "type": "boolean" }
+          }
+        },
+        "skills": {
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/skill" }
+        },
+        "combat": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["armorClass", "speed", "hitPoints"],
+          "properties": {
+            "armorClass": { "type": "integer", "minimum": 0 },
+            "initiativeBonus": { "type": "integer" },
+            "speed": { "type": "integer", "minimum": 0 },
+            "hitPoints": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["max", "current", "temporary"],
+              "properties": {
+                "max": { "type": "integer", "minimum": 0 },
+                "current": { "type": "integer", "minimum": 0 },
+                "temporary": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        },
+        "attacks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/attack" }
+        },
+        "resources": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/resource" }
+        },
+        "customRolls": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/customRoll" }
+        },
+        "notes": { "type": "string" }
+      }
+    }
+  },
+  "$defs": {
+    "abilityKey": {
+      "enum": ["str", "dex", "con", "int", "wis", "cha"]
+    },
+    "abilityScore": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 30
+    },
+    "skill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ability", "proficient"],
+      "properties": {
+        "ability": { "$ref": "#/$defs/abilityKey" },
+        "proficient": { "type": "boolean" },
+        "expertise": { "type": "boolean" },
+        "bonus": { "type": "integer" }
+      }
+    },
+    "attack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "attackAbility": { "$ref": "#/$defs/abilityKey" },
+        "proficient": { "type": "boolean" },
+        "attackBonus": { "type": "integer" },
+        "damage": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/damagePart" }
+        },
+        "properties": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "notes": { "type": "string" }
+      }
+    },
+    "damagePart": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["formula"],
+      "properties": {
+        "formula": { "type": "string", "minLength": 1 },
+        "ability": { "$ref": "#/$defs/abilityKey" },
+        "bonus": { "type": "integer" },
+        "type": { "type": "string" }
+      }
+    },
+    "resource": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name", "current", "max"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "current": { "type": "integer", "minimum": 0 },
+        "max": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "customRoll": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "name", "formula"],
+          "properties": {
+            "kind": { "enum": ["roll"] },
+            "id": { "type": "string", "minLength": 1 },
+            "name": { "type": "string", "minLength": 1 },
+            "formula": { "type": "string", "minLength": 1 },
+            "notes": { "type": "string" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "id", "name"],
+          "properties": {
+            "kind": { "const": "reference" },
+            "id": { "type": "string", "minLength": 1 },
+            "name": { "type": "string", "minLength": 1 },
+            "notes": { "type": "string" }
+          }
+        }
+      ]
+    }
+  }
+}

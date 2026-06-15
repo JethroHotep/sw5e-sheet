@@ -10,7 +10,7 @@
   <body>
     <header class="app-header">
       <div>
-        <p class="eyebrow">SW5e Roll20 Sheet</p>
+        <p class="eyebrow">SW5e VTT Sheet</p>
         <h1 id="characterName">Loading character...</h1>
         <p id="characterMeta" class="muted">Preparing dashboard</p>
       </div>
@@ -19,7 +19,8 @@
           Load JSON
           <input id="fileInput" type="file" accept="application/json,.json">
         </label>
-        <button id="loadNimButton" type="button">Load Nim</button>
+        <button id="downloadJsonButton" type="button">Download JSON</button>
+        <a class="schema-link" href="docs/sw5e-character.schema.json" download>JSON Schema</a>
         <button id="loadVelaButton" type="button">Load Vela</button>
       </div>
     </header>
@@ -33,6 +34,13 @@
             <button class="segment" type="button" data-roll-mode="advantage">Advantage</button>
             <button class="segment" type="button" data-roll-mode="disadvantage">Disadvantage</button>
             <button class="segment active" type="button" data-roll-mode="both">Both</button>
+          </div>
+        </div>
+        <div class="field-group chat-target-group">
+          <span class="label">Chat target</span>
+          <div class="segmented target-segmented" role="group" aria-label="Chat target">
+            <button class="segment active" type="button" data-chat-target="roll20">Roll20</button>
+            <button class="segment" type="button" data-chat-target="foundry">Foundry</button>
           </div>
         </div>
         <label class="field-group">
@@ -94,13 +102,13 @@
 
         <aside class="panel outbox-panel" aria-labelledby="outboxHeading">
           <div class="section-heading">
-            <h2 id="outboxHeading">Roll20 Outbox</h2>
+            <h2 id="outboxHeading">Chat Outbox</h2>
             <div class="outbox-actions">
               <button id="sendLatestButton" type="button">Send Latest</button>
               <button id="copyLatestButton" type="button">Copy Latest</button>
             </div>
           </div>
-          <textarea id="latestCommand" aria-label="Latest Roll20 command" readonly></textarea>
+          <textarea id="latestCommand" aria-label="Latest chat command" readonly></textarea>
           <div id="history" class="history-list"></div>
         </aside>
       </div>
