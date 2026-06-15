@@ -4,7 +4,10 @@
   "title": "SW5e Character Sheet",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "character"],
+  "required": [
+    "schemaVersion",
+    "character"
+  ],
   "properties": {
     "schemaVersion": {
       "const": 1
@@ -23,88 +26,185 @@
         "combat"
       ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "level": { "type": "integer", "minimum": 1, "maximum": 20 },
-        "class": { "type": "string" },
-        "background": { "type": "string" },
-        "proficiencyBonus": { "type": "integer", "minimum": 0, "maximum": 10 },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 20
+        },
+        "class": {
+          "type": "string"
+        },
+        "background": {
+          "type": "string"
+        },
+        "proficiencyBonus": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10
+        },
         "abilities": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["str", "dex", "con", "int", "wis", "cha"],
+          "required": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ],
           "properties": {
-            "str": { "$ref": "#/$defs/abilityScore" },
-            "dex": { "$ref": "#/$defs/abilityScore" },
-            "con": { "$ref": "#/$defs/abilityScore" },
-            "int": { "$ref": "#/$defs/abilityScore" },
-            "wis": { "$ref": "#/$defs/abilityScore" },
-            "cha": { "$ref": "#/$defs/abilityScore" }
+            "str": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "dex": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "con": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "int": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "wis": {
+              "$ref": "#/$defs/abilityScore"
+            },
+            "cha": {
+              "$ref": "#/$defs/abilityScore"
+            }
           }
         },
         "savingThrows": {
           "type": "object",
           "description": "Saving throw proficiency flags by ability. True means the character adds proficiency bonus to that saving throw.",
           "additionalProperties": false,
-          "required": ["str", "dex", "con", "int", "wis", "cha"],
+          "required": [
+            "str",
+            "dex",
+            "con",
+            "int",
+            "wis",
+            "cha"
+          ],
           "properties": {
-            "str": { "$ref": "#/$defs/proficiencyFlag" },
-            "dex": { "$ref": "#/$defs/proficiencyFlag" },
-            "con": { "$ref": "#/$defs/proficiencyFlag" },
-            "int": { "$ref": "#/$defs/proficiencyFlag" },
-            "wis": { "$ref": "#/$defs/proficiencyFlag" },
-            "cha": { "$ref": "#/$defs/proficiencyFlag" }
+            "str": {
+              "$ref": "#/$defs/proficiencyFlag"
+            },
+            "dex": {
+              "$ref": "#/$defs/proficiencyFlag"
+            },
+            "con": {
+              "$ref": "#/$defs/proficiencyFlag"
+            },
+            "int": {
+              "$ref": "#/$defs/proficiencyFlag"
+            },
+            "wis": {
+              "$ref": "#/$defs/proficiencyFlag"
+            },
+            "cha": {
+              "$ref": "#/$defs/proficiencyFlag"
+            }
           }
         },
         "skills": {
           "type": "object",
-          "additionalProperties": { "$ref": "#/$defs/skill" }
+          "additionalProperties": {
+            "$ref": "#/$defs/skill"
+          }
         },
         "combat": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["armorClass", "speed", "hitPoints"],
+          "required": [
+            "armorClass",
+            "speed",
+            "hitPoints"
+          ],
           "properties": {
-            "armorClass": { "type": "integer", "minimum": 0 },
-            "initiativeBonus": { "type": "integer" },
-            "speed": { "type": "integer", "minimum": 0 },
+            "armorClass": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "initiativeBonus": {
+              "type": "integer"
+            },
+            "speed": {
+              "type": "integer",
+              "minimum": 0
+            },
             "hitPoints": {
               "type": "object",
               "additionalProperties": false,
-              "required": ["max", "current", "temporary"],
+              "required": [
+                "max",
+                "current",
+                "temporary"
+              ],
               "properties": {
-                "max": { "type": "integer", "minimum": 0 },
-                "current": { "type": "integer", "minimum": 0 },
-                "temporary": { "type": "integer", "minimum": 0 }
+                "max": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "current": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "temporary": {
+                  "type": "integer",
+                  "minimum": 0
+                }
               }
             }
           }
         },
         "attacks": {
           "type": "array",
-          "items": { "$ref": "#/$defs/attack" }
+          "items": {
+            "$ref": "#/$defs/attack"
+          }
         },
         "resources": {
           "type": "array",
-          "items": { "$ref": "#/$defs/resource" }
+          "items": {
+            "$ref": "#/$defs/resource"
+          }
         },
         "inventory": {
           "type": "array",
-          "items": { "$ref": "#/$defs/inventoryItem" }
+          "items": {
+            "$ref": "#/$defs/inventoryItem"
+          }
         },
         "credits": {
           "$ref": "#/$defs/credits"
         },
         "customRolls": {
           "type": "array",
-          "items": { "$ref": "#/$defs/customRoll" }
+          "items": {
+            "$ref": "#/$defs/customRoll"
+          }
         },
-        "notes": { "type": "string" }
+        "notes": {
+          "type": "string"
+        }
       }
     }
   },
   "$defs": {
     "abilityKey": {
-      "enum": ["str", "dex", "con", "int", "wis", "cha"]
+      "enum": [
+        "str",
+        "dex",
+        "con",
+        "int",
+        "wis",
+        "cha"
+      ]
     },
     "abilityScore": {
       "type": "integer",
@@ -118,9 +218,14 @@
     "skill": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["ability", "proficient"],
+      "required": [
+        "ability",
+        "proficient"
+      ],
       "properties": {
-        "ability": { "$ref": "#/$defs/abilityKey" },
+        "ability": {
+          "$ref": "#/$defs/abilityKey"
+        },
         "proficient": {
           "type": "boolean",
           "description": "True when the character adds proficiency bonus to this skill. Displays a PROF flag unless expertise is true."
@@ -129,76 +234,218 @@
           "type": "boolean",
           "description": "True when the character adds proficiency bonus twice to this skill. Displays an EXP flag."
         },
-        "bonus": { "type": "integer" }
+        "bonus": {
+          "type": "integer"
+        }
       }
     },
     "attack": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "name"],
+      "required": [
+        "id",
+        "name"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "name": { "type": "string", "minLength": 1 },
-        "attackAbility": { "$ref": "#/$defs/abilityKey" },
-        "proficient": { "type": "boolean" },
-        "attackBonus": { "type": "integer" },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "attackAbility": {
+          "$ref": "#/$defs/abilityKey"
+        },
+        "proficient": {
+          "type": "boolean"
+        },
+        "attackBonus": {
+          "type": "integer"
+        },
         "damage": {
           "type": "array",
-          "items": { "$ref": "#/$defs/damagePart" }
+          "items": {
+            "$ref": "#/$defs/damagePart"
+          }
         },
         "properties": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
-        "notes": { "type": "string" }
+        "notes": {
+          "type": "string"
+        },
+        "depletes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/depletion"
+          }
+        },
+        "depletionOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/depletionOption"
+          }
+        }
       }
     },
     "damagePart": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["formula"],
+      "required": [
+        "formula"
+      ],
       "properties": {
-        "formula": { "type": "string", "minLength": 1 },
-        "ability": { "$ref": "#/$defs/abilityKey" },
-        "bonus": { "type": "integer" },
-        "type": { "type": "string" }
+        "formula": {
+          "type": "string",
+          "minLength": 1
+        },
+        "ability": {
+          "$ref": "#/$defs/abilityKey"
+        },
+        "bonus": {
+          "type": "integer"
+        },
+        "type": {
+          "type": "string"
+        }
       }
     },
     "resource": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "name", "current", "max"],
+      "required": [
+        "id",
+        "name",
+        "current",
+        "max"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "name": { "type": "string", "minLength": 1 },
-        "current": { "type": "integer", "minimum": 0 },
-        "max": { "type": "integer", "minimum": 0 }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "current": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unit": {
+          "type": "string",
+          "description": "Optional display unit, such as points, uses, cells, shots, days, or charges."
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
     "inventoryItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "name"],
+      "required": [
+        "id",
+        "name"
+      ],
       "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "name": { "type": "string", "minLength": 1 },
-        "category": { "type": "string" },
-        "quantity": { "type": "integer", "minimum": 0 },
-        "cost": { "type": "integer", "minimum": 0 },
-        "equipped": { "type": "boolean" },
-        "infused": { "type": "boolean" },
-        "armorClassFormula": { "type": "string" },
-        "notes": { "type": "string" }
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "category": {
+          "type": "string"
+        },
+        "quantity": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "cost": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "equipped": {
+          "type": "boolean"
+        },
+        "infused": {
+          "type": "boolean"
+        },
+        "armorClassFormula": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        },
+        "depletes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/depletion"
+          }
+        },
+        "depletionOptions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/depletionOption"
+          }
+        },
+        "source": {
+          "type": "string"
+        },
+        "contents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "attuned": {
+          "type": "boolean"
+        },
+        "modifications": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "containedResources": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/containedResource"
+          }
+        }
       }
     },
     "credits": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "starting": { "type": "integer", "minimum": 0 },
-        "spent": { "type": "integer", "minimum": 0 },
-        "remaining": { "type": "integer", "minimum": 0 },
-        "notes": { "type": "string" }
+        "starting": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "spent": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "remaining": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "notes": {
+          "type": "string"
+        }
       }
     },
     "customRoll": {
@@ -206,33 +453,245 @@
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["id", "name", "formula"],
+          "required": [
+            "id",
+            "name",
+            "formula"
+          ],
           "properties": {
             "kind": {
-              "enum": ["roll"],
+              "enum": [
+                "roll"
+              ],
               "description": "Roll entries produce dice output. If omitted and formula is not 0, the app treats the entry as a roll."
             },
-            "id": { "type": "string", "minLength": 1 },
-            "name": { "type": "string", "minLength": 1 },
-            "formula": { "type": "string", "minLength": 1 },
-            "notes": { "type": "string" }
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "formula": {
+              "type": "string",
+              "minLength": 1
+            },
+            "notes": {
+              "type": "string"
+            },
+            "depletes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/depletion"
+              }
+            },
+            "depletionOptions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/depletionOption"
+              }
+            }
           }
         },
         {
           "type": "object",
           "additionalProperties": false,
-          "required": ["kind", "id", "name"],
+          "required": [
+            "kind",
+            "id",
+            "name"
+          ],
           "properties": {
             "kind": {
               "const": "reference",
               "description": "Reference entries post notes without dice. Legacy entries with formula 0 are also treated as references by the app."
             },
-            "id": { "type": "string", "minLength": 1 },
-            "name": { "type": "string", "minLength": 1 },
-            "notes": { "type": "string" }
+            "id": {
+              "type": "string",
+              "minLength": 1
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "notes": {
+              "type": "string"
+            },
+            "depletes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/depletion"
+              }
+            },
+            "depletionOptions": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/depletionOption"
+              }
+            }
           }
         }
       ]
+    },
+    "resourceRef": {
+      "type": "object",
+      "description": "Reference to a character-level resource or to a contained resource inside an inventory item.",
+      "additionalProperties": false,
+      "required": [
+        "scope",
+        "id"
+      ],
+      "properties": {
+        "scope": {
+          "enum": [
+            "character",
+            "inventoryItem"
+          ],
+          "description": "character = character.resources[].id; inventoryItem = inventory[].containedResources[].id on a specific item."
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Resource id. For inventoryItem scope, this is the contained resource id."
+        },
+        "itemId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required when scope is inventoryItem; inventory item id that contains the resource."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "scope": {
+                "const": "inventoryItem"
+              }
+            },
+            "required": [
+              "scope"
+            ]
+          },
+          "then": {
+            "required": [
+              "itemId"
+            ]
+          }
+        }
+      ]
+    },
+    "depletion": {
+      "type": "object",
+      "description": "A resource cost/spend/depletion caused by using a feature, item, attack, or custom action.",
+      "additionalProperties": false,
+      "required": [
+        "target",
+        "amount"
+      ],
+      "properties": {
+        "target": {
+          "$ref": "#/$defs/resourceRef"
+        },
+        "amount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "trigger": {
+          "enum": [
+            "onUse",
+            "onAttack",
+            "onDamageRoll",
+            "onCast",
+            "onActivation",
+            "onEquip",
+            "manual"
+          ],
+          "description": "When the app should offer or apply the depletion."
+        },
+        "prompt": {
+          "type": "boolean",
+          "description": "If true, the app should ask before subtracting the resource."
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "depletionOption": {
+      "type": "object",
+      "description": "Alternative resource payment option, such as a free feat use OR spending tech points.",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "depletes"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "depletes": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/depletion"
+          }
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "containedResource": {
+      "type": "object",
+      "description": "A resource contained by an inventory item, such as a loaded power cell, battery charge, or item-specific uses.",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name",
+        "current",
+        "max"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "type": "string",
+          "description": "Display/type tag such as power-cell, battery, charge, cartridge, dose, or use."
+        },
+        "unit": {
+          "type": "string",
+          "description": "Display unit, such as cells, charges, shots, doses, minutes, or uses."
+        },
+        "current": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "max": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "rechargeFromResourceId": {
+          "type": "string",
+          "description": "Optional character.resources[].id used to refill/reload this contained resource."
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
     }
-  }
+  },
+  "description": "SW5e character JSON schema with explicit resource depletion hooks for actions, features, inventory items, and item-contained resources such as loaded power cells."
 }

@@ -145,6 +145,9 @@ Inventory entries represent carried or owned gear.
 | `infused` | boolean | no | Displays an `INFUSE` flag when true. |
 | `armorClassFormula` | string | no | Display-only AC explanation. |
 | `notes` | string | no | Freeform item notes. |
+| `containedResources` | array | no | Item-contained resources, such as a loaded power cell. |
+| `depletes` | array | no | Resource costs this item spends when used. |
+| `depletionOptions` | array | no | Alternative resource payment choices. |
 
 Credits:
 
@@ -156,6 +159,37 @@ Credits:
   "notes": "Purchased mission gear package."
 }
 ```
+
+## Resource Depletion
+
+Actions, custom rolls, references, and inventory items may include `depletes` entries. When the action is clicked, the app subtracts the amount from the referenced resource and rerenders the sheet.
+
+Character-level resource target:
+
+```json
+{
+  "target": { "scope": "character", "id": "tech-points" },
+  "amount": 2,
+  "trigger": "onCast",
+  "notes": "Cast Energy Shield."
+}
+```
+
+Inventory-contained resource target:
+
+```json
+{
+  "target": {
+    "scope": "inventoryItem",
+    "itemId": "light-pistol",
+    "id": "loaded-power-cell"
+  },
+  "amount": 1,
+  "trigger": "onAttack"
+}
+```
+
+Use `depletionOptions` when an action can spend one of several resources, such as a free use or tech points.
 
 ## Custom Rolls And References
 

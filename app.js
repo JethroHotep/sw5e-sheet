@@ -351,8 +351,9 @@ function renderResources(character) {
     wrapper.className = "resource";
     wrapper.innerHTML = `
       <strong>${escapeHtml(resource.name)}</strong>
-      <div class="small">${current} / ${max}</div>
+      <div class="small">${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
       <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
+      ${resource.notes ? `<p class="small">${escapeHtml(resource.notes)}</p>` : ""}
     `;
     return wrapper;
   });
@@ -416,11 +417,33 @@ function renderInventory(character) {
         <div>
           <strong>${escapeHtml(item.name)}</strong>
           <div class="small">${inventoryMeta(item)}</div>
+          ${depletionSummary(item) ? `<p class="small spend-line">${escapeHtml(depletionSummary(item))}</p>` : ""}
+          ${containedResourcesHtml(item)}
           ${item.notes ? `<p class="small">${escapeHtml(item.notes)}</p>` : ""}
           ${item.armorClassFormula ? `<p class="small">AC: ${escapeHtml(item.armorClassFormula)}</p>` : ""}
         </div>
-        <div class="inventory-flags">${flags.map((flag) => `<span>${flag}</span>`).join("")}</div>
+        <div class="inventory-side">
+          <div class="inventory-flags">${flags.map((flag) => `<span>${flag}</span>`).join("")}</div>
+          ${depletionsFor(item).length ? `<button type="button" data-use-item="${escapeHtml(item.id)}">Use</button>` : ""}
+        </div>
       `;
+      const useButton = row.querySelector("[data-use-item]");
+      if (useButton) {
+        useButton.addEventListener("click", () => applyEntityDepletion(item, item.name));
+      }
+      const optionActions = depletionOptionActions(item);
+      if (optionActions.length) {
+        const secondary = document.createElement("div");
+        secondary.className = "secondary-actions inventory-options";
+        optionActions.forEach((action) => {
+          const optionButton = document.createElement("button");
+          optionButton.type = "button";
+          optionButton.textContent = action.label;
+          optionButton.addEventListener("click", action.onClick);
+          secondary.append(optionButton);
+        });
+        row.append(secondary);
+      }
       group.append(row);
     });
 
@@ -467,11 +490,13 @@ function renderAttacks(character) {
       damageParts.length ? `Damage ${damageParts.map((part) => part.display).join(", ")}` : "",
       (attack.properties || []).join(", ")
     ].filter(Boolean).join(" - ");
+    const fullMeta = [meta, depletionSummary(attack)].filter(Boolean).join(" - ");
 
-    return makeActionItem(attack.name, meta, attack.notes, "Roll", () => {
+    return makeActionItem(attack.name, fullMeta, attack.notes, "Roll", () => {
       const command = buildAttackCommand(character, attack);
       publishCommand(`${attack.name}`, command);
-    });
+      applyEntityDepletion(attack, attack.name);
+    }, depletionOptionActions(attack));
   });
 
   elements.attacks.replaceChildren(...nodes);
@@ -481,17 +506,19 @@ function renderCustomRolls(character) {
   const entries = character.customRolls || [];
   const rollNodes = entries
     .filter((entry) => customEntryKind(entry) === "roll")
-    .map((entry) => makeActionItem(entry.name, resolveFormula(character, entry.formula), entry.notes, "Roll", () => {
+    .map((entry) => makeActionItem(entry.name, [resolveFormula(character, entry.formula), depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Roll", () => {
       const command = buildCustomRollCommand(character, entry);
       publishCommand(entry.name, command);
-    }));
+      applyEntityDepletion(entry, entry.name);
+    }, depletionOptionActions(entry)));
 
   const referenceNodes = entries
     .filter((entry) => customEntryKind(entry) === "reference")
-    .map((entry) => makeActionItem(entry.name, "Reference", entry.notes, "Post", () => {
+    .map((entry) => makeActionItem(entry.name, ["Reference", depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Post", () => {
       const command = buildReferenceCommand(character, entry);
       publishCommand(entry.name, command);
-    }));
+      applyEntityDepletion(entry, entry.name);
+    }, depletionOptionActions(entry)));
 
   elements.customRolls.replaceChildren(...rollNodes);
   elements.references.replaceChildren(...referenceNodes);
@@ -580,7 +607,7 @@ function makeInitiativeAction(detail, onClick) {
   return wrapper;
 }
 
-function makeActionItem(title, meta, notes, buttonText, onClick) {
+function makeActionItem(title, meta, notes, buttonText, onClick, secondaryActions = []) {
   const wrapper = document.createElement("div");
   wrapper.className = "action-item";
 
@@ -610,6 +637,20 @@ function makeActionItem(title, meta, notes, buttonText, onClick) {
 
   main.append(text, button);
   wrapper.append(main);
+
+  if (secondaryActions.length) {
+    const secondary = document.createElement("div");
+    secondary.className = "secondary-actions";
+    secondaryActions.forEach((action) => {
+      const optionButton = document.createElement("button");
+      optionButton.type = "button";
+      optionButton.textContent = action.label;
+      optionButton.addEventListener("click", action.onClick);
+      secondary.append(optionButton);
+    });
+    wrapper.append(secondary);
+  }
+
   return wrapper;
 }
 
@@ -813,6 +854,105 @@ function skillFlags(skill) {
   if (skill.expertise) return ["EXP"];
   if (skill.proficient) return ["PROF"];
   return [];
+}
+
+function depletionsFor(entity) {
+  return Array.isArray(entity?.depletes) ? entity.depletes : [];
+}
+
+function depletionSummary(entity) {
+  const parts = depletionsFor(entity).map(describeDepletion).filter(Boolean);
+  const options = Array.isArray(entity?.depletionOptions) ? entity.depletionOptions : [];
+  if (options.length) {
+    parts.push(`Options: ${options.map((option) => option.name).join(" / ")}`);
+  }
+  return parts.length ? `Uses ${parts.join("; ")}` : "";
+}
+
+function depletionOptionActions(entity) {
+  return (entity.depletionOptions || []).map((option) => ({
+    label: option.name,
+    onClick: () => applyDepletions(option.depletes || [], option.name)
+  }));
+}
+
+function describeDepletion(depletion) {
+  const resolved = resolveDepletionTarget(depletion.target);
+  const amount = Number(depletion.amount) || 0;
+  if (!resolved) return `${amount} unknown resource`;
+  const unit = resolved.resource.unit ? ` ${resolved.resource.unit}` : "";
+  const itemLabel = resolved.item ? ` (${resolved.item.name})` : "";
+  return `${amount} ${resolved.resource.name}${unit}${itemLabel}`;
+}
+
+function applyEntityDepletion(entity, label) {
+  applyDepletions(depletionsFor(entity), label);
+}
+
+function applyDepletions(depletions, label) {
+  if (!depletions?.length) return;
+
+  const promptRequired = depletions.some((depletion) => depletion.prompt);
+  if (promptRequired && !window.confirm(`Spend resources for ${label}?`)) return;
+
+  const applied = [];
+  const skipped = [];
+  depletions.forEach((depletion) => {
+    const resolved = resolveDepletionTarget(depletion.target);
+    const amount = Number(depletion.amount) || 0;
+    if (!resolved || amount <= 0) {
+      skipped.push("unknown resource");
+      return;
+    }
+
+    const before = Number(resolved.resource.current) || 0;
+    resolved.resource.current = Math.max(0, before - amount);
+    const itemLabel = resolved.item ? ` (${resolved.item.name})` : "";
+    applied.push(`${resolved.resource.name}${itemLabel} -${Math.min(before, amount)}`);
+  });
+
+  if (state.character) renderSheet();
+  if (applied.length) {
+    window.setTimeout(() => {
+      setStatus(`Spent for ${label}: ${applied.join(", ")}.`);
+    }, 80);
+  } else if (skipped.length) {
+    setStatus(`Could not spend resource for ${label}.`, true);
+  }
+}
+
+function resolveDepletionTarget(target) {
+  if (!target || !state.character) return null;
+
+  if (target.scope === "character") {
+    const resource = (state.character.resources || []).find((item) => item.id === target.id);
+    return resource ? { resource } : null;
+  }
+
+  if (target.scope === "inventoryItem") {
+    const item = (state.character.inventory || []).find((inventoryItem) => inventoryItem.id === target.itemId);
+    const resource = item?.containedResources?.find((contained) => contained.id === target.id);
+    return resource ? { resource, item } : null;
+  }
+
+  return null;
+}
+
+function containedResourcesHtml(item) {
+  const resources = item.containedResources || [];
+  if (!resources.length) return "";
+
+  return `<div class="contained-resources">${resources.map((resource) => {
+    const current = Number(resource.current) || 0;
+    const max = Number(resource.max) || 0;
+    const percentage = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
+    return `
+      <div class="contained-resource">
+        <div class="small">${escapeHtml(resource.name)}: ${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
+        <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
+      </div>
+    `;
+  }).join("")}</div>`;
 }
 
 function customEntryKind(entry) {

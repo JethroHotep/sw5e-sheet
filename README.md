@@ -8,6 +8,7 @@ A local, JavaScript-based SW5e character sheet that loads hand-authored JSON and
 - Can load any compatible local JSON file.
 - Renders abilities, saves, skills, combat stats, resources, attacks, custom rolls, and reference actions.
 - Displays inventory grouped by category, plus credit totals when present in the JSON.
+- Tracks resource depletion hooks on actions and inventory items, including item-contained resources like loaded power cells.
 - Flags proficient saves and skills with `PROF`, and expertise skills with `EXP`.
 - Builds Roll20 `&{template:default}` chat commands or Foundry VTT inline-roll chat text.
 - Provides Normal, Advantage, Disadvantage, and Both toggles for d20 rolls. Both emits two d20 results so normal, advantage, and disadvantage are all covered by one click.

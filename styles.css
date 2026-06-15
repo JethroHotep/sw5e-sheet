@@ -474,6 +474,7 @@ h3 {
   color: #ffffff;
 }
 
+.inventory-side,
 .inventory-flags {
   display: flex;
   flex-direction: column;
@@ -488,6 +489,53 @@ h3 {
   color: #151009;
   font-size: 0.62rem;
   font-weight: 900;
+}
+
+.inventory-side button {
+  min-height: 30px;
+  padding: 4px 8px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.contained-resources {
+  display: grid;
+  gap: 5px;
+  margin-top: 7px;
+}
+
+.contained-resource .resource-meter {
+  height: 5px;
+  margin-top: 3px;
+}
+
+.spend-line {
+  color: var(--amber);
+}
+
+.secondary-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(126, 213, 221, 0.18);
+}
+
+.secondary-actions button {
+  min-height: 30px;
+  padding: 4px 8px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.inventory-options {
+  grid-column: 1 / -1;
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
 }
 
 .two-column {
