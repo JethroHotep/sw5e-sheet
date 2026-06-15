@@ -193,5 +193,7 @@ Reference actions should omit roll fields:
 Attacks should include attack and damage fields:
 
 ```text
-&{template:default} {{name=Character - Blaster Rifle}} {{attack 1=[[1d20 + 6]]}} {{attack 2=[[1d20 + 6]]}} {{damage=[[1d8 + 3]] energy}} {{notes=range, two-handed}}
+&{template:default} {{name=Blaster Rifle}} {{character=Character (+6)}} {{attack=[[1d20 + 6]]   [[1d20 + 6]]}} {{details=range, two-handed}} {{Energy=[[1d8 + 3]]}}
 ```
+
+For attacks, prefer native-sheet-like field order: item name, character/modifier, attack roll, details/properties, damage type rows, notes.

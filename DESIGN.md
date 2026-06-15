@@ -164,8 +164,10 @@ Every clickable roll should compile to an internal roll request:
 The Roll20 formatter then converts it to chat:
 
 ```text
-&{template:default} {{name=Vela Renn - Blaster Rifle}} {{attack=[[1d20 + 3 + 3]]}} {{damage=[[1d8 + 3]] energy}} {{notes=range, two-handed}}
+&{template:default} {{name=Blaster Rifle}} {{character=Vela Renn (+6)}} {{attack=[[1d20 + 6]]   [[1d20 + 6]]}} {{details=range, two-handed}} {{Energy=[[1d8 + 3]]}}
 ```
+
+Attack output should be structured to feel close to Roll20's native sheet cards: item name as the title, character/modifier as subtitle context, attack result row first, details/properties next, then one row per damage type.
 
 ## Roll Features
 

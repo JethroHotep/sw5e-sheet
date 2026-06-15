@@ -415,9 +415,10 @@ function makeActionItem(title, meta, notes, buttonText, onClick) {
 }
 
 function handleSimpleRoll(title, modifier, notes) {
-  const command = formatTemplate(state.character.name, title, {
+  const command = formatTemplate(title, {
+    character: state.character.name,
     ...d20Fields("roll", modifier + parseGlobalModifier()),
-    notes
+    detail: notes
   });
   publishCommand(title, command);
 }
@@ -428,45 +429,54 @@ function handleInitiativeRoll(modifier) {
   Object.keys(fields).forEach((key) => {
     fields[key] = inline(`${stripInline(fields[key])}${tracker}`);
   });
-  const command = formatTemplate(state.character.name, "Initiative", {
+  const command = formatTemplate("Initiative", {
+    character: state.character.name,
     ...fields,
-    notes: elements.initiativeTracker.checked ? "initiative tracker" : "initiative"
+    detail: elements.initiativeTracker.checked ? "initiative tracker" : "initiative"
   });
   publishCommand("Initiative", command);
 }
 
 function buildAttackCommand(character, attack) {
   const attackModifier = attackRollModifier(character, attack) + parseGlobalModifier();
-  const fields = d20Fields("attack", attackModifier);
+  const fields = {
+    character: `${character.name} (${formatModifier(attackModifier)})`,
+    ...nativeAttackFields(attackModifier)
+  };
+
+  const details = attackDetails(attack);
+  if (details) fields.details = details;
 
   const damage = (attack.damage || []).map((part) => damageFormula(character, part));
-  if (damage.length) {
-    fields.damage = damage.map((part) => `${inline(part.formula)}${part.type ? ` ${part.type}` : ""}`).join(" + ");
-  }
+  damage.forEach((part, index) => {
+    const key = part.type ? titleCase(part.type) : `Damage ${index + 1}`;
+    fields[key] = inline(part.formula);
+  });
 
-  const notes = [attack.notes, (attack.properties || []).join(", ")].filter(Boolean).join(" - ");
-  if (notes) fields.notes = notes;
+  if (attack.notes) fields.notes = attack.notes;
 
-  return formatTemplate(character.name, attack.name, fields);
+  return formatTemplate(attack.name, fields);
 }
 
 function buildCustomRollCommand(character, entry) {
   const resolved = addFormulaModifier(resolveFormula(character, entry.formula), parseGlobalModifier());
-  const fields = formulaUsesD20(resolved)
-    ? d20FormulaFields("roll", resolved)
-    : { roll: inline(resolved) };
-  if (entry.notes) fields.notes = entry.notes;
-  return formatTemplate(character.name, entry.name, fields);
+  const fields = {
+    character: character.name,
+    ...(formulaUsesD20(resolved) ? d20FormulaFields("roll", resolved) : { roll: inline(resolved) })
+  };
+  if (entry.notes) fields.details = entry.notes;
+  return formatTemplate(entry.name, fields);
 }
 
 function buildReferenceCommand(character, entry) {
-  return formatTemplate(character.name, entry.name, {
-    notes: entry.notes || "Reference"
+  return formatTemplate(entry.name, {
+    character: character.name,
+    details: entry.notes || "Reference"
   });
 }
 
-function formatTemplate(characterName, title, fields) {
-  const chunks = [`&{template:default}`, `{{name=${cleanRoll20(`${characterName} - ${title}`)}}}`];
+function formatTemplate(title, fields) {
+  const chunks = [`&{template:default}`, `{{name=${cleanRoll20(title)}}}`];
   Object.entries(fields).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== "") {
       chunks.push(`{{${key}=${cleanRoll20(String(value))}}}`);
@@ -572,6 +582,16 @@ function d20Fields(label, modifier) {
   return d20FormulaFields(label, addFormulaModifier("1d20", modifier));
 }
 
+function nativeAttackFields(modifier) {
+  const formula = addFormulaModifier("1d20", modifier);
+  if (state.rollMode === "normal") return { attack: inline(formula) };
+  if (state.rollMode === "advantage") return { attack: inline(toAdvantageFormula(formula)) };
+  if (state.rollMode === "disadvantage") return { attack: inline(toDisadvantageFormula(formula)) };
+  return {
+    attack: `${inline(formula)}   ${inline(formula)}`
+  };
+}
+
 function d20FormulaFields(label, formula) {
   if (state.rollMode === "normal") return { [label]: inline(formula) };
   if (state.rollMode === "advantage") return { [label]: inline(toAdvantageFormula(formula)) };
@@ -600,6 +620,12 @@ function toDisadvantageFormula(formula) {
 
 function stripInline(value) {
   return value.replace(/^\[\[/, "").replace(/\]\]$/, "");
+}
+
+function attackDetails(attack) {
+  return [
+    ...(attack.properties || [])
+  ].filter(Boolean).join(", ");
 }
 
 function addFormulaModifier(formula, modifier) {
@@ -639,6 +665,10 @@ function parseGlobalModifier() {
 
 function labelForSkill(id) {
   return SKILL_LABELS[id] || id.replace(/([A-Z])/g, " $1").replace(/^./, (letter) => letter.toUpperCase());
+}
+
+function titleCase(value) {
+  return value.replace(/\w\S*/g, (word) => word[0].toUpperCase() + word.slice(1).toLowerCase());
 }
 
 function setStatus(message, isProblem = false) {
