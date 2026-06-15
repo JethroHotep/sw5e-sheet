@@ -35,6 +35,8 @@ A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](s
 | `combat` | object | yes | AC, HP, speed, and initiative. |
 | `attacks` | array | no | Weapons or attack-like actions. |
 | `resources` | array | no | Trackable expendable resources. |
+| `inventory` | array | no | Gear, tools, armor, ammo, and other carried items. |
+| `credits` | object | no | Starting, spent, and remaining credits. |
 | `customRolls` | array | no | Hand-authored clickable rolls and reference actions. |
 | `notes` | string | no | Freeform player notes. |
 
@@ -125,6 +127,35 @@ Damage parts:
 | `ability` | string | no | Ability modifier to add to damage. |
 | `bonus` | number | no | Flat bonus or penalty. Defaults to `0`. |
 | `type` | string | no | Damage type text. |
+
+## Custom Rolls And References
+
+## Inventory
+
+Inventory entries represent carried or owned gear.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | string | yes | Stable id. |
+| `name` | string | yes | Display name. |
+| `category` | string | no | Used to group inventory, such as `armor`, `tools`, or `ammunition`. |
+| `quantity` | number | no | Defaults visually to `1`. |
+| `cost` | number | no | Credit cost for this line item. |
+| `equipped` | boolean | no | Displays an `EQUIP` flag when true. |
+| `infused` | boolean | no | Displays an `INFUSE` flag when true. |
+| `armorClassFormula` | string | no | Display-only AC explanation. |
+| `notes` | string | no | Freeform item notes. |
+
+Credits:
+
+```json
+{
+  "starting": 5000,
+  "spent": 4995,
+  "remaining": 5,
+  "notes": "Purchased mission gear package."
+}
+```
 
 ## Custom Rolls And References
 

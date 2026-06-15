@@ -56,6 +56,8 @@ const elements = {
   initiativeAction: document.querySelector("#initiativeAction"),
   abilities: document.querySelector("#abilities"),
   resources: document.querySelector("#resources"),
+  credits: document.querySelector("#credits"),
+  inventory: document.querySelector("#inventory"),
   savingThrows: document.querySelector("#savingThrows"),
   skills: document.querySelector("#skills"),
   attacks: document.querySelector("#attacks"),
@@ -161,6 +163,13 @@ function createBlankCharacterData() {
       },
       attacks: [],
       resources: [],
+      inventory: [],
+      credits: {
+        starting: 0,
+        spent: 0,
+        remaining: 0,
+        notes: ""
+      },
       customRolls: [],
       notes: ""
     }
@@ -269,6 +278,14 @@ function validateCharacterData(data) {
     }
   });
 
+  (character.inventory || []).forEach((item) => {
+    if (!item.id) errors.push("Each inventory item requires an id.");
+    if (!item.name) errors.push(`Inventory item ${item.id || "(missing id)"} requires a name.`);
+    if (item.quantity !== undefined && (!Number.isInteger(item.quantity) || item.quantity < 0)) {
+      errors.push(`Inventory item ${item.id || item.name} quantity must be a non-negative integer.`);
+    }
+  });
+
   return { errors, warnings };
 }
 
@@ -280,6 +297,8 @@ function renderSheet() {
   renderCombatStats(character);
   renderAbilities(character);
   renderResources(character);
+  renderCredits(character);
+  renderInventory(character);
   renderSavingThrows(character);
   renderSkills(character);
   renderAttacks(character);
@@ -339,6 +358,76 @@ function renderResources(character) {
   });
 
   elements.resources.replaceChildren(...nodes);
+}
+
+function renderCredits(character) {
+  const credits = character.credits;
+  if (!credits) {
+    elements.credits.replaceChildren();
+    return;
+  }
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "credits-card";
+  const values = [
+    ["Starting", credits.starting],
+    ["Spent", credits.spent],
+    ["Remaining", credits.remaining]
+  ].filter(([, value]) => value !== undefined && value !== null);
+  wrapper.innerHTML = `
+    <h3>Credits</h3>
+    <div class="credit-grid">
+      ${values.map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join("")}
+    </div>
+    ${credits.notes ? `<p class="small">${escapeHtml(credits.notes)}</p>` : ""}
+  `;
+  elements.credits.replaceChildren(wrapper);
+}
+
+function renderInventory(character) {
+  const inventory = character.inventory || [];
+  if (!inventory.length) {
+    elements.inventory.replaceChildren();
+    return;
+  }
+
+  const groups = groupBy(inventory, (item) => item.category || "gear");
+  const nodes = [];
+  const heading = document.createElement("h3");
+  heading.textContent = "Inventory";
+  nodes.push(heading);
+
+  Object.entries(groups).sort(([left], [right]) => left.localeCompare(right)).forEach(([category, items]) => {
+    const group = document.createElement("div");
+    group.className = "inventory-group";
+    const title = document.createElement("p");
+    title.className = "inventory-category";
+    title.textContent = labelFromSlug(category);
+    group.append(title);
+
+    items.forEach((item) => {
+      const row = document.createElement("div");
+      row.className = "inventory-item";
+      const flags = [
+        item.equipped ? "EQUIP" : "",
+        item.infused ? "INFUSE" : ""
+      ].filter(Boolean);
+      row.innerHTML = `
+        <div>
+          <strong>${escapeHtml(item.name)}</strong>
+          <div class="small">${inventoryMeta(item)}</div>
+          ${item.notes ? `<p class="small">${escapeHtml(item.notes)}</p>` : ""}
+          ${item.armorClassFormula ? `<p class="small">AC: ${escapeHtml(item.armorClassFormula)}</p>` : ""}
+        </div>
+        <div class="inventory-flags">${flags.map((flag) => `<span>${flag}</span>`).join("")}</div>
+      `;
+      group.append(row);
+    });
+
+    nodes.push(group);
+  });
+
+  elements.inventory.replaceChildren(...nodes);
 }
 
 function renderSavingThrows(character) {
@@ -877,6 +966,28 @@ function defaultSkillAbility(id) {
 
 function titleCase(value) {
   return value.replace(/\w\S*/g, (word) => word[0].toUpperCase() + word.slice(1).toLowerCase());
+}
+
+function labelFromSlug(value) {
+  return titleCase(String(value).replace(/[-_]+/g, " "));
+}
+
+function inventoryMeta(item) {
+  return [
+    `Qty ${item.quantity ?? 1}`,
+    item.cost !== undefined ? `${item.cost} cr` : "",
+    item.equipped ? "equipped" : "",
+    item.infused ? "infused" : ""
+  ].filter(Boolean).map(escapeHtml).join(" - ");
+}
+
+function groupBy(items, keyFn) {
+  return items.reduce((groups, item) => {
+    const key = keyFn(item);
+    groups[key] ||= [];
+    groups[key].push(item);
+    return groups;
+  }, {});
 }
 
 function setStatus(message, isProblem = false) {

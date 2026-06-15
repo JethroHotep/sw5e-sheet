@@ -408,6 +408,88 @@ h3 {
   box-shadow: 0 0 12px rgba(55, 200, 214, 0.42);
 }
 
+.credits-panel,
+.inventory-list {
+  margin-top: 14px;
+}
+
+.credits-card,
+.inventory-group {
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(28, 41, 50, 0.94), rgba(12, 20, 27, 0.94)),
+    var(--surface-strong);
+  box-shadow: inset 3px 0 0 rgba(244, 197, 66, 0.32);
+}
+
+.credit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.credit-grid span {
+  display: block;
+  color: var(--accent-strong);
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.credit-grid strong {
+  color: #ffffff;
+  font-size: 1.1rem;
+}
+
+.inventory-list {
+  display: grid;
+  gap: 8px;
+}
+
+.inventory-category {
+  margin: 0 0 8px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.inventory-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(126, 213, 221, 0.18);
+}
+
+.inventory-item:first-of-type {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.inventory-item strong {
+  color: #ffffff;
+}
+
+.inventory-flags {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-end;
+}
+
+.inventory-flags span {
+  padding: 2px 5px;
+  border-radius: 999px;
+  background: var(--amber);
+  color: #151009;
+  font-size: 0.62rem;
+  font-weight: 900;
+}
+
 .two-column {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

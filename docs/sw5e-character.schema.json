@@ -87,6 +87,13 @@
           "type": "array",
           "items": { "$ref": "#/$defs/resource" }
         },
+        "inventory": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/inventoryItem" }
+        },
+        "credits": {
+          "$ref": "#/$defs/credits"
+        },
         "customRolls": {
           "type": "array",
           "items": { "$ref": "#/$defs/customRoll" }
@@ -166,6 +173,32 @@
         "name": { "type": "string", "minLength": 1 },
         "current": { "type": "integer", "minimum": 0 },
         "max": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "inventoryItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "name"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "category": { "type": "string" },
+        "quantity": { "type": "integer", "minimum": 0 },
+        "cost": { "type": "integer", "minimum": 0 },
+        "equipped": { "type": "boolean" },
+        "infused": { "type": "boolean" },
+        "armorClassFormula": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "credits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "starting": { "type": "integer", "minimum": 0 },
+        "spent": { "type": "integer", "minimum": 0 },
+        "remaining": { "type": "integer", "minimum": 0 },
+        "notes": { "type": "string" }
       }
     },
     "customRoll": {
