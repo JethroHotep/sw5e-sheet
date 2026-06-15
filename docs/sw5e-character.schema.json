@@ -175,7 +175,10 @@
           "additionalProperties": false,
           "required": ["id", "name", "formula"],
           "properties": {
-            "kind": { "enum": ["roll"] },
+            "kind": {
+              "enum": ["roll"],
+              "description": "Roll entries produce dice output. If omitted and formula is not 0, the app treats the entry as a roll."
+            },
             "id": { "type": "string", "minLength": 1 },
             "name": { "type": "string", "minLength": 1 },
             "formula": { "type": "string", "minLength": 1 },
@@ -187,7 +190,10 @@
           "additionalProperties": false,
           "required": ["kind", "id", "name"],
           "properties": {
-            "kind": { "const": "reference" },
+            "kind": {
+              "const": "reference",
+              "description": "Reference entries post notes without dice. Legacy entries with formula 0 are also treated as references by the app."
+            },
             "id": { "type": "string", "minLength": 1 },
             "name": { "type": "string", "minLength": 1 },
             "notes": { "type": "string" }

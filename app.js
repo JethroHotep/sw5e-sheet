@@ -256,7 +256,7 @@ function validateCharacterData(data) {
   });
 
   (character.customRolls || []).forEach((roll) => {
-    const kind = roll.kind || "roll";
+    const kind = customEntryKind(roll);
     if (!["roll", "reference"].includes(kind)) errors.push(`customRolls.${roll.id}.kind is unsupported.`);
     if (!roll.id) errors.push("Each custom roll requires an id.");
     if (!roll.name) errors.push(`Custom roll ${roll.id || "(missing id)"} requires a name.`);
@@ -391,14 +391,14 @@ function renderAttacks(character) {
 function renderCustomRolls(character) {
   const entries = character.customRolls || [];
   const rollNodes = entries
-    .filter((entry) => (entry.kind || "roll") === "roll")
+    .filter((entry) => customEntryKind(entry) === "roll")
     .map((entry) => makeActionItem(entry.name, resolveFormula(character, entry.formula), entry.notes, "Roll", () => {
       const command = buildCustomRollCommand(character, entry);
       publishCommand(entry.name, command);
     }));
 
   const referenceNodes = entries
-    .filter((entry) => entry.kind === "reference")
+    .filter((entry) => customEntryKind(entry) === "reference")
     .map((entry) => makeActionItem(entry.name, "Reference", entry.notes, "Post", () => {
       const command = buildReferenceCommand(character, entry);
       publishCommand(entry.name, command);
@@ -724,6 +724,15 @@ function skillFlags(skill) {
   if (skill.expertise) return ["EXP"];
   if (skill.proficient) return ["PROF"];
   return [];
+}
+
+function customEntryKind(entry) {
+  if (entry.kind === "reference") return "reference";
+  if (entry.kind === "roll") return "roll";
+  if (entry.formula === undefined || entry.formula === null || String(entry.formula).trim() === "0") {
+    return "reference";
+  }
+  return "roll";
 }
 
 function getInitiativeModifier(character) {

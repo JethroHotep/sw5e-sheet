@@ -132,6 +132,8 @@ Custom entries are public Roll20 template actions. Use `kind: "roll"` for action
 
 When `kind` is omitted, the app should treat the entry as `roll` for backward compatibility.
 
+Legacy note-only entries with no `formula`, or with `formula` set to `"0"`, are treated as references by the app. Prefer `kind: "reference"` for new files.
+
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
 | `kind` | string | no | `roll` or `reference`. Defaults to `roll`. |
