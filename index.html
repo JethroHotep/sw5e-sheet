@@ -26,21 +26,27 @@
 
     <main class="shell">
       <section class="toolbar" aria-label="Roll settings">
-        <div class="field-group">
-          <span class="label">Roll mode</span>
-          <div class="segmented" role="group" aria-label="Roll mode">
-            <button class="segment active" type="button" data-roll-mode="normal">Normal</button>
+        <div class="field-group roll-mode-group">
+          <span class="label">D20 mode</span>
+          <div class="segmented" role="group" aria-label="D20 roll mode">
+            <button class="segment" type="button" data-roll-mode="normal">Normal</button>
             <button class="segment" type="button" data-roll-mode="advantage">Advantage</button>
             <button class="segment" type="button" data-roll-mode="disadvantage">Disadvantage</button>
+            <button class="segment active" type="button" data-roll-mode="both">Both</button>
           </div>
         </div>
         <label class="field-group">
           <span class="label">Global modifier</span>
           <input id="globalModifier" type="text" inputmode="text" value="0" aria-label="Global modifier">
         </label>
+        <p class="roll-note">Both gives two d20 results; use the higher for advantage or lower for disadvantage.</p>
         <label class="field-group checkbox-row">
           <input id="initiativeTracker" type="checkbox">
           <span>Add initiative to tracker</span>
+        </label>
+        <label class="field-group checkbox-row">
+          <input id="autoBridge" type="checkbox" checked>
+          <span>Auto-send to Roll20 bridge</span>
         </label>
         <p id="statusMessage" class="status" role="status">Ready</p>
       </section>
@@ -89,7 +95,10 @@
         <aside class="panel outbox-panel" aria-labelledby="outboxHeading">
           <div class="section-heading">
             <h2 id="outboxHeading">Roll20 Outbox</h2>
-            <button id="copyLatestButton" type="button">Copy Latest</button>
+            <div class="outbox-actions">
+              <button id="sendLatestButton" type="button">Send Latest</button>
+              <button id="copyLatestButton" type="button">Copy Latest</button>
+            </div>
           </div>
           <textarea id="latestCommand" aria-label="Latest Roll20 command" readonly></textarea>
           <div id="history" class="history-list"></div>

@@ -165,22 +165,23 @@ Reference example:
 }
 ```
 
-## Roll Modes
+## D20 Roll Output
 
-Roll mode is UI state, not character data.
+D20 roll mode is UI state, not character data. The app should offer normal, advantage, disadvantage, and both. `Both` should be the default because it covers normal, advantage, and disadvantage from one Roll20 message.
 
-| Mode | Roll20 formula |
+| Situation | How to read the output |
 | --- | --- |
-| Normal | `[[1d20 + modifier]]` |
-| Advantage | `[[2d20kh1 + modifier]]` |
-| Disadvantage | `[[2d20kl1 + modifier]]` |
+| Normal | Emit one `[[1d20 + modifier]]` field. |
+| Advantage | Emit one `[[2d20kh1 + modifier]]` field. |
+| Disadvantage | Emit one `[[2d20kl1 + modifier]]` field. |
+| Both | Emit two independent `[[1d20 + modifier]]` fields. Use the first for normal, higher for advantage, lower for disadvantage. |
 
 ## Public Roll20 Output
 
 The first formatter should use the universal default template:
 
 ```text
-&{template:default} {{name=Character - Roll Name}} {{roll=[[1d20 + 5]]}} {{notes=Optional note}}
+&{template:default} {{name=Character - Roll Name}} {{roll 1=[[1d20 + 5]]}} {{roll 2=[[1d20 + 5]]}} {{notes=Optional note}}
 ```
 
 Reference actions should omit roll fields:
@@ -192,5 +193,5 @@ Reference actions should omit roll fields:
 Attacks should include attack and damage fields:
 
 ```text
-&{template:default} {{name=Character - Blaster Rifle}} {{attack=[[1d20 + 6]]}} {{damage=[[1d8 + 3]] energy}} {{notes=range, two-handed}}
+&{template:default} {{name=Character - Blaster Rifle}} {{attack 1=[[1d20 + 6]]}} {{attack 2=[[1d20 + 6]]}} {{damage=[[1d8 + 3]] energy}} {{notes=range, two-handed}}
 ```

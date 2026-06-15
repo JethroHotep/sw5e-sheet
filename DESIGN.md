@@ -178,7 +178,7 @@ First pass should include:
 - Weapon attacks and damage.
 - Custom rolls.
 - Reference actions that post public Roll20 notes without dice.
-- Advantage, disadvantage, normal roll mode.
+- D20 mode selector for normal, advantage, disadvantage, or both. `Both` outputs two independent d20 results; use the first for normal, the higher for advantage, and the lower for disadvantage.
 - Global modifier input, such as bless, cover, temporary bonus, or penalty.
 - Roll output history.
 
@@ -196,7 +196,7 @@ Second pass:
 
 The first screen should be the sheet, not a landing page.
 
-- Top bar: character name, level/class, JSON load button, Roll20 bridge status, roll mode selector.
+- Top bar: character name, level/class, JSON load button, and Roll20 bridge status.
 - Left column: abilities, saves, skills.
 - Center column: combat stats, attacks, powers/features.
 - Right column: resources, conditions, roll outbox/history.
@@ -231,12 +231,13 @@ The extension/userscript bridge should send only chat text, not scrape character
 2. JSON loader, validator, and derived modifiers.
 3. Roll builder with Roll20 default-template output.
 4. Sheet UI polish and responsive layout.
-5. Browser extension or userscript bridge.
+5. Browser extension bridge.
 6. Import helper for data extracted from the fillable PDF or hand-authored JSON.
 
 ## Decisions
 
 - Roll20 performs all dice rolls. The app builds formulas and sends them.
+- D20 rolls default to `Both`, but the player can choose normal, advantage, or disadvantage at the top of the sheet.
 - The UI should be a web-native play dashboard, not a recreation of the fillable PDF.
 - JSON is hand-authored for now.
 - The project should include a clear JSON spec and example character files.

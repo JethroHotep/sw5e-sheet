@@ -34,7 +34,8 @@ const SKILL_LABELS = {
 const state = {
   character: null,
   warnings: [],
-  rollMode: "normal",
+  rollMode: "both",
+  bridgePending: new Set(),
   latestCommand: "",
   history: []
 };
@@ -47,6 +48,7 @@ const elements = {
   loadVelaButton: document.querySelector("#loadVelaButton"),
   globalModifier: document.querySelector("#globalModifier"),
   initiativeTracker: document.querySelector("#initiativeTracker"),
+  autoBridge: document.querySelector("#autoBridge"),
   statusMessage: document.querySelector("#statusMessage"),
   validationPanel: document.querySelector("#validationPanel"),
   combatStats: document.querySelector("#combatStats"),
@@ -60,6 +62,7 @@ const elements = {
   references: document.querySelector("#references"),
   latestCommand: document.querySelector("#latestCommand"),
   copyLatestButton: document.querySelector("#copyLatestButton"),
+  sendLatestButton: document.querySelector("#sendLatestButton"),
   history: document.querySelector("#history")
 };
 
@@ -75,7 +78,7 @@ function bindEvents() {
       document.querySelectorAll("[data-roll-mode]").forEach((item) => {
         item.classList.toggle("active", item === button);
       });
-      setStatus(`Roll mode set to ${button.textContent}.`);
+      setStatus(`D20 mode set to ${button.textContent}.`);
     });
   });
 
@@ -96,6 +99,8 @@ function bindEvents() {
   elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e.json"));
   elements.loadVelaButton.addEventListener("click", () => loadExample("examples/vela-renn.json"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
+  elements.sendLatestButton.addEventListener("click", () => sendCommandToBridge(state.latestCommand));
+  window.addEventListener("message", handleBridgeResponse);
 }
 
 async function loadExample(path) {
@@ -410,9 +415,8 @@ function makeActionItem(title, meta, notes, buttonText, onClick) {
 }
 
 function handleSimpleRoll(title, modifier, notes) {
-  const formula = d20Formula(modifier + parseGlobalModifier());
   const command = formatTemplate(state.character.name, title, {
-    roll: inline(formula),
+    ...d20Fields("roll", modifier + parseGlobalModifier()),
     notes
   });
   publishCommand(title, command);
@@ -420,9 +424,12 @@ function handleSimpleRoll(title, modifier, notes) {
 
 function handleInitiativeRoll(modifier) {
   const tracker = elements.initiativeTracker.checked ? " &{tracker}" : "";
-  const formula = `${d20Formula(modifier + parseGlobalModifier())}${tracker}`;
+  const fields = d20Fields("roll", modifier + parseGlobalModifier());
+  Object.keys(fields).forEach((key) => {
+    fields[key] = inline(`${stripInline(fields[key])}${tracker}`);
+  });
   const command = formatTemplate(state.character.name, "Initiative", {
-    roll: inline(formula),
+    ...fields,
     notes: elements.initiativeTracker.checked ? "initiative tracker" : "initiative"
   });
   publishCommand("Initiative", command);
@@ -430,9 +437,7 @@ function handleInitiativeRoll(modifier) {
 
 function buildAttackCommand(character, attack) {
   const attackModifier = attackRollModifier(character, attack) + parseGlobalModifier();
-  const fields = {
-    attack: inline(d20Formula(attackModifier))
-  };
+  const fields = d20Fields("attack", attackModifier);
 
   const damage = (attack.damage || []).map((part) => damageFormula(character, part));
   if (damage.length) {
@@ -447,7 +452,9 @@ function buildAttackCommand(character, attack) {
 
 function buildCustomRollCommand(character, entry) {
   const resolved = addFormulaModifier(resolveFormula(character, entry.formula), parseGlobalModifier());
-  const fields = { roll: inline(applyRollModeToFormula(resolved)) };
+  const fields = formulaUsesD20(resolved)
+    ? d20FormulaFields("roll", resolved)
+    : { roll: inline(resolved) };
   if (entry.notes) fields.notes = entry.notes;
   return formatTemplate(character.name, entry.name, fields);
 }
@@ -473,10 +480,13 @@ function publishCommand(title, command) {
   state.history.unshift({ title, command });
   state.history = state.history.slice(0, 10);
   renderOutbox();
-  copyCommand(command);
+  copyCommand(command, "Copied Roll20 command to clipboard.");
+  if (elements.autoBridge.checked) {
+    sendCommandToBridge(command);
+  }
 }
 
-async function copyCommand(command) {
+async function copyCommand(command, successMessage = "Copied Roll20 command to clipboard.") {
   if (!command) {
     setStatus("No Roll20 command to copy.", true);
     return;
@@ -484,11 +494,46 @@ async function copyCommand(command) {
 
   try {
     await navigator.clipboard.writeText(command);
-    setStatus("Copied Roll20 command to clipboard.");
+    setStatus(successMessage);
   } catch {
     elements.latestCommand.focus();
     elements.latestCommand.select();
     setStatus("Clipboard blocked. Command is selected in the outbox.", true);
+  }
+}
+
+function sendCommandToBridge(command) {
+  if (!command) {
+    setStatus("No Roll20 command to send.", true);
+    return;
+  }
+
+  const id = `roll-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+  state.bridgePending.add(id);
+  window.postMessage({
+    source: "sw5e-sheet",
+    type: "ROLL20_COMMAND",
+    id,
+    command
+  }, window.location.origin);
+
+  window.setTimeout(() => {
+    if (!state.bridgePending.has(id)) return;
+    state.bridgePending.delete(id);
+    setStatus("Copied. Roll20 bridge not detected; paste manually or install the extension.", true);
+  }, 900);
+}
+
+function handleBridgeResponse(event) {
+  if (event.source !== window) return;
+  const message = event.data;
+  if (!message || message.source !== "sw5e-roll20-bridge") return;
+  if (message.id) state.bridgePending.delete(message.id);
+
+  if (message.ok) {
+    setStatus(message.detail || "Sent command to Roll20 bridge.");
+  } else {
+    setStatus(message.detail || "Roll20 bridge could not send the command.", true);
   }
 }
 
@@ -523,14 +568,38 @@ function abilityMod(score) {
   return Math.floor((score - 10) / 2);
 }
 
-function d20Formula(modifier) {
-  const die = state.rollMode === "advantage" ? "2d20kh1" : state.rollMode === "disadvantage" ? "2d20kl1" : "1d20";
-  return addFormulaModifier(die, modifier);
+function d20Fields(label, modifier) {
+  return d20FormulaFields(label, addFormulaModifier("1d20", modifier));
 }
 
-function applyRollModeToFormula(formula) {
-  if (state.rollMode === "normal") return formula;
-  return formula.replace(/\b1d20\b/i, state.rollMode === "advantage" ? "2d20kh1" : "2d20kl1");
+function d20FormulaFields(label, formula) {
+  if (state.rollMode === "normal") return { [label]: inline(formula) };
+  if (state.rollMode === "advantage") return { [label]: inline(toAdvantageFormula(formula)) };
+  if (state.rollMode === "disadvantage") return { [label]: inline(toDisadvantageFormula(formula)) };
+  return {
+    [`${label} 1`]: inline(formula),
+    [`${label} 2`]: inline(duplicateFirstD20(formula))
+  };
+}
+
+function formulaUsesD20(formula) {
+  return /\b1d20\b/i.test(formula);
+}
+
+function duplicateFirstD20(formula) {
+  return formula.replace(/\b1d20\b/i, "1d20");
+}
+
+function toAdvantageFormula(formula) {
+  return formula.replace(/\b1d20\b/i, "2d20kh1");
+}
+
+function toDisadvantageFormula(formula) {
+  return formula.replace(/\b1d20\b/i, "2d20kl1");
+}
+
+function stripInline(value) {
+  return value.replace(/^\[\[/, "").replace(/\]\]$/, "");
 }
 
 function addFormulaModifier(formula, modifier) {

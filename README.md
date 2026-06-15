@@ -8,7 +8,10 @@ A local, JavaScript-based SW5e character sheet that loads hand-authored JSON and
 - Can load any compatible local JSON file.
 - Renders abilities, saves, skills, combat stats, resources, attacks, custom rolls, and reference actions.
 - Builds Roll20 `&{template:default}` chat commands.
+- Provides Normal, Advantage, Disadvantage, and Both toggles for d20 rolls. Both emits two d20 results so normal, advantage, and disadvantage are all covered by one click.
 - Copies each generated command to the clipboard for pasting into Roll20 chat.
+- Can auto-send commands through the optional unpacked bridge extension in `roll20-extension`.
+- Uses an original generated sci-fi cockpit/starfield background image in `assets/starfield-cockpit-bg.png`.
 
 ## Run
 
@@ -29,3 +32,9 @@ Opening `index.html` directly still allows manual JSON loading, but browser secu
 ## Character JSON
 
 See [docs/json-spec.md](docs/json-spec.md), [examples/vela-renn.json](examples/vela-renn.json), and [examples/nim-sw5e.json](examples/nim-sw5e.json).
+
+## Optional Roll20 Bridge
+
+The app always copies generated commands to the clipboard. To also send them into an open Roll20 game tab, load the unpacked extension in [roll20-extension](roll20-extension).
+
+See [roll20-extension/README.md](roll20-extension/README.md) for install steps.
