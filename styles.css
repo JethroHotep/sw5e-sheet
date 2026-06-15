@@ -322,6 +322,19 @@ h3 {
   margin: 8px 0 14px;
 }
 
+.rest-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 14px;
+}
+
+.rest-actions button {
+  min-height: 36px;
+  color: var(--accent-strong);
+  font-weight: 800;
+}
+
 .initiative-card {
   display: flex;
   align-items: center;

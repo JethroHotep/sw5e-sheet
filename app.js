@@ -55,6 +55,8 @@ const elements = {
   validationPanel: document.querySelector("#validationPanel"),
   combatStats: document.querySelector("#combatStats"),
   initiativeAction: document.querySelector("#initiativeAction"),
+  shortRestButton: document.querySelector("#shortRestButton"),
+  longRestButton: document.querySelector("#longRestButton"),
   abilities: document.querySelector("#abilities"),
   resources: document.querySelector("#resources"),
   credits: document.querySelector("#credits"),
@@ -114,6 +116,8 @@ function bindEvents() {
 
   elements.downloadJsonButton.addEventListener("click", downloadCurrentJson);
   elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v6.json"));
+  elements.shortRestButton.addEventListener("click", () => applyRest("short"));
+  elements.longRestButton.addEventListener("click", () => applyRest("long"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
   elements.sendLatestButton.addEventListener("click", () => sendCommandToBridge(state.latestCommand));
   window.addEventListener("message", handleBridgeResponse);
@@ -1011,6 +1015,52 @@ function applyDepletions(depletions, label) {
   } else if (skipped.length) {
     setStatus(`Could not spend resource for ${label}.`, true);
   }
+}
+
+function applyRest(type) {
+  if (!state.character) return;
+
+  const restored = [];
+  if (type === "long") {
+    const hp = state.character.combat?.hitPoints;
+    if (hp) {
+      hp.current = Number(hp.max) || hp.current || 0;
+      hp.temporary = 0;
+      restored.push("HP");
+    }
+  }
+
+  (state.character.resources || []).forEach((resource) => {
+    if (!restoresOnRest(resource, type)) return;
+    const before = Number(resource.current) || 0;
+    const max = Number(resource.max) || 0;
+    if (max > 0 && before !== max) {
+      resource.current = max;
+      restored.push(resource.name);
+    }
+  });
+
+  (state.character.inventory || []).forEach((item) => {
+    (item.containedResources || []).forEach((resource) => {
+      if (!restoresOnRest(resource, type)) return;
+      const before = Number(resource.current) || 0;
+      const max = Number(resource.max) || 0;
+      if (max > 0 && before !== max) {
+        resource.current = max;
+        restored.push(`${item.name}: ${resource.name}`);
+      }
+    });
+  });
+
+  renderSheet();
+  const label = type === "long" ? "Long rest" : "Short rest";
+  setStatus(restored.length ? `${label} applied: ${restored.join(", ")} restored.` : `${label} applied; nothing marked for recovery was missing.`);
+}
+
+function restoresOnRest(resource, type) {
+  const recovery = resource.restRecovery || resource.recoverOnRest || resource.resetsOnRest || "none";
+  if (type === "short") return recovery === "short" || recovery === "shortOrLong";
+  return recovery === "short" || recovery === "long" || recovery === "shortOrLong";
 }
 
 function resolveDepletionTarget(target) {

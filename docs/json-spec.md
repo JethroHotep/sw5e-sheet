@@ -104,6 +104,20 @@ Example:
 | `speed` | number | yes | Walking speed. |
 | `hitPoints` | object | yes | Current/max/temp HP. |
 
+## Resources
+
+Resources track expendable class features, powers, ammunition pools, and other counters. The app lets players adjust them manually.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | string | yes | Stable resource id. |
+| `name` | string | yes | Display name. |
+| `current` | number | yes | Current value. |
+| `max` | number | yes | Maximum value. |
+| `unit` | string | no | Display unit, such as `points`, `uses`, or `cells`. |
+| `restRecovery` | string | no | `none`, `short`, `long`, or `shortOrLong`. Used by the Short Rest and Long Rest buttons. Omit or use `none` for consumables. |
+| `notes` | string | no | Freeform notes. |
+
 ## Attacks
 
 Attack entries represent weapons, powers, or any action with attack and damage rolls.

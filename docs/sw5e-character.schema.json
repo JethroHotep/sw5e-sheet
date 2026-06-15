@@ -345,6 +345,9 @@
           "type": "string",
           "description": "Optional display unit, such as points, uses, cells, shots, days, or charges."
         },
+        "restRecovery": {
+          "$ref": "#/$defs/restRecovery"
+        },
         "notes": {
           "type": "string"
         }
@@ -689,10 +692,22 @@
           "type": "string",
           "description": "Optional character.resources[].id used to refill/reload this contained resource."
         },
+        "restRecovery": {
+          "$ref": "#/$defs/restRecovery"
+        },
         "notes": {
           "type": "string"
         }
       }
+    },
+    "restRecovery": {
+      "enum": [
+        "none",
+        "short",
+        "long",
+        "shortOrLong"
+      ],
+      "description": "Controls the app's Short Rest and Long Rest buttons. none/manual consumables are not restored automatically; shortOrLong restores on either rest."
     }
   },
   "description": "SW5e character JSON schema with explicit resource depletion hooks for actions, features, inventory items, and item-contained resources such as loaded power cells."
