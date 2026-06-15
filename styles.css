@@ -106,6 +106,20 @@ textarea:focus-visible,
   text-transform: uppercase;
 }
 
+.app-version {
+  display: inline-flex;
+  align-items: center;
+  min-height: 1.5em;
+  margin-left: 8px;
+  padding: 1px 6px;
+  border: 1px solid rgba(244, 197, 66, 0.42);
+  border-radius: 999px;
+  color: #fff7d0;
+  font-size: 0.68rem;
+  font-weight: 900;
+  vertical-align: 1px;
+}
+
 .muted {
   color: var(--muted);
 }
@@ -251,7 +265,7 @@ textarea:focus-visible,
 
 .dashboard {
   display: grid;
-  grid-template-columns: minmax(260px, 0.85fr) minmax(360px, 1.2fr) minmax(360px, 1.2fr) minmax(280px, 0.9fr);
+  grid-template-columns: minmax(360px, 1.25fr) minmax(280px, 0.82fr) minmax(360px, 1.08fr) minmax(280px, 0.85fr);
   gap: 16px;
   max-width: 1600px;
   margin: 0 auto;
@@ -735,7 +749,7 @@ h3 {
 
 @media (max-width: 1220px) {
   .dashboard {
-    grid-template-columns: minmax(280px, 1fr) minmax(320px, 1fr);
+    grid-template-columns: minmax(340px, 1.18fr) minmax(280px, 0.82fr);
   }
 
   .outbox-panel {
