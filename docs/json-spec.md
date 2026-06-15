@@ -65,6 +65,8 @@ Saving throw keys match ability keys. Each value is a boolean proficiency flag.
 
 Missing keys should be treated as `false` with a validation warning.
 
+In the app, saving throws with `true` display a `PROF` flag.
+
 ## Skills
 
 Each skill entry has:
@@ -75,6 +77,8 @@ Each skill entry has:
 | `proficient` | boolean | yes | Adds proficiency bonus. |
 | `expertise` | boolean | no | Adds proficiency twice when true. |
 | `bonus` | number | no | Flat modifier for items or features. Defaults to `0`. |
+
+In the app, proficient skills display `PROF`. Expertise skills display `EXP`.
 
 Example:
 

@@ -300,8 +300,8 @@ function renderCombatStats(character) {
 
   elements.combatStats.replaceChildren(...stats.map(([label, value]) => makeStat(label, value)));
   const initiative = getInitiativeModifier(character);
-  const detail = elements.initiativeTracker.checked ? `${formatModifier(initiative)} tracker` : formatModifier(initiative);
-  const initiativeRow = makeRollRow("Initiative", detail, () => handleInitiativeRoll(initiative));
+  const detail = elements.initiativeTracker.checked ? `${formatModifier(initiative)} - tracker` : formatModifier(initiative);
+  const initiativeRow = makeInitiativeAction(detail, () => handleInitiativeRoll(initiative));
   elements.initiativeAction.replaceChildren(initiativeRow);
 }
 
@@ -347,7 +347,7 @@ function renderSavingThrows(character) {
     const modifier = abilityMod(character.abilities[ability]) + (proficient ? character.proficiencyBonus : 0);
     return makeRollRow(`${ABILITY_LABELS[ability]}`, formatModifier(modifier), () => {
       handleSimpleRoll(`${ABILITY_LABELS[ability]} Save`, modifier, proficient ? "proficient save" : "save");
-    });
+    }, proficient ? ["PROF"] : []);
   });
 
   elements.savingThrows.replaceChildren(...rows);
@@ -359,9 +359,10 @@ function renderSkills(character) {
     .map(([id, skill]) => {
       const modifier = skillModifier(character, skill);
       const detail = `${skill.ability.toUpperCase()} ${formatModifier(modifier)}`;
+      const flags = skillFlags(skill);
       return makeRollRow(labelForSkill(id), detail, () => {
         handleSimpleRoll(labelForSkill(id), modifier, `${skill.ability.toUpperCase()} skill`);
-      });
+      }, flags);
     });
 
   elements.skills.replaceChildren(...rows);
@@ -454,13 +455,40 @@ function makeStat(label, value) {
   return node;
 }
 
-function makeRollRow(title, detail, onClick) {
+function makeRollRow(title, detail, onClick, flags = []) {
   const template = document.querySelector("#rollRowTemplate");
   const row = template.content.firstElementChild.cloneNode(true);
   row.querySelector(".roll-title").textContent = title;
   row.querySelector(".roll-detail").textContent = detail;
+  const titleNode = row.querySelector(".roll-title");
+  flags.forEach((flag) => {
+    const badge = document.createElement("span");
+    badge.className = `roll-flag ${flag.toLowerCase()}`;
+    badge.textContent = flag;
+    titleNode.append(" ", badge);
+  });
   row.addEventListener("click", onClick);
   return row;
+}
+
+function makeInitiativeAction(detail, onClick) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "initiative-card";
+  const text = document.createElement("div");
+  const title = document.createElement("p");
+  title.className = "action-title";
+  title.textContent = "Initiative";
+  const meta = document.createElement("p");
+  meta.className = "action-meta";
+  meta.textContent = detail;
+  text.append(title, meta);
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = "Roll Initiative";
+  button.addEventListener("click", onClick);
+  wrapper.append(text, button);
+  return wrapper;
 }
 
 function makeActionItem(title, meta, notes, buttonText, onClick) {
@@ -690,6 +718,12 @@ function skillModifier(character, skill) {
   const base = abilityMod(character.abilities[skill.ability]);
   const proficiencyCount = skill.expertise ? 2 : skill.proficient ? 1 : 0;
   return base + (proficiencyCount * character.proficiencyBonus) + (Number(skill.bonus) || 0);
+}
+
+function skillFlags(skill) {
+  if (skill.expertise) return ["EXP"];
+  if (skill.proficient) return ["PROF"];
+  return [];
 }
 
 function getInitiativeModifier(character) {
