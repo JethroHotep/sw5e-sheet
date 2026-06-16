@@ -428,6 +428,28 @@ h3 {
   text-decoration-color: var(--accent-strong);
 }
 
+.object-title-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.help-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  min-width: 22px;
+  min-height: 22px;
+  padding: 0;
+  border-radius: 999px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
 .editable-stat strong {
   margin-bottom: 7px;
 }
@@ -772,6 +794,12 @@ h3 {
   color: #ffffff;
 }
 
+.action-item .help-button {
+  min-height: 22px;
+  padding: 0;
+  background: linear-gradient(180deg, rgba(31, 45, 55, 0.98), rgba(15, 24, 31, 0.98));
+}
+
 .outbox-panel {
   position: sticky;
   top: 12px;
@@ -811,6 +839,76 @@ h3 {
   width: 100%;
   margin-top: 6px;
   padding: 6px 8px;
+}
+
+.help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 6, 10, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.help-overlay[hidden] {
+  display: none;
+}
+
+.help-page {
+  width: min(920px, 100%);
+  max-height: min(820px, calc(100vh - 48px));
+  overflow: auto;
+  border: 1px solid rgba(244, 197, 66, 0.72);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(25, 35, 43, 0.98), rgba(8, 13, 18, 0.99)),
+    var(--surface-strong);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.62);
+}
+
+.help-header {
+  position: sticky;
+  top: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(10, 16, 22, 0.98);
+}
+
+.help-header h2 {
+  margin: 0;
+  color: #fff7d0;
+}
+
+.help-header button {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+}
+
+.help-body {
+  padding: 18px;
+}
+
+.help-body h3 {
+  margin-top: 18px;
+}
+
+.help-body p,
+.help-body li {
+  color: #d8e3e6;
+}
+
+.help-meta {
+  color: var(--amber);
+  font-weight: 800;
+}
+
+.help-summary {
+  font-size: 1.02rem;
 }
 
 .small {

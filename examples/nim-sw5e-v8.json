@@ -1,0 +1,2108 @@
+{
+  "schemaVersion": 1,
+  "character": {
+    "name": "Dr. Fedu Nimum (Nim)",
+    "level": 5,
+    "class": "Engineer (Gadgeteer)",
+    "background": "Scientist",
+    "proficiencyBonus": 3,
+    "abilities": {
+      "str": 8,
+      "dex": 16,
+      "con": 14,
+      "int": 20,
+      "wis": 10,
+      "cha": 9
+    },
+    "savingThrows": {
+      "str": false,
+      "dex": false,
+      "con": true,
+      "int": true,
+      "wis": false,
+      "cha": false
+    },
+    "skills": {
+      "acrobatics": {
+        "ability": "dex",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "athletics": {
+        "ability": "str",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "deception": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "insight": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "intimidation": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "investigation": {
+        "ability": "int",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "lore": {
+        "ability": "int",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "medicine": {
+        "ability": "wis",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "nature": {
+        "ability": "int",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "perception": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "performance": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "persuasion": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "piloting": {
+        "ability": "dex",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "sleightOfHand": {
+        "ability": "dex",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "stealth": {
+        "ability": "dex",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "survival": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "technology": {
+        "ability": "int",
+        "proficient": true,
+        "expertise": true,
+        "bonus": 0
+      }
+    },
+    "combat": {
+      "armorClass": 17,
+      "initiativeBonus": 0,
+      "speed": 30,
+      "hitPoints": {
+        "max": 38,
+        "current": 38,
+        "temporary": 0
+      }
+    },
+    "attacks": [
+      {
+        "id": "light-pistol",
+        "name": "Light Pistol",
+        "attackAbility": "dex",
+        "proficient": true,
+        "attackBonus": 0,
+        "damage": [
+          {
+            "formula": "1d4",
+            "ability": "dex",
+            "bonus": 0,
+            "type": "energy"
+          }
+        ],
+        "properties": [
+          "ammunition",
+          "range",
+          "reload"
+        ],
+        "notes": "Simple blaster starting option; uses Dexterity for ranged attack and damage. Resource hook: depletes 1 shot from the loaded power cell.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "inventoryItem",
+              "itemId": "light-pistol",
+              "id": "loaded-power-cell"
+            },
+            "amount": 1,
+            "trigger": "onAttack",
+            "notes": "Spend 1 shot/charge from the light pistol's loaded power cell."
+          }
+        ],
+        "actionType": "action",
+        "help": {
+          "title": "Light Pistol",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Attack",
+          "activation": "Action",
+          "summary": "Simple blaster starting option; uses Dexterity for ranged attack and damage. Resource hook: depletes 1 shot from the loaded power cell.",
+          "details": [
+            "Timing: Action.",
+            "Properties: ammunition, range, reload.",
+            "Damage: 1d4 + DEX energy.",
+            "Resource cost: 1 from loaded-power-cell."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "vibrodagger",
+        "name": "Vibrodagger",
+        "attackAbility": "dex",
+        "proficient": true,
+        "attackBonus": 0,
+        "damage": [
+          {
+            "formula": "1d4",
+            "ability": "dex",
+            "bonus": 0,
+            "type": "kinetic"
+          }
+        ],
+        "properties": [
+          "finesse",
+          "light",
+          "thrown",
+          "range 20/60"
+        ],
+        "notes": "Emergency cutting tool; sheet uses Dexterity via finesse/thrown-friendly build.",
+        "actionType": "action",
+        "help": {
+          "title": "Vibrodagger",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Attack",
+          "activation": "Action",
+          "summary": "Emergency cutting tool; sheet uses Dexterity via finesse/thrown-friendly build.",
+          "details": [
+            "Timing: Action.",
+            "Properties: finesse, light, thrown, range 20/60.",
+            "Damage: 1d4 + DEX kinetic."
+          ],
+          "sections": []
+        }
+      }
+    ],
+    "resources": [
+      {
+        "id": "tech-points",
+        "name": "Tech Points",
+        "current": 15,
+        "max": 15,
+        "unit": "points",
+        "restRecovery": "long",
+        "help": {
+          "title": "Tech Points",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks tech points during play.",
+          "details": [
+            "Current: 15 / 15 points.",
+            "Rest recovery: long."
+          ]
+        }
+      },
+      {
+        "id": "potent-aptitude",
+        "name": "Potent Aptitude Uses (d6)",
+        "current": 5,
+        "max": 5,
+        "unit": "uses",
+        "restRecovery": "shortOrLong",
+        "help": {
+          "title": "Potent Aptitude Uses (d6)",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks potent aptitude uses (d6) during play.",
+          "details": [
+            "Current: 5 / 5 uses.",
+            "Rest recovery: shortOrLong."
+          ]
+        }
+      },
+      {
+        "id": "hit-dice",
+        "name": "Hit Dice (d8)",
+        "current": 5,
+        "max": 5,
+        "unit": "uses",
+        "help": {
+          "title": "Hit Dice (d8)",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks hit dice (d8) during play.",
+          "details": [
+            "Current: 5 / 5 uses.",
+            "Does not automatically recover on rests unless manually changed."
+          ]
+        }
+      },
+      {
+        "id": "sentry-turrets",
+        "name": "Sentry Turrets",
+        "current": 5,
+        "max": 5,
+        "unit": "uses",
+        "help": {
+          "title": "Sentry Turrets",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks sentry turrets during play.",
+          "details": [
+            "Current: 5 / 5 uses.",
+            "Does not automatically recover on rests unless manually changed."
+          ]
+        }
+      },
+      {
+        "id": "oil-spill",
+        "name": "Oil Spill Contraption",
+        "current": 1,
+        "max": 1,
+        "unit": "uses",
+        "restRecovery": "shortOrLong",
+        "help": {
+          "title": "Oil Spill Contraption",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks oil spill contraption during play.",
+          "details": [
+            "Current: 1 / 1 uses.",
+            "Rest recovery: shortOrLong."
+          ]
+        }
+      },
+      {
+        "id": "techie-repair-droid",
+        "name": "Techie: Free Repair Droid",
+        "current": 1,
+        "max": 1,
+        "unit": "uses",
+        "restRecovery": "long",
+        "help": {
+          "title": "Techie: Free Repair Droid",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks techie: free repair droid during play.",
+          "details": [
+            "Current: 1 / 1 uses.",
+            "Rest recovery: long."
+          ]
+        }
+      },
+      {
+        "id": "power-cells",
+        "name": "Spare Power Cells",
+        "current": 13,
+        "max": 13,
+        "unit": "cells",
+        "notes": "Spare cells only. One additional power cell is modeled as loaded inside the Light Pistol.",
+        "help": {
+          "title": "Spare Power Cells",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Spare cells only. One additional power cell is modeled as loaded inside the Light Pistol.",
+          "details": [
+            "Current: 13 / 13 cells.",
+            "Does not automatically recover on rests unless manually changed."
+          ]
+        }
+      },
+      {
+        "id": "medpacs",
+        "name": "Medpacs",
+        "current": 2,
+        "max": 2,
+        "unit": "uses",
+        "help": {
+          "title": "Medpacs",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks medpacs during play.",
+          "details": [
+            "Current: 2 / 2 uses.",
+            "Does not automatically recover on rests unless manually changed."
+          ]
+        }
+      },
+      {
+        "id": "traumakit",
+        "name": "Traumakit",
+        "current": 1,
+        "max": 1,
+        "unit": "uses",
+        "help": {
+          "title": "Traumakit",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks traumakit during play.",
+          "details": [
+            "Current: 1 / 1 uses.",
+            "Does not automatically recover on rests unless manually changed."
+          ]
+        }
+      },
+      {
+        "id": "glow-rods",
+        "name": "Glow Rods",
+        "current": 5,
+        "max": 5,
+        "unit": "uses",
+        "help": {
+          "title": "Glow Rods",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks glow rods during play.",
+          "details": [
+            "Current: 5 / 5 uses.",
+            "Does not automatically recover on rests unless manually changed."
+          ]
+        }
+      },
+      {
+        "id": "field-rations-days",
+        "name": "Field Rations (days)",
+        "current": 10,
+        "max": 10,
+        "unit": "days",
+        "help": {
+          "title": "Field Rations (days)",
+          "source": "Nim character JSON",
+          "category": "Resource",
+          "summary": "Tracks field rations (days) during play.",
+          "details": [
+            "Current: 10 / 10 days.",
+            "Does not automatically recover on rests unless manually changed."
+          ]
+        }
+      }
+    ],
+    "customRolls": [
+      {
+        "id": "armor-ac-reference",
+        "name": "AC Reference: Infused Fiber Armor + Shield",
+        "notes": "AC 17 = fiber armor 12 + Dex mod 3 + Infuse Item 1 + light shield generator 1.",
+        "kind": "reference",
+        "help": {
+          "title": "AC Reference: Infused Fiber Armor + Shield",
+          "source": "Nim character JSON",
+          "category": "Reference Action",
+          "activation": "",
+          "summary": "AC 17 = fiber armor 12 + Dex mod 3 + Infuse Item 1 + light shield generator 1.",
+          "details": [],
+          "sections": []
+        }
+      },
+      {
+        "id": "tech-save-dc",
+        "name": "Tech Save DC Reference",
+        "notes": "Reference only: Tech save DC 16 normally; DC 17 while using the Gadgeteer Harness with Integrated Inhibitor.",
+        "kind": "reference",
+        "help": {
+          "title": "Tech Save DC Reference",
+          "source": "Nim character JSON",
+          "category": "Reference Action",
+          "activation": "",
+          "summary": "Reference only: Tech save DC 16 normally; DC 17 while using the Gadgeteer Harness with Integrated Inhibitor.",
+          "details": [],
+          "sections": []
+        }
+      },
+      {
+        "id": "tech-attack-modifier",
+        "name": "Tech Attack Modifier Reference",
+        "notes": "Reference only: ranged tech attack is +8. If Integrated Targeter is later installed, change this note to +9.",
+        "kind": "reference",
+        "help": {
+          "title": "Tech Attack Modifier Reference",
+          "source": "Nim character JSON",
+          "category": "Reference Action",
+          "activation": "",
+          "summary": "Reference only: ranged tech attack is +8. If Integrated Targeter is later installed, change this note to +9.",
+          "details": [],
+          "sections": []
+        }
+      },
+      {
+        "id": "technology-computers",
+        "name": "Computer Slicing / Technology",
+        "formula": "1d20 + @int + @prof + @prof",
+        "notes": "Technology check for computers; Nim's Bith Programmer trait and Techie-style expertise are represented here.",
+        "kind": "roll",
+        "help": {
+          "title": "Computer Slicing / Technology",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "",
+          "summary": "Technology check for computers; Nim's Bith Programmer trait and Techie-style expertise are represented here.",
+          "details": [
+            "Formula in this sheet: 1d20 + @int + @prof + @prof."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "investigation-close",
+        "name": "Close Investigation",
+        "formula": "1d20 + @int + @prof",
+        "notes": "Bith Detail Oriented: roll with advantage when scouring for details within 5 feet.",
+        "kind": "roll",
+        "help": {
+          "title": "Close Investigation",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "",
+          "summary": "Bith Detail Oriented: roll with advantage when scouring for details within 5 feet.",
+          "details": [
+            "Formula in this sheet: 1d20 + @int + @prof."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "perception-hearing-smell",
+        "name": "Hearing/Smell Perception",
+        "formula": "1d20 + @wis",
+        "notes": "Bith Keen Hearing and Smell: roll with advantage when the check involves hearing or smell.",
+        "kind": "roll",
+        "help": {
+          "title": "Hearing/Smell Perception",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "",
+          "summary": "Bith Keen Hearing and Smell: roll with advantage when the check involves hearing or smell.",
+          "details": [
+            "Formula in this sheet: 1d20 + @wis."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "potent-aptitude-die",
+        "name": "Potent Aptitude Die",
+        "formula": "1d6",
+        "notes": "Bonus action to give an ally within 60 feet a d6 for one ability check, attack roll, or saving throw within 10 minutes. Uses refresh on short or long rest at Engineer 5.",
+        "kind": "roll",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "potent-aptitude"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Spend one Potent Aptitude use."
+          }
+        ],
+        "actionType": "bonusAction",
+        "help": {
+          "title": "Potent Aptitude Die",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Roll Action",
+          "activation": "Bonus Action",
+          "summary": "Bonus action to give an ally within 60 feet a d6 for one ability check, attack roll, or saving throw within 10 minutes. Uses refresh on short or long rest at Engineer 5.",
+          "details": [
+            "Timing: Bonus Action.",
+            "Formula in this sheet: 1d6.",
+            "Resource cost: 1 from potent-aptitude."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "projected-barrier-environmental",
+        "name": "Projected Barrier: Environmental",
+        "formula": "1d6 + @level",
+        "notes": "Bonus action; spends Potent Aptitude. Barrier HP vs one chosen damage type: acid, cold, fire, force, lightning, necrotic, poison, psychic, or sonic.",
+        "kind": "roll",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "potent-aptitude"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Projected Barrier spends one Potent Aptitude use."
+          }
+        ],
+        "actionType": "bonusAction",
+        "help": {
+          "title": "Projected Barrier: Environmental",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "Bonus Action",
+          "summary": "Bonus action; spends Potent Aptitude. Barrier HP vs one chosen damage type: acid, cold, fire, force, lightning, necrotic, poison, psychic, or sonic.",
+          "details": [
+            "Timing: Bonus Action.",
+            "Formula in this sheet: 1d6 + @level.",
+            "Resource cost: 1 from potent-aptitude."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "projected-barrier-physical",
+        "name": "Projected Barrier: Physical",
+        "formula": "1d6 + 2",
+        "notes": "Bonus action; spends Potent Aptitude. Barrier HP vs one chosen physical damage type: energy, ion, or kinetic. Half engineer level rounded down is already entered as +2.",
+        "kind": "roll",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "potent-aptitude"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Projected Barrier spends one Potent Aptitude use."
+          }
+        ],
+        "actionType": "bonusAction",
+        "help": {
+          "title": "Projected Barrier: Physical",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "Bonus Action",
+          "summary": "Bonus action; spends Potent Aptitude. Barrier HP vs one chosen physical damage type: energy, ion, or kinetic. Half engineer level rounded down is already entered as +2.",
+          "details": [
+            "Timing: Bonus Action.",
+            "Formula in this sheet: 1d6 + 2.",
+            "Resource cost: 1 from potent-aptitude."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "shocking-barrier-retaliation",
+        "name": "Shocking Barrier Retaliation",
+        "formula": "1d6",
+        "notes": "When a creature protected by Nim's barrier is damaged by a creature within 5 feet, the protected creature can deal this lightning damage to the attacker.",
+        "kind": "roll",
+        "actionType": "reaction",
+        "help": {
+          "title": "Shocking Barrier Retaliation",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "Reaction",
+          "summary": "When a creature protected by Nim's barrier is damaged by a creature within 5 feet, the protected creature can deal this lightning damage to the attacker.",
+          "details": [
+            "Timing: Reaction.",
+            "Formula in this sheet: 1d6."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "sentry-turret-damage",
+        "name": "Sentry Turret Damage",
+        "formula": "1d4",
+        "notes": "A deployed sentry targets a hostile creature within 10 feet at end of Nim's turn. Target makes Dex save DC 17 or takes damage and gains 1 slowed level.",
+        "kind": "roll",
+        "help": {
+          "title": "Sentry Turret Damage",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "",
+          "summary": "A deployed sentry targets a hostile creature within 10 feet at end of Nim's turn. Target makes Dex save DC 17 or takes damage and gains 1 slowed level.",
+          "details": [
+            "Formula in this sheet: 1d4."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "kind": "reference",
+        "id": "deploy-sentry-turret",
+        "name": "Deploy Sentry Turret",
+        "notes": "Deploy one sentry turret from the Gadgeteer Harness. The turret's later damage roll does not spend another turret.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "sentry-turrets"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Deploy one Sentry Turret."
+          }
+        ],
+        "actionType": "action",
+        "help": {
+          "title": "Deploy Sentry Turret",
+          "source": "Nim character JSON",
+          "category": "Reference Action",
+          "activation": "Action",
+          "summary": "Deploy one sentry turret from the Gadgeteer Harness. The turret's later damage roll does not spend another turret.",
+          "details": [
+            "Timing: Action.",
+            "Resource cost: 1 from sentry-turrets."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "oil-spill",
+        "name": "Oil Spill",
+        "notes": "Action; cast oil slick without tech points or concentration. Recharges on short or long rest.",
+        "kind": "reference",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "oil-spill"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Use the Oil Spill contraption; refreshes on short or long rest."
+          }
+        ],
+        "actionType": "action",
+        "help": {
+          "title": "Oil Spill",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Reference Action",
+          "activation": "Action",
+          "summary": "Gadgeteer contraption that produces an oil slick effect without spending tech points or concentration.",
+          "details": [
+            "Timing: Action.",
+            "Resource cost: 1 from oil-spill."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "Action; cast oil slick without tech points or concentration. Recharges on short or long rest."
+            }
+          ]
+        }
+      },
+      {
+        "id": "ion-blast",
+        "name": "Ion Blast",
+        "formula": "2d4",
+        "notes": "At-will tech power. One target within 60 feet, or two within 5 feet of each other, makes Dex save DC 17 or takes ion damage.",
+        "kind": "roll",
+        "actionType": "action",
+        "help": {
+          "title": "Ion Blast",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Roll Action",
+          "activation": "Action",
+          "summary": "At-will tech power that forces one target, or two close targets, to resist ion damage with Dexterity.",
+          "details": [
+            "Timing: Action.",
+            "Formula in this sheet: 2d4."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "At-will tech power. One target within 60 feet, or two within 5 feet of each other, makes Dex save DC 17 or takes ion damage."
+            }
+          ]
+        }
+      },
+      {
+        "id": "kolto-pack",
+        "name": "Kolto Pack",
+        "formula": "1d4 + @int",
+        "notes": "1st-level tech power; emergency bonus-action healing. Costs 2 tech points.",
+        "kind": "roll",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tech-points"
+            },
+            "amount": 2,
+            "trigger": "onCast",
+            "notes": "Cast Kolto Pack at 1st level."
+          }
+        ],
+        "actionType": "bonusAction",
+        "help": {
+          "title": "Kolto Pack",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Roll Action",
+          "activation": "Bonus Action",
+          "summary": "Emergency 1st-level tech healing that restores hit points as a bonus action and spends tech points.",
+          "details": [
+            "Timing: Bonus Action.",
+            "Formula in this sheet: 1d4 + @int.",
+            "Resource cost: 2 from tech-points."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "1st-level tech power; emergency bonus-action healing. Costs 2 tech points."
+            }
+          ]
+        }
+      },
+      {
+        "id": "repair-droid",
+        "name": "Repair Droid",
+        "formula": "1d8 + @int",
+        "notes": "Touch a droid or construct to restore hit points. Techie can cast once without tech points; normally costs 2 tech points at 1st level.",
+        "kind": "roll",
+        "depletionOptions": [
+          {
+            "id": "techie-free-use",
+            "name": "Use Techie Free Repair Droid",
+            "depletes": [
+              {
+                "target": {
+                  "scope": "character",
+                  "id": "techie-repair-droid"
+                },
+                "amount": 1,
+                "trigger": "onCast",
+                "notes": "Spend the once-per-long-rest free Repair Droid use."
+              }
+            ]
+          },
+          {
+            "id": "spend-tech-points",
+            "name": "Spend Tech Points",
+            "depletes": [
+              {
+                "target": {
+                  "scope": "character",
+                  "id": "tech-points"
+                },
+                "amount": 2,
+                "trigger": "onCast",
+                "notes": "Cast Repair Droid at 1st level."
+              }
+            ]
+          }
+        ],
+        "actionType": "action",
+        "help": {
+          "title": "Repair Droid",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Roll Action",
+          "activation": "Action",
+          "summary": "Tech healing for droids or constructs; Nim can use a free Techie casting or spend tech points.",
+          "details": [
+            "Timing: Action.",
+            "Formula in this sheet: 1d8 + @int.",
+            "Resource options: Use Techie Free Repair Droid or Spend Tech Points."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "Touch a droid or construct to restore hit points. Techie can cast once without tech points; normally costs 2 tech points at 1st level."
+            }
+          ]
+        }
+      },
+      {
+        "id": "tactical-barrier",
+        "name": "Tactical Barrier",
+        "notes": "Bonus action; concentration up to 10 minutes; target within 60 feet gains +2 AC. Costs 2 tech points.",
+        "kind": "reference",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tech-points"
+            },
+            "amount": 2,
+            "trigger": "onCast",
+            "notes": "Cast Tactical Barrier at 1st level."
+          }
+        ],
+        "actionType": "bonusAction",
+        "help": {
+          "title": "Tactical Barrier",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Reference Action",
+          "activation": "Bonus Action",
+          "summary": "Defensive tech power that grants a target a +2 AC bonus while concentration is maintained.",
+          "details": [
+            "Timing: Bonus Action.",
+            "Resource cost: 2 from tech-points."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "Bonus action; concentration up to 10 minutes; target within 60 feet gains +2 AC. Costs 2 tech points."
+            }
+          ]
+        }
+      },
+      {
+        "id": "energy-shield",
+        "name": "Energy Shield",
+        "notes": "Reaction defense; when hit by an attack, gain +5 AC until the start of Nim's next turn. Costs 2 tech points.",
+        "kind": "reference",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tech-points"
+            },
+            "amount": 2,
+            "trigger": "onCast",
+            "notes": "Cast Energy Shield at 1st level."
+          }
+        ],
+        "actionType": "reaction",
+        "help": {
+          "title": "Energy Shield",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Reference Action",
+          "activation": "Reaction",
+          "summary": "Reaction defense used when hit, raising AC until the start of Nim's next turn.",
+          "details": [
+            "Timing: Reaction.",
+            "Resource cost: 2 from tech-points."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "Reaction defense; when hit by an attack, gain +5 AC until the start of Nim's next turn. Costs 2 tech points."
+            }
+          ]
+        }
+      },
+      {
+        "id": "hold-droid",
+        "name": "Hold Droid",
+        "notes": "2nd-level tech power; one droid or construct within 60 feet makes Con save DC 17 or is paralyzed. Concentration up to 1 minute. Costs 3 tech points.",
+        "kind": "reference",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tech-points"
+            },
+            "amount": 3,
+            "trigger": "onCast",
+            "notes": "Cast Hold Droid at 2nd level."
+          }
+        ],
+        "actionType": "action",
+        "help": {
+          "title": "Hold Droid",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Reference Action",
+          "activation": "Action",
+          "summary": "2nd-level control power that can paralyze a droid or construct on a failed Constitution save.",
+          "details": [
+            "Timing: Action.",
+            "Resource cost: 3 from tech-points."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "2nd-level tech power; one droid or construct within 60 feet makes Con save DC 17 or is paralyzed. Concentration up to 1 minute. Costs 3 tech points."
+            }
+          ]
+        }
+      },
+      {
+        "id": "lock",
+        "name": "Lock",
+        "notes": "2nd-level tech power; touch a door, window, gate, chest, or entryway to lock it and increase break/pick DC by 10. Costs 3 tech points.",
+        "kind": "reference",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tech-points"
+            },
+            "amount": 3,
+            "trigger": "onCast",
+            "notes": "Cast Lock at 2nd level."
+          }
+        ],
+        "actionType": "action",
+        "help": {
+          "title": "Lock",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Reference Action",
+          "activation": "Action",
+          "summary": "2nd-level utility tech power that secures an entry or container and raises the DC to bypass it.",
+          "details": [
+            "Timing: Action.",
+            "Resource cost: 3 from tech-points."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "2nd-level tech power; touch a door, window, gate, chest, or entryway to lock it and increase break/pick DC by 10. Costs 3 tech points."
+            }
+          ]
+        }
+      },
+      {
+        "id": "invisibility-to-cameras",
+        "name": "Invisibility to Cameras",
+        "notes": "3rd-level tech power; up to four creatures become undetectable to electronic sensors and cameras. Concentration up to 1 minute. Costs 4 tech points.",
+        "kind": "reference",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tech-points"
+            },
+            "amount": 4,
+            "trigger": "onCast",
+            "notes": "Cast Invisibility to Cameras at 3rd level."
+          }
+        ],
+        "actionType": "action",
+        "help": {
+          "title": "Invisibility to Cameras",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Reference Action",
+          "activation": "Action",
+          "summary": "3rd-level stealth utility that hides creatures from electronic sensors and cameras while concentrated.",
+          "details": [
+            "Timing: Action.",
+            "Resource cost: 4 from tech-points."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "3rd-level tech power; up to four creatures become undetectable to electronic sensors and cameras. Concentration up to 1 minute. Costs 4 tech points."
+            }
+          ]
+        }
+      },
+      {
+        "id": "scramble-interface",
+        "name": "Scramble Interface",
+        "notes": "3rd-level tech power prepared for Separatist droids and systems. Use Tech save DC 17 while harness-focused. Costs 4 tech points.",
+        "kind": "reference",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tech-points"
+            },
+            "amount": 4,
+            "trigger": "onCast",
+            "notes": "Cast Scramble Interface at 3rd level."
+          }
+        ],
+        "actionType": "action",
+        "help": {
+          "title": "Scramble Interface",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Reference Action",
+          "activation": "Action",
+          "summary": "3rd-level tech option for disrupting droids, computers, or interfaces using Nim's techcasting stats.",
+          "details": [
+            "Timing: Action.",
+            "Resource cost: 4 from tech-points."
+          ],
+          "sections": [
+            {
+              "heading": "Sheet Notes",
+              "text": "3rd-level tech power prepared for Separatist droids and systems. Use Tech save DC 17 while harness-focused. Costs 4 tech points."
+            }
+          ]
+        }
+      },
+      {
+        "id": "slicers-kit-check",
+        "name": "Slicer's Kit Check",
+        "formula": "1d20 + @int + @prof + @prof",
+        "notes": "Use for console intrusion, encrypted archives, data recovery, and droid/security systems when expertise applies.",
+        "kind": "roll",
+        "help": {
+          "title": "Slicer's Kit Check",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "",
+          "summary": "Use for console intrusion, encrypted archives, data recovery, and droid/security systems when expertise applies.",
+          "details": [
+            "Formula in this sheet: 1d20 + @int + @prof + @prof."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "security-kit-check",
+        "name": "Security Kit Check",
+        "formula": "1d20 + @int + @prof",
+        "notes": "Use for locks, access panels, and physical security bypasses when tool proficiency applies.",
+        "kind": "roll",
+        "help": {
+          "title": "Security Kit Check",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "",
+          "summary": "Use for locks, access panels, and physical security bypasses when tool proficiency applies.",
+          "details": [
+            "Formula in this sheet: 1d20 + @int + @prof."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "tinkers-implements-check",
+        "name": "Tinker's Implements Check",
+        "formula": "1d20 + @int + @prof",
+        "notes": "Use for repair, calibration, jury-rigging, and small-device modification.",
+        "kind": "roll",
+        "help": {
+          "title": "Tinker's Implements Check",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "",
+          "summary": "Use for repair, calibration, jury-rigging, and small-device modification.",
+          "details": [
+            "Formula in this sheet: 1d20 + @int + @prof."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "gadgeteers-implements-check",
+        "name": "Gadgeteer's Implements Check",
+        "formula": "1d20 + @int + @prof",
+        "notes": "Use for Gadgeteer Harness adjustments, turret/barrier emitter work, and contraption maintenance.",
+        "kind": "roll",
+        "help": {
+          "title": "Gadgeteer's Implements Check",
+          "source": "Nim character JSON",
+          "category": "Roll Action",
+          "activation": "",
+          "summary": "Use for Gadgeteer Harness adjustments, turret/barrier emitter work, and contraption maintenance.",
+          "details": [
+            "Formula in this sheet: 1d20 + @int + @prof."
+          ],
+          "sections": []
+        }
+      }
+    ],
+    "notes": "Bith Gadgeteer Engineer built for a level 5 Clone Wars Republic mission. Species traits: speed 30, Detail Oriented, Keen Hearing and Smell, Musician, Programmer. Languages: Galactic Basic, Bith, binary/droid-oriented mission language by GM approval. Saving throws: Constitution and Intelligence. Skills: Investigation, Technology, Piloting, Lore, Medicine. Technology is marked expertise for app simplicity; if your GM wants Bith Programmer to apply only to computer-related Technology checks, set technology.expertise to false and use the Computer Slicing custom roll instead. Engineer 5 core values: 12 tech powers known, 10 base tech points, max power level 3rd, Potent Aptitude d6, 5 modification slots. Nim is using 4 harness modifications, one over proficiency bonus, so tech point max is entered as 15 for this table. Harness modifications assumed: Integrated Inhibitor, Sentry Turret, Oil Spill, Shocking Barrier. Tech powers known: Ion Blast, Mending, On/Off, Analyze, Energy Shield, Kolto Pack, Smoke Cloud, Tactical Barrier, Repair Droid, Hold Droid, Lock, Invisibility to Cameras, Scramble Interface. Combat gear: infused fiber armor, light shield generator, light pistol, vibrodagger, wristpad, tinker's implements, slicer's kit, gadgeteer's implements, and Gadgeteer Harness. Personality: precise, over-formal, nasal technical specialist who protects allies with barriers, complains politely about unsafe equipment, and treats droid warfare as an engineering hygiene problem. Inventory update: spent 4,995 of 5,000 credits on infused fiber armor, light shield generator, security kit, pocket scrambler, holotrace device, comm jammer, repair kit, 2 medpacs, traumakit, and 12 additional power cells. Combat AC is now 16 from infused fiber armor plus light shield generator. Power cell resource is 14 total including 2 starting cells. Basic inventory update: added Engineer starting gear, Scientist background gear, Gadgeteer-specific tools, dungeoneer's pack contents, and Nim's visual/personal gear: magnifying monocular, tiny-tool bandolier, bright pink insulated gloves, Aurebesh warning tags, diagnostic probes, blank datacards, spare parts, dust wraps, and Republic contractor badge. Resource-depletion update: actions and inventory items now use depletes/depletionOptions hooks. The light pistol contains a loaded power cell tracked as an item-contained resource; spare power cells are tracked separately. Cybernetic update: Dexterity Enhancement (Basic) purchased for 200 cr; Dex is now 16 and Cha is now 9 due to the side effect. AC is now 17 with infused fiber armor plus light shield generator.",
+    "inventory": [
+      {
+        "id": "fiber-armor-infused",
+        "name": "Infused Fiber Armor",
+        "category": "armor",
+        "quantity": 1,
+        "cost": 450,
+        "equipped": true,
+        "infused": true,
+        "armorClassFormula": "12 + Dex mod + 1 infusion",
+        "notes": "Light armor. Nim infuses this armor after a long rest. With Dex +3, armor gives AC 16 before shield.",
+        "help": {
+          "title": "Infused Fiber Armor",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Light armor. Nim infuses this armor after a long rest. With Dex +3, armor gives AC 16 before shield.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 450 credits.",
+            "Currently equipped.",
+            "Currently infused.",
+            "Armor class note: 12 + Dex mod + 1 infusion."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "light-shield-generator",
+        "name": "Light Shield Generator",
+        "category": "shield",
+        "quantity": 1,
+        "cost": 125,
+        "equipped": true,
+        "notes": "Adds +1 AC while active/equipped. Combined with infused fiber armor, Nim has AC 17.",
+        "help": {
+          "title": "Light Shield Generator",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Adds +1 AC while active/equipped. Combined with infused fiber armor, Nim has AC 17.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 125 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "security-kit",
+        "name": "Security Kit",
+        "category": "tools",
+        "quantity": 1,
+        "cost": 650,
+        "equipped": false,
+        "notes": "For locks, access panels, and physical security bypasses.",
+        "help": {
+          "title": "Security Kit",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "For locks, access panels, and physical security bypasses.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 650 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "pocket-scrambler",
+        "name": "Pocket Scrambler",
+        "category": "communications",
+        "quantity": 1,
+        "cost": 800,
+        "equipped": false,
+        "notes": "Encrypts or protects communications during sensitive Republic operations.",
+        "containedResources": [
+          {
+            "id": "internal-power-cell",
+            "name": "Internal Power Cell",
+            "kind": "power-cell",
+            "unit": "charges",
+            "current": 1,
+            "max": 1,
+            "rechargeFromResourceId": "power-cells",
+            "notes": "Optional app hook: the scrambler can be treated as containing one power cell. Deplete manually when the GM decides its cell is exhausted.",
+            "help": {
+              "title": "Internal Power Cell",
+              "source": "Nim character JSON",
+              "category": "Contained Resource",
+              "summary": "Optional app hook: the scrambler can be treated as containing one power cell. Deplete manually when the GM decides its cell is exhausted.",
+              "details": [
+                "Contained by: Pocket Scrambler.",
+                "Current: 1 / 1 charges.",
+                "Recharge/refill source: power-cells."
+              ]
+            }
+          }
+        ],
+        "help": {
+          "title": "Pocket Scrambler",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Encrypts or protects communications during sensitive Republic operations.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 800 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "holotrace-device",
+        "name": "Holotrace Device",
+        "category": "communications",
+        "quantity": 1,
+        "cost": 1000,
+        "equipped": false,
+        "notes": "Used to trace holographic transmissions, signals, or archive traffic.",
+        "help": {
+          "title": "Holotrace Device",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Used to trace holographic transmissions, signals, or archive traffic.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 1000 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "comm-jammer",
+        "name": "Comm Jammer",
+        "category": "communications",
+        "quantity": 1,
+        "cost": 450,
+        "equipped": false,
+        "notes": "Local interference tool for disrupting Separatist coordination.",
+        "containedResources": [
+          {
+            "id": "internal-power-cell",
+            "name": "Internal Power Cell",
+            "kind": "power-cell",
+            "unit": "charges",
+            "current": 1,
+            "max": 1,
+            "rechargeFromResourceId": "power-cells",
+            "notes": "Optional app hook: the jammer can be treated as containing one power cell. Deplete manually when the GM decides its cell is exhausted.",
+            "help": {
+              "title": "Internal Power Cell",
+              "source": "Nim character JSON",
+              "category": "Contained Resource",
+              "summary": "Optional app hook: the jammer can be treated as containing one power cell. Deplete manually when the GM decides its cell is exhausted.",
+              "details": [
+                "Contained by: Comm Jammer.",
+                "Current: 1 / 1 charges.",
+                "Recharge/refill source: power-cells."
+              ]
+            }
+          }
+        ],
+        "help": {
+          "title": "Comm Jammer",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Local interference tool for disrupting Separatist coordination.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 450 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "repair-kit",
+        "name": "Repair Kit",
+        "category": "medical-and-repair",
+        "quantity": 1,
+        "cost": 750,
+        "equipped": false,
+        "notes": "Field repair supplies for droids, constructs, and damaged mission gear.",
+        "help": {
+          "title": "Repair Kit",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Field repair supplies for droids, constructs, and damaged mission gear.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 750 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "medpac",
+        "name": "Medpac",
+        "category": "medical-and-repair",
+        "quantity": 2,
+        "cost": 600,
+        "equipped": false,
+        "notes": "Emergency medical supplies for organic allies.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "medpacs"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Use one medpac."
+          }
+        ],
+        "help": {
+          "title": "Medpac",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Emergency medical supplies for organic allies.",
+          "details": [
+            "Resource cost: 1 from medpacs.",
+            "Quantity tracked on sheet: 2.",
+            "Listed cost: 600 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "traumakit",
+        "name": "Traumakit",
+        "category": "medical-and-repair",
+        "quantity": 1,
+        "cost": 50,
+        "equipped": false,
+        "notes": "Emergency stabilization kit.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "traumakit"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Use the traumakit."
+          }
+        ],
+        "help": {
+          "title": "Traumakit",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Emergency stabilization kit.",
+          "details": [
+            "Resource cost: 1 from traumakit.",
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 50 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "power-cells",
+        "name": "Spare Power Cells",
+        "category": "ammunition",
+        "quantity": 13,
+        "cost": 120,
+        "equipped": false,
+        "notes": "13 spare power cells. One additional power cell is loaded inside the Light Pistol and tracked as that item's contained resource.",
+        "source": "Engineer starting gear + purchased mission gear",
+        "help": {
+          "title": "Spare Power Cells",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "13 spare power cells. One additional power cell is loaded inside the Light Pistol and tracked as that item's contained resource.",
+          "details": [
+            "Quantity tracked on sheet: 13.",
+            "Listed cost: 120 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "light-pistol",
+        "name": "Light Pistol",
+        "category": "weapon",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Engineer starting gear",
+        "notes": "Simple blaster sidearm; represented in attacks as Light Pistol.",
+        "containedResources": [
+          {
+            "id": "loaded-power-cell",
+            "name": "Loaded Power Cell",
+            "kind": "power-cell",
+            "unit": "shots",
+            "current": 12,
+            "max": 12,
+            "rechargeFromResourceId": "power-cells",
+            "notes": "Loaded cell for the light pistol. Each Light Pistol attack depletes 1 shot. Reloading can spend 1 spare power cell to refill this to max; adjust max if your table uses a different reload value.",
+            "help": {
+              "title": "Loaded Power Cell",
+              "source": "Nim character JSON",
+              "category": "Contained Resource",
+              "summary": "Loaded cell for the light pistol. Each Light Pistol attack depletes 1 shot. Reloading can spend 1 spare power cell to refill this to max; adjust max if your table uses a different reload value.",
+              "details": [
+                "Contained by: Light Pistol.",
+                "Current: 12 / 12 shots.",
+                "Recharge/refill source: power-cells."
+              ]
+            }
+          }
+        ],
+        "depletes": [
+          {
+            "target": {
+              "scope": "inventoryItem",
+              "itemId": "light-pistol",
+              "id": "loaded-power-cell"
+            },
+            "amount": 1,
+            "trigger": "onAttack",
+            "notes": "Normally handled by the Light Pistol attack entry."
+          }
+        ],
+        "help": {
+          "title": "Light Pistol",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Simple blaster sidearm; represented in attacks as Light Pistol.",
+          "details": [
+            "Resource cost: 1 from loaded-power-cell.",
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "vibrodagger",
+        "name": "Vibrodagger",
+        "category": "weapon",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Engineer starting gear",
+        "notes": "Emergency cutting tool and backup melee weapon; represented in attacks as Vibrodagger.",
+        "help": {
+          "title": "Vibrodagger",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Emergency cutting tool and backup melee weapon; represented in attacks as Vibrodagger.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "combat-suit-backup",
+        "name": "Combat Suit",
+        "category": "armor",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Engineer starting gear",
+        "notes": "Original Engineer starting armor, retained as a backup. Nim currently wears infused fiber armor instead.",
+        "help": {
+          "title": "Combat Suit",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Original Engineer starting armor, retained as a backup. Nim currently wears infused fiber armor instead.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "wristpad",
+        "name": "Wristpad",
+        "category": "electronics",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Engineer starting gear",
+        "notes": "Wrist-mounted interface for tech powers, slicing notes, diagnostics, and field references.",
+        "containedResources": [
+          {
+            "id": "internal-power-cell",
+            "name": "Internal Power Cell",
+            "kind": "power-cell",
+            "unit": "charges",
+            "current": 1,
+            "max": 1,
+            "rechargeFromResourceId": "power-cells",
+            "notes": "Optional app hook for battery tracking; most tables can ignore this unless power management matters.",
+            "help": {
+              "title": "Internal Power Cell",
+              "source": "Nim character JSON",
+              "category": "Contained Resource",
+              "summary": "Optional app hook for battery tracking; most tables can ignore this unless power management matters.",
+              "details": [
+                "Contained by: Wristpad.",
+                "Current: 1 / 1 charges.",
+                "Recharge/refill source: power-cells."
+              ]
+            }
+          }
+        ],
+        "help": {
+          "title": "Wristpad",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Wrist-mounted interface for tech powers, slicing notes, diagnostics, and field references.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "tinkers-implements",
+        "name": "Tinker's Implements",
+        "category": "tools",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Engineer class proficiency and starting gear",
+        "notes": "Core Engineer tool set for repair, calibration, small-device work, and improvised fixes.",
+        "help": {
+          "title": "Tinker's Implements",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Core Engineer tool set for repair, calibration, small-device work, and improvised fixes.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "slicers-kit",
+        "name": "Slicer's Kit",
+        "category": "tools",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Engineer chosen tool proficiency",
+        "notes": "Computer intrusion, data recovery, security bypasses, and archive access. Pair with Nim's Technology expertise.",
+        "help": {
+          "title": "Slicer's Kit",
+          "source": "SW5e Player's Handbook (Print Friendly)",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Computer intrusion, data recovery, security bypasses, and archive access. Pair with Nim's Technology expertise.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "gadgeteers-implements",
+        "name": "Gadgeteer's Implements",
+        "category": "tools",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Gadgeteer Engineering discipline",
+        "notes": "Specialized implements for the Gadgeteer Harness, barrier emitters, turret maintenance, and contraption tuning.",
+        "help": {
+          "title": "Gadgeteer's Implements",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Specialized implements for the Gadgeteer Harness, barrier emitters, turret maintenance, and contraption tuning.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "gadgeteer-harness",
+        "name": "Gadgeteer Harness",
+        "category": "class-feature-gear",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "attuned": true,
+        "source": "Gadgeteer Engineering discipline",
+        "modifications": [
+          "Integrated Inhibitor",
+          "Sentry Turret",
+          "Oil Spill",
+          "Shocking Barrier"
+        ],
+        "notes": "Enhanced harness and tech focus. Currently has 4 modifications installed; tech points are tracked as 15 for this table.",
+        "help": {
+          "title": "Gadgeteer Harness",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Enhanced harness and tech focus. Currently has 4 modifications installed; tech points are tracked as 15 for this table.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped.",
+            "Installed modifications: Integrated Inhibitor, Sentry Turret, Oil Spill, Shocking Barrier."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "dungeoneers-pack",
+        "name": "Dungeoneer's Pack",
+        "category": "adventuring-gear",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Engineer starting gear",
+        "contents": [
+          "backpack",
+          "5 glow rods",
+          "fusion cutter",
+          "grappling hook",
+          "chronometer",
+          "10 days field rations",
+          "canteen",
+          "50 feet fibercord cable"
+        ],
+        "notes": "Standard practical field pack for entering hostile facilities, tunnels, and battle-station interiors. Glow rods and rations are also tracked as resources.",
+        "help": {
+          "title": "Dungeoneer's Pack",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Standard practical field pack for entering hostile facilities, tunnels, and battle-station interiors. Glow rods and rations are also tracked as resources.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Contents: backpack, 5 glow rods, fusion cutter, grappling hook, chronometer, 10 days field rations, canteen, 50 feet fibercord cable."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "datapad",
+        "name": "Datapad",
+        "category": "electronics",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Scientist background gear",
+        "notes": "Research notes, archive index, Republic credentials, diagnostic logs, and unnecessarily precise checklists.",
+        "help": {
+          "title": "Datapad",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Research notes, archive index, Republic credentials, diagnostic logs, and unnecessarily precise checklists.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "ai-research-book",
+        "name": "Research Book: Artificial Intelligence",
+        "category": "background-gear",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Scientist background gear",
+        "notes": "Nim's chosen field notes for AI, droid heuristics, and Separatist automation quirks.",
+        "help": {
+          "title": "Research Book: Artificial Intelligence",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Nim's chosen field notes for AI, droid heuristics, and Separatist automation quirks.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "common-clothes",
+        "name": "Common Clothes",
+        "category": "clothing",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Scientist background gear",
+        "notes": "Plain spare clothes, folded with upsetting precision.",
+        "help": {
+          "title": "Common Clothes",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Plain spare clothes, folded with upsetting precision.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "utility-coat",
+        "name": "Spotless Technician's Utility Coat",
+        "category": "clothing",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Personal gear",
+        "notes": "Tidy pale field coat worn over armor and harness; somehow kept clean despite Geonosian dust.",
+        "help": {
+          "title": "Spotless Technician's Utility Coat",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Tidy pale field coat worn over armor and harness; somehow kept clean despite Geonosian dust.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "pink-insulated-gloves",
+        "name": "Bright Pink Insulated Gloves",
+        "category": "clothing",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Personal gear",
+        "notes": "Distinctive insulated gloves for live-circuit work. Also Nim's most visible fashion crime.",
+        "help": {
+          "title": "Bright Pink Insulated Gloves",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Distinctive insulated gloves for live-circuit work. Also Nim's most visible fashion crime.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "magnifying-monocular",
+        "name": "Clipped-On Magnifying Monocular",
+        "category": "electronics",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Personal gear",
+        "notes": "Mechanical magnifier clipped over one eye for precision inspection and judgmental staring.",
+        "help": {
+          "title": "Clipped-On Magnifying Monocular",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Mechanical magnifier clipped over one eye for precision inspection and judgmental staring.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "micro-tool-bandolier",
+        "name": "Bandolier of Tiny Color-Coded Tools",
+        "category": "tools",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Personal gear",
+        "notes": "Cross-body bandolier with labeled micro-tools, probes, couplers, tweezers, calibration pins, and tiny drivers.",
+        "help": {
+          "title": "Bandolier of Tiny Color-Coded Tools",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Cross-body bandolier with labeled micro-tools, probes, couplers, tweezers, calibration pins, and tiny drivers.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "aurebesh-warning-tags",
+        "name": "Aurebesh Warning Tags",
+        "category": "personal-effects",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Personal gear",
+        "contents": [
+          "DO NOT TOUCH",
+          "STERILE",
+          "LIVE CIRCUIT",
+          "LEFT EMITTER",
+          "NOT A SNACK"
+        ],
+        "notes": "Small dangling labels attached to harness modules. The NOT A SNACK tag is not explained.",
+        "help": {
+          "title": "Aurebesh Warning Tags",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Small dangling labels attached to harness modules. The NOT A SNACK tag is not explained.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped.",
+            "Contents: DO NOT TOUCH, STERILE, LIVE CIRCUIT, LEFT EMITTER, NOT A SNACK."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "diagnostic-probes",
+        "name": "Diagnostic Probes and Sensor Leads",
+        "category": "tools",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Personal engineering kit",
+        "notes": "Clip leads, micro-probes, continuity testers, and sensor taps for consoles, droids, and sealed machinery.",
+        "help": {
+          "title": "Diagnostic Probes and Sensor Leads",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Clip leads, micro-probes, continuity testers, and sensor taps for consoles, droids, and sealed machinery.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "blank-datacards",
+        "name": "Blank Datacards",
+        "category": "data-storage",
+        "quantity": 6,
+        "cost": 0,
+        "equipped": false,
+        "source": "Personal engineering kit",
+        "notes": "For copying logs, recovered archives, sensor data, droid diagnostics, and classified things Nim definitely labels.",
+        "help": {
+          "title": "Blank Datacards",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "For copying logs, recovered archives, sensor data, droid diagnostics, and classified things Nim definitely labels.",
+          "details": [
+            "Quantity tracked on sheet: 6.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "spare-parts-pouch",
+        "name": "Spare Parts Pouch",
+        "category": "tools",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Personal engineering kit",
+        "contents": [
+          "microfuses",
+          "wire spools",
+          "connector clips",
+          "insulating tape",
+          "tiny labeled screws"
+        ],
+        "notes": "Basic field repair bits for the harness, wristpad, blaster contacts, and angry doors.",
+        "help": {
+          "title": "Spare Parts Pouch",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Basic field repair bits for the harness, wristpad, blaster contacts, and angry doors.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Contents: microfuses, wire spools, connector clips, insulating tape, tiny labeled screws."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "geonosis-dust-wraps",
+        "name": "Geonosis Dust Wraps and Filter Plugs",
+        "category": "survival-gear",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "source": "Mission-appropriate personal gear",
+        "notes": "Simple dust protection for vents, gloves, cuffs, and exposed tool ports during sand-heavy operations.",
+        "help": {
+          "title": "Geonosis Dust Wraps and Filter Plugs",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Simple dust protection for vents, gloves, cuffs, and exposed tool ports during sand-heavy operations.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "republic-contractor-badge",
+        "name": "Republic Technical Contractor Badge",
+        "category": "personal-effects",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": true,
+        "source": "Mission credential",
+        "notes": "Authorizes Nim to be present with the Republic entourage, at least according to Nim's very firm interpretation.",
+        "help": {
+          "title": "Republic Technical Contractor Badge",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Authorizes Nim to be present with the Republic entourage, at least according to Nim's very firm interpretation.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 0 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "glow-rods",
+        "name": "Glow Rods",
+        "category": "adventuring-gear",
+        "quantity": 5,
+        "cost": 0,
+        "equipped": false,
+        "source": "Dungeoneer's pack",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "glow-rods"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Activate or expend one glow rod."
+          }
+        ],
+        "notes": "Tracked as a resource so the app can decrement uses.",
+        "help": {
+          "title": "Glow Rods",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Tracked as a resource so the app can decrement uses.",
+          "details": [
+            "Resource cost: 1 from glow-rods.",
+            "Quantity tracked on sheet: 5.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "field-rations",
+        "name": "Field Rations",
+        "category": "adventuring-gear",
+        "quantity": 10,
+        "cost": 0,
+        "equipped": false,
+        "source": "Dungeoneer's pack",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "field-rations-days"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Consume one day of rations."
+          }
+        ],
+        "notes": "Tracked as a resource so the app can decrement days.",
+        "help": {
+          "title": "Field Rations",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Tracked as a resource so the app can decrement days.",
+          "details": [
+            "Resource cost: 1 from field-rations-days.",
+            "Quantity tracked on sheet: 10.",
+            "Listed cost: 0 credits."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "dexterity-enhancement-basic",
+        "name": "Dexterity Enhancement (Basic)",
+        "category": "cybernetic augmentation",
+        "quantity": 1,
+        "cost": 200,
+        "equipped": true,
+        "source": "Purchased cybernetic augmentation",
+        "notes": "Cybernetic augmentation. Dexterity score increases by 1; side effect reduces Charisma score by 1. Applied in abilities as Dex 16 and Cha 9.",
+        "help": {
+          "title": "Dexterity Enhancement (Basic)",
+          "source": "Nim character JSON",
+          "category": "Inventory Item",
+          "activation": "",
+          "summary": "Cybernetic augmentation. Dexterity score increases by 1; side effect reduces Charisma score by 1. Applied in abilities as Dex 16 and Cha 9.",
+          "details": [
+            "Quantity tracked on sheet: 1.",
+            "Listed cost: 200 credits.",
+            "Currently equipped."
+          ],
+          "sections": []
+        }
+      }
+    ],
+    "credits": {
+      "starting": 5000,
+      "spent": 4965,
+      "remaining": 35,
+      "notes": "Purchased mission gear package; fiber armor is infused after a long rest. Added Dexterity Enhancement (Basic) cybernetic augmentation for 200 cr.",
+      "help": {
+        "title": "Credits",
+        "source": "Nim character JSON",
+        "category": "Currency",
+        "summary": "Purchased mission gear package; fiber armor is infused after a long rest. Added Dexterity Enhancement (Basic) cybernetic augmentation for 200 cr.",
+        "details": [
+          "Starting: 5000.",
+          "Spent: 4965.",
+          "Remaining: 35."
+        ]
+      }
+    }
+  }
+}

@@ -101,6 +101,7 @@ Example:
 | --- | --- | --- | --- |
 | `armorClass` | number | yes | Display only for now. |
 | `initiativeBonus` | number | no | Additional bonus beyond Dexterity modifier. Defaults to `0`. |
+| `techcastingDc` | number | no | Optional override for displayed Tech DC. If omitted, app uses `8 + proficiency + INT modifier`. |
 | `speed` | number | yes | Walking speed. |
 | `hitPoints` | object | yes | Current/max/temp HP. |
 
@@ -117,6 +118,7 @@ Resources track expendable class features, powers, ammunition pools, and other c
 | `unit` | string | no | Display unit, such as `points`, `uses`, or `cells`. |
 | `restRecovery` | string | no | `none`, `short`, `long`, or `shortOrLong`. Used by the Short Rest and Long Rest buttons. Omit or use `none` for consumables. |
 | `notes` | string | no | Freeform notes. |
+| `help` | object | no | Full in-app help page content for the resource. |
 
 ## Attacks
 
@@ -133,6 +135,7 @@ Attack entries represent weapons, powers, or any action with attack and damage r
 | `damage` | array | no | Damage parts. |
 | `properties` | array | no | Display notes, such as `range` or `two-handed`. |
 | `notes` | string | no | Extra Roll20 note text. |
+| `help` | object | no | Full in-app help page content for the action or attack. |
 
 Damage parts:
 
@@ -160,6 +163,7 @@ Inventory entries represent carried or owned gear.
 | `infused` | boolean | no | Displays an `INFUSE` flag when true. |
 | `armorClassFormula` | string | no | Display-only AC explanation. |
 | `notes` | string | no | Freeform item notes. |
+| `help` | object | no | Full in-app help page content for the item. |
 | `containedResources` | array | no | Item-contained resources, such as a loaded power cell. |
 | `depletes` | array | no | Resource costs this item spends when used. |
 | `depletionOptions` | array | no | Alternative resource payment choices. |
@@ -243,6 +247,7 @@ Legacy note-only entries with no `formula`, or with `formula` set to `"0"`, are 
 | `actionType` | string | no | `action`, `bonusAction`, or `reaction`. Displays a timing tag on the action card. |
 | `formula` | string | for `roll` | Roll formula using supported placeholders. Omit for `reference`. |
 | `notes` | string | no | Extra Roll20 note text. |
+| `help` | object | no | Full in-app help page content for the custom roll or reference. |
 
 Supported placeholders:
 
@@ -272,6 +277,32 @@ Reference example:
   "id": "energy-shield",
   "name": "Energy Shield",
   "notes": "Reaction defense; when hit by an attack, gain +5 AC until the start of your next turn."
+}
+```
+
+## Help Pages
+
+Actions, resources, inventory items, contained resources, and credits can include a `help` object. The app renders this as a full-page overlay when the `?` help button beside the object title is clicked.
+
+```json
+{
+  "help": {
+    "title": "Energy Shield",
+    "source": "SW5e Player's Handbook",
+    "category": "Tech Power",
+    "activation": "Reaction",
+    "summary": "Reaction defense used when hit, raising AC until the start of your next turn.",
+    "details": [
+      "Costs 2 tech points in Nim's sheet.",
+      "The sheet marks this as a reaction."
+    ],
+    "sections": [
+      {
+        "heading": "Sheet Notes",
+        "text": "Use when hit by an attack."
+      }
+    ]
+  }
 }
 ```
 

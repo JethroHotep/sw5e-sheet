@@ -39,7 +39,8 @@ const state = {
   bridgePending: new Set(),
   bridgeDetected: false,
   latestCommand: "",
-  history: []
+  history: [],
+  lastFocus: null
 };
 
 const elements = {
@@ -69,12 +70,17 @@ const elements = {
   latestCommand: document.querySelector("#latestCommand"),
   copyLatestButton: document.querySelector("#copyLatestButton"),
   sendLatestButton: document.querySelector("#sendLatestButton"),
-  history: document.querySelector("#history")
+  history: document.querySelector("#history"),
+  helpOverlay: document.querySelector("#helpOverlay"),
+  helpTitle: document.querySelector("#helpTitle"),
+  helpSource: document.querySelector("#helpSource"),
+  helpBody: document.querySelector("#helpBody"),
+  helpCloseButton: document.querySelector("#helpCloseButton")
 };
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
-  loadExample("examples/nim-sw5e-v7.json", true);
+  loadExample("examples/nim-sw5e-v8.json", true);
 });
 
 function bindEvents() {
@@ -115,11 +121,18 @@ function bindEvents() {
   });
 
   elements.downloadJsonButton.addEventListener("click", downloadCurrentJson);
-  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v7.json"));
+  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v8.json"));
   elements.shortRestButton.addEventListener("click", () => applyRest("short"));
   elements.longRestButton.addEventListener("click", () => applyRest("long"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
   elements.sendLatestButton.addEventListener("click", () => sendCommandToBridge(state.latestCommand));
+  elements.helpCloseButton.addEventListener("click", closeHelp);
+  elements.helpOverlay.addEventListener("click", (event) => {
+    if (event.target === elements.helpOverlay) closeHelp();
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && !elements.helpOverlay.hidden) closeHelp();
+  });
   window.addEventListener("message", handleBridgeResponse);
   pingBridge();
   window.setInterval(pingBridge, 5000);
@@ -338,6 +351,7 @@ function renderCombatStats(character) {
       renderSheet();
       setStatus(`Temporary HP set to ${hp.temporary}.`);
     }, { step: 1, min: 0 }),
+    makeStat("Tech DC", getTechcastingDc(character)),
     makeStat("Speed", `${character.combat?.speed ?? "-"} ft`),
     makeStat("Prof", formatModifier(character.proficiencyBonus)),
     makeStat("Init", formatModifier(getInitiativeModifier(character)))
@@ -380,7 +394,8 @@ function renderResources(character) {
       <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
       ${resource.notes ? `<p class="small">${escapeHtml(resource.notes)}</p>` : ""}
     `;
-    wrapper.prepend(makeClickableTitle(resource.name, () => postDescription(resource.name, resourceDescription(resource, current, max)), "resource-title"));
+    const description = resourceDescription(resource, current, max);
+    wrapper.prepend(makeObjectHeader(resource.name, () => postDescription(resource.name, description), resource.help, "resource-title", description));
     wrapper.append(makeStepper(current, (value) => {
       resource.current = clampNumber(value, 0, max || Infinity);
       renderSheet();
@@ -413,7 +428,8 @@ function renderCredits(character) {
     </div>
     ${credits.notes ? `<p class="small">${escapeHtml(credits.notes)}</p>` : ""}
   `;
-  wrapper.querySelector(".credits-title-anchor").replaceWith(makeClickableTitle("Credits", () => postDescription("Credits", creditsDescription(credits)), "credits-title"));
+  const description = creditsDescription(credits);
+  wrapper.querySelector(".credits-title-anchor").replaceWith(makeObjectHeader("Credits", () => postDescription("Credits", description), credits.help, "credits-title", description));
   elements.credits.replaceChildren(wrapper);
 }
 
@@ -459,7 +475,8 @@ function renderInventory(character) {
           ${depletionsFor(item).length ? `<button type="button" data-use-item="${escapeHtml(item.id)}">Use</button>` : ""}
         </div>
       `;
-      row.querySelector(".title-anchor").replaceWith(makeClickableTitle(item.name, () => postDescription(item.name, inventoryDescription(item)), "inventory-title"));
+      const description = inventoryDescription(item);
+      row.querySelector(".title-anchor").replaceWith(makeObjectHeader(item.name, () => postDescription(item.name, description), item.help, "inventory-title", description));
       const useButton = row.querySelector("[data-use-item]");
       if (useButton) {
         useButton.addEventListener("click", () => applyEntityDepletion(item, item.name));
@@ -533,7 +550,7 @@ function renderAttacks(character) {
     ].filter(Boolean).join(" - ");
     const fullMeta = [meta, depletionSummary(attack)].filter(Boolean).join(" - ");
 
-    return makeActionItem(attack.name, fullMeta, attack.notes, "Roll", () => {
+    return makeActionItem(attack, fullMeta, attack.notes, "Roll", () => {
       const command = buildAttackCommand(character, attack);
       publishCommand(`${attack.name}`, command);
       applyEntityDepletion(attack, attack.name);
@@ -547,7 +564,7 @@ function renderCustomRolls(character) {
   const entries = character.customRolls || [];
   const rollNodes = entries
     .filter((entry) => customEntryKind(entry) === "roll")
-    .map((entry) => makeActionItem(entry.name, [resolveFormula(character, entry.formula), depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Roll", () => {
+    .map((entry) => makeActionItem(entry, [resolveFormula(character, entry.formula), depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Roll", () => {
       const command = buildCustomRollCommand(character, entry);
       publishCommand(entry.name, command);
       applyEntityDepletion(entry, entry.name);
@@ -555,7 +572,7 @@ function renderCustomRolls(character) {
 
   const referenceNodes = entries
     .filter((entry) => customEntryKind(entry) === "reference")
-    .map((entry) => makeActionItem(entry.name, ["Reference", depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Post", () => {
+    .map((entry) => makeActionItem(entry, ["Reference", depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Post", () => {
       const command = buildReferenceCommand(character, entry);
       publishCommand(entry.name, command);
       applyEntityDepletion(entry, entry.name);
@@ -619,6 +636,25 @@ function makeClickableTitle(title, onClick, className = "") {
   button.textContent = title;
   button.title = `Send ${title} description to ${chatTargetLabel()}`;
   button.addEventListener("click", onClick);
+  return button;
+}
+
+function makeObjectHeader(title, onTitleClick, help, className = "", fallbackDetails = "") {
+  const wrapper = document.createElement("div");
+  wrapper.className = "object-title-row";
+  wrapper.append(makeClickableTitle(title, onTitleClick, className));
+  wrapper.append(makeHelpButton(title, help, fallbackDetails));
+  return wrapper;
+}
+
+function makeHelpButton(title, help, fallbackDetails = "") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "help-button";
+  button.textContent = "?";
+  button.title = `Open ${title} help`;
+  button.setAttribute("aria-label", `Open ${title} help`);
+  button.addEventListener("click", () => openHelp(title, help, fallbackDetails));
   return button;
 }
 
@@ -707,7 +743,8 @@ function makeInitiativeAction(detail, onClick) {
   return wrapper;
 }
 
-function makeActionItem(title, meta, notes, buttonText, onClick, secondaryActions = [], tags = []) {
+function makeActionItem(entity, meta, notes, buttonText, onClick, secondaryActions = [], tags = []) {
+  const title = entity.name;
   const wrapper = document.createElement("div");
   wrapper.className = "action-item";
 
@@ -715,9 +752,10 @@ function makeActionItem(title, meta, notes, buttonText, onClick, secondaryAction
   main.className = "action-main";
 
   const text = document.createElement("div");
-  const heading = document.createElement("p");
+  const heading = document.createElement("div");
   heading.className = "action-title";
-  heading.append(makeClickableTitle(title, () => postDescription(title, actionDescription(title, meta, notes, tags)), "action-title-button"));
+  const description = actionDescription(title, meta, notes, tags);
+  heading.append(makeObjectHeader(title, () => postDescription(title, description), entity.help, "action-title-button", description));
   tags.forEach((tag) => {
     const badge = document.createElement("span");
     badge.className = `action-tag ${tag.id}`;
@@ -931,6 +969,93 @@ function containedResourceText(item) {
     const max = Number(resource.max) || 0;
     return `${resource.name}: ${current} / ${max}${resource.unit ? ` ${resource.unit}` : ""}`;
   }).join("\n");
+}
+
+function openHelp(defaultTitle, help, fallbackDetails = "") {
+  const data = normalizeHelp(defaultTitle, help, fallbackDetails);
+  state.lastFocus = document.activeElement;
+  elements.helpTitle.textContent = data.title;
+  elements.helpSource.textContent = data.source || "Sheet Help";
+  elements.helpBody.replaceChildren(...helpNodes(data));
+  elements.helpOverlay.hidden = false;
+  elements.helpCloseButton.focus();
+}
+
+function closeHelp() {
+  elements.helpOverlay.hidden = true;
+  elements.helpBody.replaceChildren();
+  if (state.lastFocus?.focus) state.lastFocus.focus();
+}
+
+function normalizeHelp(defaultTitle, help, fallbackDetails = "") {
+  if (typeof help === "string") {
+    return {
+      title: defaultTitle,
+      source: "Character JSON",
+      summary: help
+    };
+  }
+  if (help && typeof help === "object") {
+    return {
+      title: help.title || defaultTitle,
+      source: help.source || "Character JSON",
+      category: help.category || "",
+      activation: help.activation || "",
+      summary: help.summary || fallbackDetails || "",
+      details: Array.isArray(help.details) ? help.details : [],
+      sections: Array.isArray(help.sections) ? help.sections : []
+    };
+  }
+  return {
+    title: defaultTitle,
+    source: "Character JSON",
+    summary: fallbackDetails || "No detailed help has been added to this JSON entry yet."
+  };
+}
+
+function helpNodes(help) {
+  const nodes = [];
+  if (help.category || help.activation) {
+    const meta = document.createElement("p");
+    meta.className = "help-meta";
+    meta.textContent = [help.category, help.activation].filter(Boolean).join(" - ");
+    nodes.push(meta);
+  }
+  if (help.summary) {
+    const summary = document.createElement("p");
+    summary.className = "help-summary";
+    summary.textContent = help.summary;
+    nodes.push(summary);
+  }
+  if (help.details?.length) {
+    const list = document.createElement("ul");
+    help.details.forEach((detail) => {
+      const item = document.createElement("li");
+      item.textContent = detail;
+      list.append(item);
+    });
+    nodes.push(list);
+  }
+  help.sections?.forEach((section) => {
+    const heading = document.createElement("h3");
+    heading.textContent = section.heading || "Details";
+    nodes.push(heading);
+    if (section.text) {
+      const text = document.createElement("p");
+      text.textContent = section.text;
+      nodes.push(text);
+    }
+    if (Array.isArray(section.items) && section.items.length) {
+      const list = document.createElement("ul");
+      section.items.forEach((detail) => {
+        const item = document.createElement("li");
+        item.textContent = detail;
+        list.append(item);
+      });
+      nodes.push(list);
+    }
+  });
+  return nodes.length ? nodes : [document.createTextNode("No help available.")];
 }
 
 function formatTemplate(title, fields) {
@@ -1251,9 +1376,12 @@ function bindContainedResourceControls(row, item) {
     const max = Number(resource.max) || 0;
     const title = container.querySelector(`[data-contained-title="${cssEscape(resource.id)}"]`);
     if (title) {
+      const titleParent = title.parentElement;
+      const description = containedResourceDescription(item, resource);
       title.replaceWith(makeClickableTitle(resource.name, () => {
-        postDescription(resource.name, containedResourceDescription(item, resource));
+        postDescription(resource.name, description);
       }, "contained-resource-title"));
+      titleParent?.append(" ", makeHelpButton(resource.name, resource.help, description));
     }
     container.append(makeStepper(Number(resource.current) || 0, (value) => {
       resource.current = clampNumber(value, 0, max || Infinity);
@@ -1274,6 +1402,10 @@ function customEntryKind(entry) {
 
 function getInitiativeModifier(character) {
   return abilityMod(character.abilities.dex) + (Number(character.combat?.initiativeBonus) || 0);
+}
+
+function getTechcastingDc(character) {
+  return Number(character.combat?.techcastingDc) || 8 + character.proficiencyBonus + abilityMod(character.abilities.int);
 }
 
 function abilityMod(score) {

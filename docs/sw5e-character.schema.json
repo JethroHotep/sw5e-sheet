@@ -159,6 +159,11 @@
                   "minimum": 0
                 }
               }
+            },
+            "techcastingDc": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Optional override for the displayed techcasting save DC. If omitted, the app uses 8 + proficiency + INT modifier."
             }
           }
         },
@@ -293,6 +298,9 @@
           "items": {
             "$ref": "#/$defs/depletionOption"
           }
+        },
+        "help": {
+          "$ref": "#/$defs/help"
         }
       }
     },
@@ -353,6 +361,9 @@
         },
         "notes": {
           "type": "string"
+        },
+        "help": {
+          "$ref": "#/$defs/help"
         }
       }
     },
@@ -430,6 +441,9 @@
           "items": {
             "$ref": "#/$defs/containedResource"
           }
+        },
+        "help": {
+          "$ref": "#/$defs/help"
         }
       }
     },
@@ -451,6 +465,9 @@
         },
         "notes": {
           "type": "string"
+        },
+        "help": {
+          "$ref": "#/$defs/help"
         }
       }
     },
@@ -500,6 +517,9 @@
               "items": {
                 "$ref": "#/$defs/depletionOption"
               }
+            },
+            "help": {
+              "$ref": "#/$defs/help"
             }
           }
         },
@@ -541,6 +561,9 @@
               "items": {
                 "$ref": "#/$defs/depletionOption"
               }
+            },
+            "help": {
+              "$ref": "#/$defs/help"
             }
           }
         }
@@ -706,6 +729,9 @@
         },
         "notes": {
           "type": "string"
+        },
+        "help": {
+          "$ref": "#/$defs/help"
         }
       }
     },
@@ -725,6 +751,55 @@
         "reaction"
       ],
       "description": "Optional action timing tag displayed by the app."
+    },
+    "help": {
+      "type": "object",
+      "description": "Detailed in-app help page content for this sheet object.",
+      "additionalProperties": false,
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "source": {
+          "type": "string"
+        },
+        "category": {
+          "type": "string"
+        },
+        "activation": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "heading": {
+                "type": "string"
+              },
+              "text": {
+                "type": "string"
+              },
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "description": "SW5e character JSON schema with explicit resource depletion hooks for actions, features, inventory items, and item-contained resources such as loaded power cells."

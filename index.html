@@ -10,7 +10,7 @@
   <body>
     <header class="app-header">
       <div>
-        <p class="eyebrow">SW5e VTT Sheet <span class="app-version">v0.4.1</span></p>
+        <p class="eyebrow">SW5e VTT Sheet <span class="app-version">v0.5.0</span></p>
         <h1 id="characterName">Loading character...</h1>
         <p id="characterMeta" class="muted">Preparing dashboard</p>
       </div>
@@ -126,6 +126,19 @@
         <span class="roll-detail"></span>
       </button>
     </template>
+
+    <section id="helpOverlay" class="help-overlay" hidden>
+      <article class="help-page" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+        <div class="help-header">
+          <div>
+            <p id="helpSource" class="eyebrow"></p>
+            <h2 id="helpTitle">Help</h2>
+          </div>
+          <button id="helpCloseButton" type="button">Close</button>
+        </div>
+        <div id="helpBody" class="help-body"></div>
+      </article>
+    </section>
 
     <script src="app.js"></script>
   </body>
