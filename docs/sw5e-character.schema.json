@@ -264,6 +264,9 @@
         "attackBonus": {
           "type": "integer"
         },
+        "actionType": {
+          "$ref": "#/$defs/actionType"
+        },
         "damage": {
           "type": "array",
           "items": {
@@ -480,6 +483,9 @@
               "type": "string",
               "minLength": 1
             },
+            "actionType": {
+              "$ref": "#/$defs/actionType"
+            },
             "notes": {
               "type": "string"
             },
@@ -517,6 +523,9 @@
             "name": {
               "type": "string",
               "minLength": 1
+            },
+            "actionType": {
+              "$ref": "#/$defs/actionType"
             },
             "notes": {
               "type": "string"
@@ -708,6 +717,14 @@
         "shortOrLong"
       ],
       "description": "Controls the app's Short Rest and Long Rest buttons. none/manual consumables are not restored automatically; shortOrLong restores on either rest."
+    },
+    "actionType": {
+      "enum": [
+        "action",
+        "bonusAction",
+        "reaction"
+      ],
+      "description": "Optional action timing tag displayed by the app."
     }
   },
   "description": "SW5e character JSON schema with explicit resource depletion hooks for actions, features, inventory items, and item-contained resources such as loaded power cells."

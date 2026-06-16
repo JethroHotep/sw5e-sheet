@@ -129,6 +129,7 @@ Attack entries represent weapons, powers, or any action with attack and damage r
 | `attackAbility` | string | no | Ability modifier for attack roll. Omit if attack uses only `attackBonus`. |
 | `proficient` | boolean | no | Adds proficiency bonus when true. |
 | `attackBonus` | number | no | Flat bonus or penalty. Defaults to `0`. |
+| `actionType` | string | no | `action`, `bonusAction`, or `reaction`. Displays a timing tag on the action card. |
 | `damage` | array | no | Damage parts. |
 | `properties` | array | no | Display notes, such as `range` or `two-handed`. |
 | `notes` | string | no | Extra Roll20 note text. |
@@ -239,6 +240,7 @@ Legacy note-only entries with no `formula`, or with `formula` set to `"0"`, are 
 | `kind` | string | no | `roll` or `reference`. Defaults to `roll`. |
 | `id` | string | yes | Stable id. |
 | `name` | string | yes | Display and Roll20 title. |
+| `actionType` | string | no | `action`, `bonusAction`, or `reaction`. Displays a timing tag on the action card. |
 | `formula` | string | for `roll` | Roll formula using supported placeholders. Omit for `reference`. |
 | `notes` | string | no | Extra Roll20 note text. |
 

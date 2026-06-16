@@ -74,7 +74,7 @@ const elements = {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
-  loadExample("examples/nim-sw5e-v6.json", true);
+  loadExample("examples/nim-sw5e-v7.json", true);
 });
 
 function bindEvents() {
@@ -115,7 +115,7 @@ function bindEvents() {
   });
 
   elements.downloadJsonButton.addEventListener("click", downloadCurrentJson);
-  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v6.json"));
+  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v7.json"));
   elements.shortRestButton.addEventListener("click", () => applyRest("short"));
   elements.longRestButton.addEventListener("click", () => applyRest("long"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
@@ -268,6 +268,9 @@ function validateCharacterData(data) {
     if (attack.attackAbility && !ABILITIES.includes(attack.attackAbility)) {
       errors.push(`Attack ${attack.id} has invalid attackAbility.`);
     }
+    if (attack.actionType && !["action", "bonusAction", "reaction"].includes(attack.actionType)) {
+      errors.push(`Attack ${attack.id} has invalid actionType.`);
+    }
     (attack.damage || []).forEach((damage) => {
       if (!damage.formula) errors.push(`Attack ${attack.id} has damage without formula.`);
       if (damage.ability && !ABILITIES.includes(damage.ability)) {
@@ -281,6 +284,9 @@ function validateCharacterData(data) {
     if (!["roll", "reference"].includes(kind)) errors.push(`customRolls.${roll.id}.kind is unsupported.`);
     if (!roll.id) errors.push("Each custom roll requires an id.");
     if (!roll.name) errors.push(`Custom roll ${roll.id || "(missing id)"} requires a name.`);
+    if (roll.actionType && !["action", "bonusAction", "reaction"].includes(roll.actionType)) {
+      errors.push(`Custom roll ${roll.id} has invalid actionType.`);
+    }
     if (kind === "roll" && !roll.formula) errors.push(`Custom roll ${roll.id} requires a formula.`);
     if (kind === "reference" && roll.formula) warnings.push(`Reference ${roll.id} should omit formula.`);
     if (roll.formula) {
@@ -370,11 +376,11 @@ function renderResources(character) {
     const wrapper = document.createElement("div");
     wrapper.className = "resource";
     wrapper.innerHTML = `
-      <strong>${escapeHtml(resource.name)}</strong>
       <div class="small">${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
       <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
       ${resource.notes ? `<p class="small">${escapeHtml(resource.notes)}</p>` : ""}
     `;
+    wrapper.prepend(makeClickableTitle(resource.name, () => postDescription(resource.name, resourceDescription(resource, current, max)), "resource-title"));
     wrapper.append(makeStepper(current, (value) => {
       resource.current = clampNumber(value, 0, max || Infinity);
       renderSheet();
@@ -401,12 +407,13 @@ function renderCredits(character) {
     ["Remaining", credits.remaining]
   ].filter(([, value]) => value !== undefined && value !== null);
   wrapper.innerHTML = `
-    <h3>Credits</h3>
+    <h3><span class="credits-title-anchor"></span></h3>
     <div class="credit-grid">
       ${values.map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join("")}
     </div>
     ${credits.notes ? `<p class="small">${escapeHtml(credits.notes)}</p>` : ""}
   `;
+  wrapper.querySelector(".credits-title-anchor").replaceWith(makeClickableTitle("Credits", () => postDescription("Credits", creditsDescription(credits)), "credits-title"));
   elements.credits.replaceChildren(wrapper);
 }
 
@@ -440,7 +447,7 @@ function renderInventory(character) {
       ].filter(Boolean);
       row.innerHTML = `
         <div>
-          <strong>${escapeHtml(item.name)}</strong>
+          <span class="title-anchor"></span>
           <div class="small">${inventoryMeta(item, false)}</div>
           ${depletionSummary(item) ? `<p class="small spend-line">${escapeHtml(depletionSummary(item))}</p>` : ""}
           ${containedResourcesHtml(item)}
@@ -452,6 +459,7 @@ function renderInventory(character) {
           ${depletionsFor(item).length ? `<button type="button" data-use-item="${escapeHtml(item.id)}">Use</button>` : ""}
         </div>
       `;
+      row.querySelector(".title-anchor").replaceWith(makeClickableTitle(item.name, () => postDescription(item.name, inventoryDescription(item)), "inventory-title"));
       const useButton = row.querySelector("[data-use-item]");
       if (useButton) {
         useButton.addEventListener("click", () => applyEntityDepletion(item, item.name));
@@ -529,7 +537,7 @@ function renderAttacks(character) {
       const command = buildAttackCommand(character, attack);
       publishCommand(`${attack.name}`, command);
       applyEntityDepletion(attack, attack.name);
-    }, depletionOptionActions(attack));
+    }, depletionOptionActions(attack), actionTags(attack));
   });
 
   elements.attacks.replaceChildren(...nodes);
@@ -543,7 +551,7 @@ function renderCustomRolls(character) {
       const command = buildCustomRollCommand(character, entry);
       publishCommand(entry.name, command);
       applyEntityDepletion(entry, entry.name);
-    }, depletionOptionActions(entry)));
+    }, depletionOptionActions(entry), actionTags(entry)));
 
   const referenceNodes = entries
     .filter((entry) => customEntryKind(entry) === "reference")
@@ -551,7 +559,7 @@ function renderCustomRolls(character) {
       const command = buildReferenceCommand(character, entry);
       publishCommand(entry.name, command);
       applyEntityDepletion(entry, entry.name);
-    }, depletionOptionActions(entry)));
+    }, depletionOptionActions(entry), actionTags(entry)));
 
   elements.customRolls.replaceChildren(...rollNodes);
   elements.references.replaceChildren(...referenceNodes);
@@ -602,6 +610,16 @@ function makeStat(label, value) {
   node.className = "stat";
   node.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong>`;
   return node;
+}
+
+function makeClickableTitle(title, onClick, className = "") {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = ["title-button", className].filter(Boolean).join(" ");
+  button.textContent = title;
+  button.title = `Send ${title} description to ${chatTargetLabel()}`;
+  button.addEventListener("click", onClick);
+  return button;
 }
 
 function makeNumberStat(label, value, onChange, options = {}) {
@@ -689,7 +707,7 @@ function makeInitiativeAction(detail, onClick) {
   return wrapper;
 }
 
-function makeActionItem(title, meta, notes, buttonText, onClick, secondaryActions = []) {
+function makeActionItem(title, meta, notes, buttonText, onClick, secondaryActions = [], tags = []) {
   const wrapper = document.createElement("div");
   wrapper.className = "action-item";
 
@@ -699,7 +717,13 @@ function makeActionItem(title, meta, notes, buttonText, onClick, secondaryAction
   const text = document.createElement("div");
   const heading = document.createElement("p");
   heading.className = "action-title";
-  heading.textContent = title;
+  heading.append(makeClickableTitle(title, () => postDescription(title, actionDescription(title, meta, notes, tags)), "action-title-button"));
+  tags.forEach((tag) => {
+    const badge = document.createElement("span");
+    badge.className = `action-tag ${tag.id}`;
+    badge.textContent = tag.label;
+    heading.append(" ", badge);
+  });
   const detail = document.createElement("p");
   detail.className = "action-meta";
   detail.textContent = meta;
@@ -837,6 +861,78 @@ function buildReferenceCommand(character, entry) {
       });
 }
 
+function postDescription(title, details) {
+  const text = details || "No description available.";
+  const command = state.chatTarget === "foundry"
+    ? formatFoundryCard(title, [
+        ["Character", state.character.name],
+        ["Details", text]
+      ])
+    : formatTemplate(title, {
+        character: state.character.name,
+        details: text
+      });
+  publishCommand(title, command);
+}
+
+function actionDescription(title, meta, notes, tags = []) {
+  return [
+    tags.length ? `Timing: ${tags.map((tag) => tag.label).join(", ")}` : "",
+    meta,
+    notes
+  ].filter(Boolean).join("\n") || `${title} reference.`;
+}
+
+function resourceDescription(resource, current, max) {
+  return [
+    `${current} / ${max}${resource.unit ? ` ${resource.unit}` : ""}`,
+    resource.restRecovery ? `Rest recovery: ${labelFromSlug(resource.restRecovery)}` : "",
+    resource.notes || ""
+  ].filter(Boolean).join("\n");
+}
+
+function creditsDescription(credits) {
+  return [
+    credits.starting !== undefined ? `Starting: ${credits.starting}` : "",
+    credits.spent !== undefined ? `Spent: ${credits.spent}` : "",
+    credits.remaining !== undefined ? `Remaining: ${credits.remaining}` : "",
+    credits.notes || ""
+  ].filter(Boolean).join("\n");
+}
+
+function inventoryDescription(item) {
+  const parts = [
+    inventoryMeta(item),
+    item.armorClassFormula ? `AC: ${item.armorClassFormula}` : "",
+    depletionSummary(item),
+    containedResourceText(item),
+    item.notes || ""
+  ];
+  return parts.filter(Boolean).join("\n");
+}
+
+function containedResourceDescription(item, resource) {
+  const current = Number(resource.current) || 0;
+  const max = Number(resource.max) || 0;
+  return [
+    `Item: ${item.name}`,
+    `${current} / ${max}${resource.unit ? ` ${resource.unit}` : ""}`,
+    resource.restRecovery ? `Rest recovery: ${labelFromSlug(resource.restRecovery)}` : "",
+    resource.rechargeFromResourceId ? `Reloads from: ${resource.rechargeFromResourceId}` : "",
+    resource.notes || ""
+  ].filter(Boolean).join("\n");
+}
+
+function containedResourceText(item) {
+  const resources = item.containedResources || [];
+  if (!resources.length) return "";
+  return resources.map((resource) => {
+    const current = Number(resource.current) || 0;
+    const max = Number(resource.max) || 0;
+    return `${resource.name}: ${current} / ${max}${resource.unit ? ` ${resource.unit}` : ""}`;
+  }).join("\n");
+}
+
 function formatTemplate(title, fields) {
   const chunks = [`&{template:default}`, `{{name=${cleanRoll20(title)}}}`];
   Object.entries(fields).forEach(([key, value]) => {
@@ -950,6 +1046,15 @@ function skillFlags(skill) {
   if (skill.expertise) return ["EXP"];
   if (skill.proficient) return ["PROF"];
   return [];
+}
+
+function actionTags(entry) {
+  const label = {
+    action: "Action",
+    bonusAction: "Bonus Action",
+    reaction: "Reaction"
+  }[entry.actionType];
+  return label ? [{ id: entry.actionType, label }] : [];
 }
 
 function depletionsFor(entity) {
@@ -1132,7 +1237,7 @@ function containedResourcesHtml(item) {
     const percentage = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
     return `
       <div class="contained-resource" data-contained-resource="${escapeHtml(resource.id)}">
-        <div class="small">${escapeHtml(resource.name)}: ${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
+        <div class="small"><span data-contained-title="${escapeHtml(resource.id)}"></span>: ${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
         <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
       </div>
     `;
@@ -1144,6 +1249,12 @@ function bindContainedResourceControls(row, item) {
     const container = row.querySelector(`[data-contained-resource="${cssEscape(resource.id)}"]`);
     if (!container) return;
     const max = Number(resource.max) || 0;
+    const title = container.querySelector(`[data-contained-title="${cssEscape(resource.id)}"]`);
+    if (title) {
+      title.replaceWith(makeClickableTitle(resource.name, () => {
+        postDescription(resource.name, containedResourceDescription(item, resource));
+      }, "contained-resource-title"));
+    }
     container.append(makeStepper(Number(resource.current) || 0, (value) => {
       resource.current = clampNumber(value, 0, max || Infinity);
       renderSheet();
