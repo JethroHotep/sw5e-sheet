@@ -84,7 +84,7 @@ Saving throw keys match ability keys. Each value is a boolean proficiency flag.
 
 Missing keys should be treated as `false` with a validation warning.
 
-In the app, saving throws with `true` display a `PROF` flag.
+In the app, saving throws with `true` give the matching ability save button a proficient save modifier and gold outline.
 
 ## Skills
 

@@ -67,7 +67,6 @@ const elements = {
   statusMessage: document.querySelector("#statusMessage"),
   validationPanel: document.querySelector("#validationPanel"),
   combatStats: document.querySelector("#combatStats"),
-  initiativeAction: document.querySelector("#initiativeAction"),
   shortRestButton: document.querySelector("#shortRestButton"),
   longRestButton: document.querySelector("#longRestButton"),
   abilities: document.querySelector("#abilities"),
@@ -79,7 +78,6 @@ const elements = {
   personalityDetails: document.querySelector("#personalityDetails"),
   proficienciesDetails: document.querySelector("#proficienciesDetails"),
   backstoryDetails: document.querySelector("#backstoryDetails"),
-  savingThrows: document.querySelector("#savingThrows"),
   skills: document.querySelector("#skills"),
   attacks: document.querySelector("#attacks"),
   customRolls: document.querySelector("#customRolls"),
@@ -756,7 +754,6 @@ function renderSheet() {
   renderCredits(character);
   renderInventory(character);
   renderCharacterRecord(character);
-  renderSavingThrows(character);
   renderSkills(character);
   renderAttacks(character);
   renderCustomRolls(character);
@@ -767,6 +764,7 @@ function renderSheet() {
 
 function renderCombatStats(character) {
   const hp = character.combat?.hitPoints || {};
+  const initiative = getInitiativeModifier(character);
   const stats = [
     makeStat("AC", character.combat?.armorClass ?? "-"),
     makeNumberStat("HP", hp.current ?? 0, (value) => {
@@ -780,33 +778,52 @@ function renderCombatStats(character) {
       setStatus(`Temporary HP set to ${hp.temporary}.`);
     }, { step: 1, min: 0 }),
     makeStat("Tech DC", getTechcastingDc(character)),
+    makeStat("Force DC", character.powercasting?.forceSaveDc || "-"),
     makeStat("Speed", `${character.combat?.speed ?? "-"} ft`),
     makeStat("Prof", formatModifier(character.proficiencyBonus)),
-    makeStat("Init", formatModifier(getInitiativeModifier(character)))
+    makeActionStat("Init", formatModifier(initiative), "Roll", () => handleInitiativeRoll(initiative))
   ];
 
   elements.combatStats.replaceChildren(...stats);
-  const initiative = getInitiativeModifier(character);
-  const detail = elements.initiativeTracker.checked ? `${formatModifier(initiative)} - tracker` : formatModifier(initiative);
-  const initiativeRow = makeInitiativeAction(detail, () => handleInitiativeRoll(initiative));
-  elements.initiativeAction.replaceChildren(initiativeRow);
 }
 
 function renderAbilities(character) {
   const nodes = ABILITIES.map((ability) => {
     const score = character.abilities[ability];
+    const checkModifier = abilityMod(score);
+    const proficient = Boolean(character.savingThrows?.[ability]);
+    const saveModifier = checkModifier + (proficient ? character.proficiencyBonus : 0);
     const wrapper = document.createElement("div");
     wrapper.className = "ability";
-    wrapper.innerHTML = `<span>${ABILITY_LABELS[ability]}</span><strong>${score}</strong><div class="small">${formatModifier(abilityMod(score))}</div>`;
-    const button = document.createElement("button");
-    button.type = "button";
-    button.textContent = "Roll check";
-    button.addEventListener("click", () => handleSimpleRoll(`${ABILITY_LABELS[ability]} Check`, abilityMod(score), `${ability.toUpperCase()} check`));
-    wrapper.append(button);
+    wrapper.innerHTML = `<span>${ABILITY_LABELS[ability]}</span><strong>${score}</strong><div class="small">${formatModifier(checkModifier)}</div>`;
+    const actions = document.createElement("div");
+    actions.className = "ability-actions";
+    const checkButton = document.createElement("button");
+    checkButton.type = "button";
+    checkButton.append(makeAbilityActionLabel("Check", checkModifier));
+    checkButton.addEventListener("click", () => handleSimpleRoll(`${ABILITY_LABELS[ability]} Check`, checkModifier, `${ability.toUpperCase()} check`));
+    const saveButton = document.createElement("button");
+    saveButton.type = "button";
+    saveButton.classList.toggle("proficient-save", proficient);
+    saveButton.append(makeAbilityActionLabel("Save", saveModifier));
+    saveButton.addEventListener("click", () => handleSimpleRoll(`${ABILITY_LABELS[ability]} Save`, saveModifier, proficient ? "proficient save" : "save"));
+    actions.append(checkButton, saveButton);
+    wrapper.append(actions);
     return wrapper;
   });
 
   elements.abilities.replaceChildren(...nodes);
+}
+
+function makeAbilityActionLabel(label, modifier) {
+  const wrapper = document.createElement("span");
+  wrapper.className = "ability-action-label";
+  const text = document.createElement("span");
+  text.textContent = label;
+  const mod = document.createElement("strong");
+  mod.textContent = formatModifier(modifier);
+  wrapper.append(text, mod);
+  return wrapper;
 }
 
 function renderResources(character) {
@@ -1049,18 +1066,6 @@ function renderLogistics(character) {
   renderPowerLevels(powercasting.levels || []);
 }
 
-function renderSavingThrows(character) {
-  const rows = ABILITIES.map((ability) => {
-    const proficient = Boolean(character.savingThrows?.[ability]);
-    const modifier = abilityMod(character.abilities[ability]) + (proficient ? character.proficiencyBonus : 0);
-    return makeRollRow(`${ABILITY_LABELS[ability]}`, formatModifier(modifier), () => {
-      handleSimpleRoll(`${ABILITY_LABELS[ability]} Save`, modifier, proficient ? "proficient save" : "save");
-    }, proficient ? ["PROF"] : []);
-  });
-
-  elements.savingThrows.replaceChildren(...rows);
-}
-
 function renderSkills(character) {
   const rows = Object.entries(character.skills || {})
     .sort(([left], [right]) => labelForSkill(left).localeCompare(labelForSkill(right)))
@@ -1209,6 +1214,17 @@ function makeStat(label, value) {
   return node;
 }
 
+function makeActionStat(label, value, buttonText, onClick) {
+  const node = makeStat(label, value);
+  node.classList.add("action-stat");
+  const button = document.createElement("button");
+  button.type = "button";
+  button.textContent = buttonText;
+  button.addEventListener("click", onClick);
+  node.append(button);
+  return node;
+}
+
 function makeClickableTitle(title, onClick, className = "") {
   const button = document.createElement("button");
   button.type = "button";
@@ -1303,26 +1319,6 @@ function makeRollRow(title, detail, onClick, flags = []) {
   return row;
 }
 
-function makeInitiativeAction(detail, onClick) {
-  const wrapper = document.createElement("div");
-  wrapper.className = "initiative-card";
-  const text = document.createElement("div");
-  const title = document.createElement("p");
-  title.className = "action-title";
-  title.textContent = "Initiative";
-  const meta = document.createElement("p");
-  meta.className = "action-meta";
-  meta.textContent = detail;
-  text.append(title, meta);
-
-  const button = document.createElement("button");
-  button.type = "button";
-  button.textContent = "Roll Initiative";
-  button.addEventListener("click", onClick);
-  wrapper.append(text, button);
-  return wrapper;
-}
-
 function makeActionItem(entity, meta, notes, buttonText, onClick, secondaryActions = [], tags = []) {
   const title = entity.name;
   const wrapper = document.createElement("div");
@@ -1393,25 +1389,95 @@ function handleSimpleRoll(title, modifier, notes) {
   publishCommand(title, command);
 }
 
-function handleInitiativeRoll(modifier) {
-  const tracker = elements.initiativeTracker.checked ? " &{tracker}" : "";
-  const fields = d20Fields("roll", modifier + parseGlobalModifier());
-  Object.keys(fields).forEach((key) => {
-    fields[key] = inline(`${stripInline(fields[key])}${tracker}`);
+async function handleInitiativeRoll(modifier) {
+  const tracker = state.chatTarget === "roll20" && elements.initiativeTracker.checked ? " &{tracker}" : "";
+  const initiativeMode = state.rollMode === "both" ? await chooseInitiativeRollMode() : state.rollMode;
+  if (!initiativeMode) return;
+  const fields = initiativeD20Fields("roll", modifier + parseGlobalModifier(), initiativeMode);
+  Object.keys(fields).forEach((key, index) => {
+    fields[key] = inline(`${stripInline(fields[key])}${index === 0 ? tracker : ""}`);
   });
-  const foundryFormula = `${addFormulaModifier("1d20", modifier + parseGlobalModifier())}${tracker}`;
+  const foundryFormula = `${initiativeFormula(addFormulaModifier("1d20", modifier + parseGlobalModifier()), initiativeMode)}${tracker}`;
   const command = state.chatTarget === "foundry"
     ? formatFoundryCard("Initiative", [
         ["Character", state.character.name],
-        ...foundryD20Rows("Roll", foundryFormula),
-        ["Detail", elements.initiativeTracker.checked ? "initiative tracker" : "initiative"]
+        ["Roll", foundryInline(foundryFormula)],
+        ["Detail", initiativeDetail(initiativeMode)]
       ])
     : formatTemplate("Initiative", {
         character: state.character.name,
         ...fields,
-        detail: elements.initiativeTracker.checked ? "initiative tracker" : "initiative"
+        detail: initiativeDetail(initiativeMode)
       });
   publishCommand("Initiative", command);
+}
+
+function chooseInitiativeRollMode() {
+  return new Promise((resolve) => {
+    const overlay = document.createElement("div");
+    overlay.className = "choice-overlay";
+    const dialog = document.createElement("div");
+    dialog.className = "choice-dialog";
+    dialog.setAttribute("role", "dialog");
+    dialog.setAttribute("aria-modal", "true");
+    dialog.setAttribute("aria-labelledby", "initiativeChoiceTitle");
+    dialog.innerHTML = `
+      <h2 id="initiativeChoiceTitle">Roll Initiative</h2>
+      <p>Both mode does not work properly with initiative tracking. Choose one roll mode for this initiative roll.</p>
+    `;
+
+    const actions = document.createElement("div");
+    actions.className = "choice-actions";
+    [
+      ["normal", "Normal"],
+      ["advantage", "Advantage"],
+      ["disadvantage", "Disadvantage"]
+    ].forEach(([value, label]) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = label;
+      button.addEventListener("click", () => close(value));
+      actions.append(button);
+    });
+
+    const cancel = document.createElement("button");
+    cancel.type = "button";
+    cancel.className = "secondary-button";
+    cancel.textContent = "Cancel";
+    cancel.addEventListener("click", () => close(""));
+    actions.append(cancel);
+    dialog.append(actions);
+    overlay.append(dialog);
+
+    const onKeyDown = (event) => {
+      if (event.key === "Escape") close("");
+    };
+    const close = (value) => {
+      document.removeEventListener("keydown", onKeyDown);
+      overlay.remove();
+      resolve(value);
+    };
+
+    document.addEventListener("keydown", onKeyDown);
+    document.body.append(overlay);
+    actions.querySelector("button")?.focus();
+  });
+}
+
+function initiativeD20Fields(label, modifier, mode) {
+  return { [label]: inline(initiativeFormula(addFormulaModifier("1d20", modifier), mode)) };
+}
+
+function initiativeFormula(formula, mode) {
+  if (mode === "advantage") return toAdvantageFormula(formula);
+  if (mode === "disadvantage") return toDisadvantageFormula(formula);
+  return formula;
+}
+
+function initiativeDetail(mode) {
+  const parts = [mode === "normal" ? "initiative" : `initiative ${mode}`];
+  if (state.chatTarget === "roll20" && elements.initiativeTracker.checked) parts.push("tracker");
+  return parts.join(" - ");
 }
 
 function buildAttackCommand(character, attack) {
@@ -2332,7 +2398,11 @@ function chatTargetLabel() {
 }
 
 function cleanRoll20(value) {
-  return value.replace(/[{}]/g, "");
+  const trackerToken = "__ROLL20_TRACKER__";
+  return value
+    .replace(/&\{tracker\}/g, trackerToken)
+    .replace(/[{}]/g, "")
+    .replace(new RegExp(trackerToken, "g"), "&{tracker}");
 }
 
 function cleanFoundry(value) {

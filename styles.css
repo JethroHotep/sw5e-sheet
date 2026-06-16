@@ -426,10 +426,6 @@ h3 {
   gap: 8px;
 }
 
-.initiative-action {
-  margin: 8px 0 14px;
-}
-
 .rest-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -443,23 +439,10 @@ h3 {
   font-weight: 800;
 }
 
-.initiative-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 10px;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background:
-    linear-gradient(90deg, rgba(244, 197, 66, 0.14), rgba(23, 34, 43, 0.96) 24%, rgba(16, 23, 31, 0.96)),
-    var(--surface-strong);
-  box-shadow: inset 3px 0 0 rgba(244, 197, 66, 0.44);
-}
-
-.initiative-card button {
-  flex: 0 0 auto;
-  padding: 7px 10px;
+.action-stat button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 8px;
   color: var(--accent-strong);
   font-weight: 800;
 }
@@ -578,11 +561,36 @@ h3 {
   text-align: center;
 }
 
-.ability button {
-  width: 100%;
+.ability-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
   margin-top: 8px;
+}
+
+.ability-actions button {
+  width: 100%;
   color: var(--accent-strong);
   font-weight: 700;
+}
+
+.ability-actions .proficient-save {
+  border-color: rgba(244, 197, 66, 0.48);
+  color: #fff7d0;
+}
+
+.ability-action-label {
+  display: grid;
+  grid-template-columns: 1fr;
+  justify-items: center;
+  gap: 2px;
+  line-height: 1.12;
+}
+
+.ability-action-label strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.9rem;
 }
 
 .resource-list {
@@ -997,6 +1005,51 @@ h3 {
   display: none;
 }
 
+.choice-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 6, 10, 0.72);
+  backdrop-filter: blur(5px);
+}
+
+.choice-dialog {
+  width: min(460px, 100%);
+  padding: 18px;
+  border: 1px solid rgba(244, 197, 66, 0.72);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgba(25, 35, 43, 0.98), rgba(8, 13, 18, 0.99));
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.62);
+}
+
+.choice-dialog h2 {
+  margin: 0 0 8px;
+  color: #fff7d0;
+}
+
+.choice-dialog p {
+  color: #d8e3e6;
+}
+
+.choice-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.choice-actions button {
+  padding: 8px 10px;
+  font-weight: 800;
+}
+
+.choice-actions .secondary-button {
+  color: var(--muted);
+}
+
 .help-page {
   width: min(920px, 100%);
   max-height: min(820px, calc(100vh - 48px));
@@ -1187,8 +1240,4 @@ h3 {
     grid-template-columns: minmax(0, 1fr) max-content;
   }
 
-  .initiative-card {
-    align-items: stretch;
-    flex-direction: column;
-  }
 }
