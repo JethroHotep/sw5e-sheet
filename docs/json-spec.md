@@ -27,7 +27,14 @@ A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](s
 | `name` | string | yes | Used in the Roll20 template name. |
 | `level` | number | yes | Total character level. |
 | `class` | string | yes | Display value, such as `Scout` or `Guardian`. |
+| `species` | string | no | Species display value from the paper sheet. |
 | `background` | string | no | Display value. |
+| `alignment` | string | no | Alignment display value. |
+| `playerName` | string | no | Player name. |
+| `experiencePoints` | number | no | Current XP. |
+| `xpNextLevel` | number | no | XP needed for next level. |
+| `inspiration` | boolean | no | Inspiration checkbox state. |
+| `passivePerception` | number | no | Passive Perception display value. |
 | `proficiencyBonus` | number | yes | Stored directly for hand-authored simplicity. |
 | `abilities` | object | yes | Six SW5e ability scores. |
 | `savingThrows` | object | yes | Proficiency flags by ability. |
@@ -37,6 +44,16 @@ A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](s
 | `resources` | array | no | Trackable expendable resources. |
 | `inventory` | array | no | Gear, tools, armor, ammo, and other carried items. |
 | `credits` | object | no | Starting, spent, and remaining credits. |
+| `appearance` | object | no | Age, gender, height, weight, size, hair, eyes, skin, appearance text. |
+| `personality` | object | no | Traits, ideals, bonds, flaws. |
+| `placeOfBirth` | string | no | Birthplace text. |
+| `backstory` | string | no | Backstory text. |
+| `backgroundFeature` | string | no | Background feature text. |
+| `proficiencies` | array | no | Proficiencies not already represented as skills. |
+| `languages` | array | no | Known languages. |
+| `carrying` | object | no | Encumbrance, carrying capacity, and weight totals. |
+| `valuables` | object | no | Valuables, treasure, storage, loaned/deposited/received goods. |
+| `powercasting` | object | no | Tech/force point, save DC, attack modifier, alignment, and power-level grid data. |
 | `customRolls` | array | no | Hand-authored clickable rolls and reference actions. |
 | `notes` | string | no | Freeform player notes. |
 
@@ -104,6 +121,10 @@ Example:
 | `techcastingDc` | number | no | Optional override for displayed Tech DC. If omitted, app uses `8 + proficiency + INT modifier`. |
 | `speed` | number | yes | Walking speed. |
 | `hitPoints` | object | yes | Current/max/temp HP. |
+| `senses` | object | no | Vision and passive Wisdom values. |
+| `movement` | object | no | Base, hourly, daily, and special movement. |
+| `deathSaves` | object | no | Success and failure counts. |
+| `defenses` | object | no | Armor/shield/protections plus advantages, resistances, immunities. |
 
 ## Resources
 
@@ -161,6 +182,11 @@ Inventory entries represent carried or owned gear.
 | `cost` | number | no | Credit cost for this line item. |
 | `equipped` | boolean | no | Displays an `EQUIP` flag when true. |
 | `infused` | boolean | no | Displays an `INFUSE` flag when true. |
+| `donned` | boolean | no | Paper-sheet `D` location flag. |
+| `backpack` | boolean | no | Paper-sheet backpack location flag. |
+| `pouch` | boolean | no | Paper-sheet belt pouch location flag. |
+| `location` | string | no | Freeform equipment location. |
+| `weight` | number/string | no | Item weight. |
 | `armorClassFormula` | string | no | Display-only AC explanation. |
 | `notes` | string | no | Freeform item notes. |
 | `help` | object | no | Full in-app help page content for the item. |

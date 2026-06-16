@@ -62,11 +62,23 @@ const elements = {
   resources: document.querySelector("#resources"),
   credits: document.querySelector("#credits"),
   inventory: document.querySelector("#inventory"),
+  characterDetails: document.querySelector("#characterDetails"),
+  appearanceDetails: document.querySelector("#appearanceDetails"),
+  personalityDetails: document.querySelector("#personalityDetails"),
+  proficienciesDetails: document.querySelector("#proficienciesDetails"),
+  backstoryDetails: document.querySelector("#backstoryDetails"),
   savingThrows: document.querySelector("#savingThrows"),
   skills: document.querySelector("#skills"),
   attacks: document.querySelector("#attacks"),
   customRolls: document.querySelector("#customRolls"),
   references: document.querySelector("#references"),
+  sensesMovement: document.querySelector("#sensesMovement"),
+  defenseDetails: document.querySelector("#defenseDetails"),
+  deathSaves: document.querySelector("#deathSaves"),
+  carryingDetails: document.querySelector("#carryingDetails"),
+  storageDetails: document.querySelector("#storageDetails"),
+  powercastingDetails: document.querySelector("#powercastingDetails"),
+  powerLevels: document.querySelector("#powerLevels"),
   latestCommand: document.querySelector("#latestCommand"),
   copyLatestButton: document.querySelector("#copyLatestButton"),
   sendLatestButton: document.querySelector("#sendLatestButton"),
@@ -152,7 +164,14 @@ function createBlankCharacterData() {
       name: "New Character",
       level: 1,
       class: "Unassigned",
+      species: "",
       background: "",
+      alignment: "",
+      playerName: "",
+      experiencePoints: 0,
+      xpNextLevel: 0,
+      inspiration: false,
+      passivePerception: 10,
       proficiencyBonus: 2,
       abilities: {
         str: 10,
@@ -175,6 +194,26 @@ function createBlankCharacterData() {
         armorClass: 10,
         initiativeBonus: 0,
         speed: 30,
+        senses: {
+          vision: "",
+          passiveWisdom: 10
+        },
+        movement: {
+          base: 30,
+          hour: "",
+          day: "",
+          special: ""
+        },
+        deathSaves: {
+          successes: 0,
+          failures: 0
+        },
+        defenses: {
+          armorShieldProtections: "",
+          advantages: "",
+          resistances: "",
+          immunities: ""
+        },
         hitPoints: {
           max: 1,
           current: 1,
@@ -184,6 +223,57 @@ function createBlankCharacterData() {
       attacks: [],
       resources: [],
       inventory: [],
+      carrying: {
+        totalWeight: "",
+        totalWeightOnCharacter: "",
+        encumbered: "",
+        heavilyEncumbered: "",
+        maxCarry: "",
+        pushDragLift: "",
+        notes: ""
+      },
+      valuables: {
+        creditsNotes: "",
+        gemsAndTreasure: "",
+        storage: "",
+        loanedDepositedReceived: ""
+      },
+      appearance: {
+        age: "",
+        gender: "",
+        height: "",
+        weight: "",
+        size: "",
+        hair: "",
+        eyes: "",
+        skin: "",
+        description: ""
+      },
+      personality: {
+        traits: "",
+        ideals: "",
+        bonds: "",
+        flaws: ""
+      },
+      placeOfBirth: "",
+      backstory: "",
+      backgroundFeature: "",
+      proficiencies: [],
+      languages: [],
+      powercasting: {
+        techPoints: "",
+        forcePoints: "",
+        techSaveDc: "",
+        forceSaveDc: "",
+        techAttackModifier: "",
+        forceAttackModifier: "",
+        forceAlignment: {
+          lightSide: "",
+          darkSide: "",
+          universal: ""
+        },
+        levels: []
+      },
       credits: {
         starting: 0,
         spent: 0,
@@ -330,10 +420,12 @@ function renderSheet() {
   renderResources(character);
   renderCredits(character);
   renderInventory(character);
+  renderCharacterRecord(character);
   renderSavingThrows(character);
   renderSkills(character);
   renderAttacks(character);
   renderCustomRolls(character);
+  renderLogistics(character);
   renderOutbox();
 }
 
@@ -511,6 +603,116 @@ function renderInventory(character) {
   elements.inventory.replaceChildren(...nodes);
 }
 
+function renderCharacterRecord(character) {
+  const appearance = character.appearance || {};
+  const personality = character.personality || {};
+
+  renderRecordList(elements.characterDetails, [
+    ["Species", character.species],
+    ["Alignment", character.alignment],
+    ["Player", character.playerName],
+    ["Experience", character.experiencePoints],
+    ["Next Level", character.xpNextLevel],
+    ["Inspiration", character.inspiration ? "Yes" : "No"],
+    ["Place of Birth", character.placeOfBirth]
+  ]);
+
+  renderRecordList(elements.appearanceDetails, [
+    ["Age", appearance.age],
+    ["Gender", appearance.gender],
+    ["Height", appearance.height],
+    ["Weight", appearance.weight],
+    ["Size", appearance.size],
+    ["Hair", appearance.hair],
+    ["Eyes", appearance.eyes],
+    ["Skin", appearance.skin],
+    ["Appearance", appearance.description]
+  ]);
+
+  renderNoteGrid(elements.personalityDetails, [
+    ["Traits", personality.traits],
+    ["Ideals", personality.ideals],
+    ["Bonds", personality.bonds],
+    ["Flaws", personality.flaws]
+  ]);
+
+  renderNoteGrid(elements.proficienciesDetails, [
+    ["Proficiencies", joinDisplay(character.proficiencies)],
+    ["Languages", joinDisplay(character.languages)]
+  ]);
+
+  renderNoteGrid(elements.backstoryDetails, [
+    ["Background Feature", character.backgroundFeature],
+    ["Backstory", character.backstory]
+  ]);
+}
+
+function renderLogistics(character) {
+  const combat = character.combat || {};
+  const senses = combat.senses || {};
+  const movement = combat.movement || {};
+  const deathSaves = combat.deathSaves || {};
+  const defenses = combat.defenses || {};
+  const carrying = character.carrying || {};
+  const valuables = character.valuables || {};
+  const powercasting = character.powercasting || {};
+  const alignment = powercasting.forceAlignment || {};
+
+  renderRecordList(elements.sensesMovement, [
+    ["Vision", senses.vision],
+    ["Passive Wisdom", senses.passiveWisdom],
+    ["Passive Perception", character.passivePerception],
+    ["Speed", combat.speed !== undefined ? `${combat.speed} ft` : ""],
+    ["Base Movement", movement.base !== undefined ? `${movement.base} ft` : ""],
+    ["Hourly Travel", movement.hour],
+    ["Daily Travel", movement.day],
+    ["Special Movement", movement.special]
+  ]);
+
+  renderNoteGrid(elements.defenseDetails, [
+    ["Armor, Shield, Protections", defenses.armorShieldProtections],
+    ["Advantages", defenses.advantages],
+    ["Resistances", defenses.resistances],
+    ["Immunities", defenses.immunities]
+  ]);
+
+  renderRecordList(elements.deathSaves, [
+    ["Successes", deathSaves.successes],
+    ["Failures", deathSaves.failures]
+  ]);
+
+  renderRecordList(elements.carryingDetails, [
+    ["Total Weight", carrying.totalWeight],
+    ["On Character", carrying.totalWeightOnCharacter],
+    ["Encumbered", carrying.encumbered],
+    ["Heavily Encumbered", carrying.heavilyEncumbered],
+    ["Max Carry", carrying.maxCarry],
+    ["Push / Drag / Lift", carrying.pushDragLift],
+    ["Notes", carrying.notes]
+  ]);
+
+  renderNoteGrid(elements.storageDetails, [
+    ["Credits Notes", valuables.creditsNotes],
+    ["Gems and Treasure", valuables.gemsAndTreasure],
+    ["Storage", valuables.storage],
+    ["Loaned / Deposited / Received", valuables.loanedDepositedReceived]
+  ]);
+
+  renderRecordList(elements.powercastingDetails, [
+    ["Tech Points", powercasting.techPoints],
+    ["Force Points", powercasting.forcePoints],
+    ["Tech Save DC", powercasting.techSaveDc || getTechcastingDc(character)],
+    ["Force Save DC", powercasting.forceSaveDc],
+    ["Tech Attack Modifier", powercasting.techAttackModifier],
+    ["Force Attack Modifier", powercasting.forceAttackModifier],
+    ["Light Side", alignment.lightSide],
+    ["Dark Side", alignment.darkSide],
+    ["Universal", alignment.universal]
+  ]);
+
+  renderPowerLevels(powercasting.levels || []);
+}
+
 function renderSavingThrows(character) {
   const rows = ABILITIES.map((ability) => {
     const proficient = Boolean(character.savingThrows?.[ability]);
@@ -599,6 +801,48 @@ function renderValidation(messages, isError) {
   });
   elements.validationPanel.replaceChildren(title, list);
   elements.validationPanel.hidden = false;
+}
+
+function renderRecordList(container, rows) {
+  const nodes = rows.map(([label, value]) => {
+    const item = document.createElement("div");
+    item.className = "record-item";
+    item.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(displayValue(value))}</strong>`;
+    return item;
+  });
+  container.replaceChildren(...nodes);
+}
+
+function renderNoteGrid(container, rows) {
+  const nodes = rows.map(([label, value]) => {
+    const item = document.createElement("div");
+    item.className = "note-card";
+    item.innerHTML = `<strong>${escapeHtml(label)}</strong><p>${escapeHtml(displayValue(value))}</p>`;
+    return item;
+  });
+  container.replaceChildren(...nodes);
+}
+
+function renderPowerLevels(levels) {
+  const defaultLevels = [
+    { level: "At-Will" },
+    ...Array.from({ length: 9 }, (_, index) => ({ level: `${index + 1}` }))
+  ];
+  const byLevel = new Map((levels || []).map((item) => [String(item.level), item]));
+  const nodes = defaultLevels.map((fallback) => {
+    const item = byLevel.get(String(fallback.level)) || fallback;
+    const wrapper = document.createElement("div");
+    wrapper.className = "power-level";
+    const title = item.level === "At-Will" ? "At-Will" : `${item.level}${ordinalSuffix(Number(item.level))} Level`;
+    const powers = joinDisplay(item.powers);
+    wrapper.innerHTML = `
+      <strong>${escapeHtml(title)}</strong>
+      <div class="small">${escapeHtml(powers)}</div>
+      ${item.pointsUsed !== undefined && item.pointsUsed !== "" ? `<p class="small">Points used: ${escapeHtml(String(item.pointsUsed))}</p>` : ""}
+    `;
+    return wrapper;
+  });
+  elements.powerLevels.replaceChildren(...nodes);
 }
 
 function renderOutbox() {
@@ -1557,8 +1801,31 @@ function inventoryMeta(item, includeQuantity = true) {
     includeQuantity ? `Qty ${item.quantity ?? 1}` : "",
     item.cost !== undefined ? `${item.cost} cr` : "",
     item.equipped ? "equipped" : "",
-    item.infused ? "infused" : ""
+    item.infused ? "infused" : "",
+    item.donned ? "donned" : "",
+    item.backpack ? "backpack" : "",
+    item.pouch ? "belt pouch" : "",
+    item.location ? `location: ${item.location}` : "",
+    item.weight !== undefined ? `${item.weight} lb` : ""
   ].filter(Boolean).map(escapeHtml).join(" - ");
+}
+
+function displayValue(value) {
+  if (Array.isArray(value)) return joinDisplay(value);
+  if (value === undefined || value === null || value === "") return "-";
+  return String(value);
+}
+
+function joinDisplay(value) {
+  if (Array.isArray(value)) return value.length ? value.join(", ") : "-";
+  if (value === undefined || value === null || value === "") return "-";
+  return String(value);
+}
+
+function ordinalSuffix(value) {
+  if (!Number.isFinite(value)) return "";
+  if ([11, 12, 13].includes(value % 100)) return "th";
+  return { 1: "st", 2: "nd", 3: "rd" }[value % 10] || "th";
 }
 
 function groupBy(items, keyFn) {

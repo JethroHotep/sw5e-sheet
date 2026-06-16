@@ -164,6 +164,18 @@
               "type": "integer",
               "minimum": 0,
               "description": "Optional override for the displayed techcasting save DC. If omitted, the app uses 8 + proficiency + INT modifier."
+            },
+            "senses": {
+              "$ref": "#/$defs/senses"
+            },
+            "movement": {
+              "$ref": "#/$defs/movement"
+            },
+            "deathSaves": {
+              "$ref": "#/$defs/deathSaves"
+            },
+            "defenses": {
+              "$ref": "#/$defs/defenses"
             }
           }
         },
@@ -196,6 +208,65 @@
         },
         "notes": {
           "type": "string"
+        },
+        "species": {
+          "type": "string"
+        },
+        "alignment": {
+          "type": "string"
+        },
+        "playerName": {
+          "type": "string"
+        },
+        "experiencePoints": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "xpNextLevel": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "inspiration": {
+          "type": "boolean"
+        },
+        "passivePerception": {
+          "type": "integer"
+        },
+        "appearance": {
+          "$ref": "#/$defs/appearance"
+        },
+        "personality": {
+          "$ref": "#/$defs/personality"
+        },
+        "placeOfBirth": {
+          "type": "string"
+        },
+        "backstory": {
+          "type": "string"
+        },
+        "backgroundFeature": {
+          "type": "string"
+        },
+        "proficiencies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "languages": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "carrying": {
+          "$ref": "#/$defs/carrying"
+        },
+        "valuables": {
+          "$ref": "#/$defs/valuables"
+        },
+        "powercasting": {
+          "$ref": "#/$defs/powercasting"
         }
       }
     }
@@ -444,6 +515,24 @@
         },
         "help": {
           "$ref": "#/$defs/help"
+        },
+        "donned": {
+          "type": "boolean"
+        },
+        "backpack": {
+          "type": "boolean"
+        },
+        "pouch": {
+          "type": "boolean"
+        },
+        "location": {
+          "type": "string"
+        },
+        "weight": {
+          "type": [
+            "number",
+            "string"
+          ]
         }
       }
     },
@@ -795,6 +884,232 @@
                 "items": {
                   "type": "string"
                 }
+              }
+            }
+          }
+        }
+      }
+    },
+    "appearance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "age": {
+          "type": "string"
+        },
+        "gender": {
+          "type": "string"
+        },
+        "height": {
+          "type": "string"
+        },
+        "weight": {
+          "type": "string"
+        },
+        "size": {
+          "type": "string"
+        },
+        "hair": {
+          "type": "string"
+        },
+        "eyes": {
+          "type": "string"
+        },
+        "skin": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
+    },
+    "personality": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "traits": {
+          "type": "string"
+        },
+        "ideals": {
+          "type": "string"
+        },
+        "bonds": {
+          "type": "string"
+        },
+        "flaws": {
+          "type": "string"
+        }
+      }
+    },
+    "senses": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "vision": {
+          "type": "string"
+        },
+        "passiveWisdom": {
+          "type": "integer"
+        }
+      }
+    },
+    "movement": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "base": {
+          "type": "integer"
+        },
+        "hour": {
+          "type": "string"
+        },
+        "day": {
+          "type": "string"
+        },
+        "special": {
+          "type": "string"
+        }
+      }
+    },
+    "deathSaves": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "successes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        },
+        "failures": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 3
+        }
+      }
+    },
+    "defenses": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "armorShieldProtections": {
+          "type": "string"
+        },
+        "advantages": {
+          "type": "string"
+        },
+        "resistances": {
+          "type": "string"
+        },
+        "immunities": {
+          "type": "string"
+        }
+      }
+    },
+    "carrying": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "totalWeight": {
+          "type": "string"
+        },
+        "totalWeightOnCharacter": {
+          "type": "string"
+        },
+        "encumbered": {
+          "type": "string"
+        },
+        "heavilyEncumbered": {
+          "type": "string"
+        },
+        "maxCarry": {
+          "type": "string"
+        },
+        "pushDragLift": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "valuables": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "creditsNotes": {
+          "type": "string"
+        },
+        "gemsAndTreasure": {
+          "type": "string"
+        },
+        "storage": {
+          "type": "string"
+        },
+        "loanedDepositedReceived": {
+          "type": "string"
+        }
+      }
+    },
+    "powercasting": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "techPoints": {
+          "type": "string"
+        },
+        "forcePoints": {
+          "type": "string"
+        },
+        "techSaveDc": {
+          "type": "string"
+        },
+        "forceSaveDc": {
+          "type": "string"
+        },
+        "techAttackModifier": {
+          "type": "string"
+        },
+        "forceAttackModifier": {
+          "type": "string"
+        },
+        "forceAlignment": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "lightSide": {
+              "type": "string"
+            },
+            "darkSide": {
+              "type": "string"
+            },
+            "universal": {
+              "type": "string"
+            }
+          }
+        },
+        "levels": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "level": {
+                "type": [
+                  "string",
+                  "integer"
+                ]
+              },
+              "powers": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "pointsUsed": {
+                "type": [
+                  "string",
+                  "integer"
+                ]
               }
             }
           }

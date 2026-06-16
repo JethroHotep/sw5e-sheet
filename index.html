@@ -10,7 +10,7 @@
   <body>
     <header class="app-header">
       <div>
-        <p class="eyebrow">SW5e VTT Sheet <span class="app-version">v0.5.0</span></p>
+        <p class="eyebrow">SW5e VTT Sheet <span class="app-version">v0.6.0</span></p>
         <h1 id="characterName">Loading character...</h1>
         <p id="characterMeta" class="muted">Preparing dashboard</p>
       </div>
@@ -94,6 +94,22 @@
           </div>
         </section>
 
+        <section class="panel record-panel" aria-labelledby="recordHeading">
+          <div class="section-heading">
+            <h2 id="recordHeading">Record</h2>
+          </div>
+          <h3>Character Data</h3>
+          <div id="characterDetails" class="record-list"></div>
+          <h3>Appearance</h3>
+          <div id="appearanceDetails" class="record-list"></div>
+          <h3>Personality</h3>
+          <div id="personalityDetails" class="note-grid"></div>
+          <h3>Proficiencies</h3>
+          <div id="proficienciesDetails" class="note-grid"></div>
+          <h3>Backstory</h3>
+          <div id="backstoryDetails" class="note-grid"></div>
+        </section>
+
         <section class="panel actions-panel" aria-labelledby="actionsHeading">
           <div class="section-heading">
             <h2 id="actionsHeading">Actions</h2>
@@ -104,6 +120,25 @@
           <div id="customRolls" class="action-list"></div>
           <h3>References</h3>
           <div id="references" class="action-list"></div>
+        </section>
+
+        <section class="panel logistics-panel" aria-labelledby="logisticsHeading">
+          <div class="section-heading">
+            <h2 id="logisticsHeading">Logistics</h2>
+          </div>
+          <h3>Senses & Movement</h3>
+          <div id="sensesMovement" class="record-list"></div>
+          <h3>Defenses</h3>
+          <div id="defenseDetails" class="note-grid"></div>
+          <h3>Death Saves</h3>
+          <div id="deathSaves" class="record-list"></div>
+          <h3>Carrying Capacity</h3>
+          <div id="carryingDetails" class="record-list"></div>
+          <h3>Valuables & Storage</h3>
+          <div id="storageDetails" class="note-grid"></div>
+          <h3>Powercasting</h3>
+          <div id="powercastingDetails" class="record-list"></div>
+          <div id="powerLevels" class="power-levels"></div>
         </section>
 
         <aside class="panel outbox-panel" aria-labelledby="outboxHeading">

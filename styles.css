@@ -678,9 +678,56 @@ h3 {
 
 .roll-list,
 .action-list,
-.history-list {
+.history-list,
+.record-list,
+.note-grid,
+.power-levels {
   display: grid;
   gap: 8px;
+}
+
+.record-item,
+.note-card,
+.power-level {
+  padding: 9px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(28, 41, 50, 0.86), rgba(12, 20, 27, 0.9)),
+    var(--surface-strong);
+}
+
+.record-item {
+  display: grid;
+  grid-template-columns: minmax(90px, 0.48fr) minmax(0, 1fr);
+  gap: 8px;
+  align-items: baseline;
+}
+
+.record-item span,
+.note-card strong,
+.power-level strong {
+  color: var(--accent-strong);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.record-item strong {
+  color: #ffffff;
+  font-size: 0.92rem;
+  overflow-wrap: anywhere;
+}
+
+.note-card p {
+  margin: 5px 0 0;
+  color: #d8e3e6;
+  font-size: 0.88rem;
+}
+
+.power-level .small,
+.power-level p {
+  margin: 5px 0 0;
 }
 
 .roll-row {
