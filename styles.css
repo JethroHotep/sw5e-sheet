@@ -42,13 +42,15 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
 
 button,
 .file-button,
-.schema-link {
+.schema-link,
+.import-export-menu summary {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: linear-gradient(180deg, rgba(31, 45, 55, 0.98), rgba(15, 24, 31, 0.98));
@@ -61,7 +63,8 @@ button,
 
 button:hover,
 .file-button:hover,
-.schema-link:hover {
+.schema-link:hover,
+.import-export-menu summary:hover {
   border-color: var(--accent-strong);
   color: #ffffff;
   box-shadow: 0 0 0 1px rgba(55, 200, 214, 0.22), 0 0 18px rgba(55, 200, 214, 0.13);
@@ -69,8 +72,10 @@ button:hover,
 
 button:focus-visible,
 input:focus-visible,
+select:focus-visible,
 textarea:focus-visible,
-.file-button:focus-within {
+.file-button:focus-within,
+.import-export-menu summary:focus-visible {
   outline: 3px solid rgba(215, 114, 75, 0.32);
   outline-offset: 2px;
 }
@@ -133,16 +138,105 @@ textarea:focus-visible,
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
+  align-items: center;
   gap: 10px;
 }
 
 .header-actions button,
 .file-button,
-.schema-link {
+.schema-link,
+.import-export-menu summary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 8px 12px;
+}
+
+.header-actions select {
+  min-height: 38px;
+  min-width: 190px;
+  border: 1px solid rgba(244, 197, 66, 0.44);
+  border-radius: 6px;
+  background: rgba(8, 12, 17, 0.94);
+  color: var(--ink);
+  padding: 8px 32px 8px 10px;
+}
+
+.header-actions .primary-button {
+  background: linear-gradient(180deg, #ffd35e, #d8921f);
+  border-color: #ffd35e;
+  color: #151009;
+  font-weight: 800;
+}
+
+.header-actions .secondary-button {
+  color: var(--muted);
+}
+
+.header-actions .danger-button {
+  border-color: rgba(255, 107, 95, 0.62);
+  background: linear-gradient(180deg, rgba(84, 25, 25, 0.98), rgba(45, 16, 18, 0.98));
+  color: #ffd7d2;
+}
+
+.header-actions .danger-button:hover {
+  border-color: var(--danger);
+  color: #ffffff;
+  box-shadow: 0 0 0 1px rgba(255, 107, 95, 0.28), 0 0 18px rgba(255, 107, 95, 0.18);
+}
+
+.header-actions button:disabled,
+.header-actions select:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.autosave-badge {
+  min-height: 28px;
+  padding: 4px 9px;
+  border: 1px solid rgba(143, 243, 255, 0.4);
+  border-radius: 999px;
+  background: rgba(13, 31, 38, 0.82);
+  color: var(--accent-strong);
+  font-size: 0.74rem;
+  font-weight: 900;
+  opacity: 0;
+  transform: translateY(-2px);
+  transition: opacity 160ms ease, transform 160ms ease;
+}
+
+.autosave-badge.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.import-export-menu {
+  position: relative;
+}
+
+.import-export-menu summary {
+  min-height: 38px;
+  list-style: none;
+  user-select: none;
+}
+
+.import-export-menu summary::-webkit-details-marker {
+  display: none;
+}
+
+.import-export-panel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 8px;
+  min-width: 190px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: rgba(8, 13, 18, 0.98);
+  box-shadow: var(--shadow);
 }
 
 .file-button {
@@ -940,6 +1034,11 @@ h3 {
   padding: 18px;
 }
 
+.help-body h2 {
+  margin: 20px 0 10px;
+  color: #fff7d0;
+}
+
 .help-body h3 {
   margin-top: 18px;
 }
@@ -947,6 +1046,59 @@ h3 {
 .help-body p,
 .help-body li {
   color: #d8e3e6;
+}
+
+.help-body a {
+  color: var(--accent-strong);
+}
+
+.help-body pre {
+  overflow: auto;
+  padding: 12px;
+  border: 1px solid rgba(126, 213, 221, 0.22);
+  border-radius: 8px;
+  background: rgba(3, 8, 13, 0.78);
+}
+
+.help-body code {
+  color: #fff7d0;
+  font-family: "Cascadia Code", "Consolas", monospace;
+  font-size: 0.9em;
+}
+
+.help-body p code,
+.help-body li code,
+.help-body td code {
+  padding: 1px 4px;
+  border-radius: 4px;
+  background: rgba(244, 197, 66, 0.11);
+}
+
+.help-body table {
+  width: 100%;
+  margin: 12px 0 18px;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+.help-body th,
+.help-body td {
+  padding: 8px 10px;
+  border: 1px solid rgba(126, 213, 221, 0.22);
+  text-align: left;
+  vertical-align: top;
+}
+
+.help-body th {
+  color: #fff7d0;
+  background: rgba(244, 197, 66, 0.12);
+}
+
+.spec-download-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
 }
 
 .help-meta {
@@ -981,6 +1133,19 @@ h3 {
 
   .header-actions {
     justify-content: flex-start;
+  }
+
+  .header-actions select,
+  .header-actions button,
+  .import-export-menu,
+  .import-export-menu summary {
+    width: 100%;
+  }
+
+  .import-export-panel {
+    position: static;
+    margin-top: 8px;
+    width: 100%;
   }
 
   .toolbar {

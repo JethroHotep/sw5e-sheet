@@ -10,18 +10,27 @@
   <body>
     <header class="app-header">
       <div>
-        <p class="eyebrow">SW5e VTT Sheet <span class="app-version">v0.6.0</span></p>
+        <p class="eyebrow">SW5e VTT Sheet <span class="app-version">v0.8.0</span></p>
         <h1 id="characterName">Loading character...</h1>
         <p id="characterMeta" class="muted">Preparing dashboard</p>
       </div>
       <div class="header-actions">
-        <label class="file-button">
-          Load JSON
-          <input id="fileInput" type="file" accept="application/json,.json">
-        </label>
-        <button id="downloadJsonButton" type="button">Download JSON</button>
-        <a class="schema-link" href="docs/sw5e-character.schema.json" download>JSON Schema</a>
-        <button id="loadNimButton" type="button">Load Nim</button>
+        <span id="autosaveBadge" class="autosave-badge" aria-live="polite" hidden>Autosaved</span>
+        <button id="importExportHelpButton" type="button">Data Help</button>
+        <select id="localCharacterSelect" aria-label="Saved local characters"></select>
+        <details class="import-export-menu">
+          <summary>Import/Export</summary>
+          <div class="import-export-panel">
+            <label class="file-button">
+              Import
+              <input id="fileInput" type="file" accept="application/json,.json">
+            </label>
+            <button id="loadNimButton" type="button">Import Sample Nim</button>
+            <button id="downloadJsonButton" type="button">Export</button>
+            <button id="jsonSpecButton" type="button">JSON Spec</button>
+          </div>
+        </details>
+        <button id="clearLocalButton" class="danger-button" type="button">Delete</button>
       </div>
     </header>
 

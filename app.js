@@ -31,6 +31,10 @@ const SKILL_LABELS = {
   technology: "Technology"
 };
 
+const LEGACY_LOCAL_STORAGE_KEY = "sw5e-sheet.character.v1";
+const LOCAL_STORAGE_LIBRARY_KEY = "sw5e-sheet.characters.v1";
+const MAX_STORED_CHARACTERS = 12;
+
 const state = {
   character: null,
   warnings: [],
@@ -40,7 +44,10 @@ const state = {
   bridgeDetected: false,
   latestCommand: "",
   history: [],
-  lastFocus: null
+  lastFocus: null,
+  storageSaveTimer: null,
+  autosaveBadgeTimer: null,
+  suppressAutosave: false
 };
 
 const elements = {
@@ -48,10 +55,15 @@ const elements = {
   characterMeta: document.querySelector("#characterMeta"),
   fileInput: document.querySelector("#fileInput"),
   downloadJsonButton: document.querySelector("#downloadJsonButton"),
+  jsonSpecButton: document.querySelector("#jsonSpecButton"),
+  importExportHelpButton: document.querySelector("#importExportHelpButton"),
+  localCharacterSelect: document.querySelector("#localCharacterSelect"),
+  clearLocalButton: document.querySelector("#clearLocalButton"),
   loadNimButton: document.querySelector("#loadNimButton"),
   globalModifier: document.querySelector("#globalModifier"),
   initiativeTracker: document.querySelector("#initiativeTracker"),
   autoBridge: document.querySelector("#autoBridge"),
+  autosaveBadge: document.querySelector("#autosaveBadge"),
   statusMessage: document.querySelector("#statusMessage"),
   validationPanel: document.querySelector("#validationPanel"),
   combatStats: document.querySelector("#combatStats"),
@@ -92,7 +104,10 @@ const elements = {
 
 document.addEventListener("DOMContentLoaded", () => {
   bindEvents();
-  loadExample("examples/nim-sw5e-v8.json", true);
+  refreshLocalCharacterSelect();
+  if (!loadCharacterFromStorage({ silent: true })) {
+    loadCharacterData(createBlankCharacterData(), "blank character", { persist: false });
+  }
 });
 
 function bindEvents() {
@@ -124,7 +139,7 @@ function bindEvents() {
 
     try {
       const data = JSON.parse(await file.text());
-      loadCharacterData(data, file.name);
+      loadCharacterData(data, file.name, { confirmOverwrite: true });
     } catch (error) {
       setStatus(`Could not load JSON: ${error.message}`, true);
     } finally {
@@ -133,7 +148,17 @@ function bindEvents() {
   });
 
   elements.downloadJsonButton.addEventListener("click", downloadCurrentJson);
-  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v8.json"));
+  elements.jsonSpecButton.addEventListener("click", openJsonSpec);
+  elements.importExportHelpButton.addEventListener("click", openImportExportHelp);
+  elements.localCharacterSelect.addEventListener("change", () => {
+    if (!elements.localCharacterSelect.value) return;
+    loadCharacterFromStorage({
+      silent: false,
+      name: elements.localCharacterSelect.value
+    });
+  });
+  elements.clearLocalButton.addEventListener("click", clearCharacterStorage);
+  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v8.json", false, { confirmOverwrite: true }));
   elements.shortRestButton.addEventListener("click", () => applyRest("short"));
   elements.longRestButton.addEventListener("click", () => applyRest("long"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
@@ -148,6 +173,72 @@ function bindEvents() {
   window.addEventListener("message", handleBridgeResponse);
   pingBridge();
   window.setInterval(pingBridge, 5000);
+}
+
+function openImportExportHelp() {
+  openHelp("Import/Export", {
+    title: "Import/Export",
+    source: "Sheet Help",
+    category: "Character Data",
+    summary: "Import and export move character JSON between files and this browser's saved character library.",
+    details: [
+      "Import opens a JSON file from your computer, loads it into the sheet, and autosaves it by character name.",
+      "Import Sample Nim loads the bundled Nim example and autosaves it the same way as an imported JSON file.",
+      "Export downloads the current sheet as JSON. Use this before deleting a saved browser character or before replacing a saved character with an import.",
+      "JSON Spec opens the human-readable character JSON guide in this app and offers raw .md and JSON Schema downloads.",
+      "If an import would replace an existing saved browser character with the same name, the app asks for confirmation before changing the sheet."
+    ],
+    sections: [
+      {
+        heading: "Saved Characters",
+        items: [
+          "Each different application URL has its own saved character list.",
+          `Each URL can store up to ${MAX_STORED_CHARACTERS} characters.`,
+          "Selecting a name in the saved-character dropdown loads that saved character."
+        ]
+      }
+    ]
+  });
+}
+
+async function openJsonSpec() {
+  state.lastFocus = document.activeElement;
+  elements.helpTitle.textContent = "JSON Spec";
+  elements.helpSource.textContent = "docs/json-spec.md";
+  elements.helpBody.replaceChildren(makeSpecDownloadActions());
+  elements.helpOverlay.hidden = false;
+  elements.helpCloseButton.focus();
+
+  try {
+    const response = await fetch("docs/json-spec.md");
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    const markdown = await response.text();
+    elements.helpBody.replaceChildren(makeSpecDownloadActions(), ...markdownToNodes(markdown));
+  } catch (error) {
+    const message = document.createElement("p");
+    message.className = "help-summary";
+    message.textContent = `Could not open the JSON spec: ${error.message}`;
+    elements.helpBody.replaceChildren(makeSpecDownloadActions(), message);
+  }
+}
+
+function makeSpecDownloadActions() {
+  const actions = document.createElement("div");
+  actions.className = "spec-download-actions";
+  actions.append(
+    makeDownloadLink("docs/json-spec.md", "json-spec.md", "Download Raw .md"),
+    makeDownloadLink("docs/sw5e-character.schema.json", "sw5e-character.schema.json", "Download JSON Schema")
+  );
+  return actions;
+}
+
+function makeDownloadLink(href, download, label) {
+  const link = document.createElement("a");
+  link.className = "schema-link";
+  link.href = href;
+  link.download = download;
+  link.textContent = label;
+  return link;
 }
 
 function createBlankCharacterData() {
@@ -286,44 +377,74 @@ function createBlankCharacterData() {
   };
 }
 
-async function loadExample(path, fallbackToBlank = false) {
+async function loadExample(path, fallbackToBlank = false, options = {}) {
   try {
     const response = await fetch(path);
     if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
     const data = await response.json();
-    loadCharacterData(data, path);
+    loadCharacterData(data, path, options);
   } catch (error) {
     if (fallbackToBlank) {
-      loadCharacterData(createBlankCharacterData(), "blank character");
+      loadCharacterData(createBlankCharacterData(), "blank character", options);
       setStatus(`Could not load ${path}; started with a blank character.`, true);
       return;
     }
-    setStatus(`Could not load ${path}. Use Load JSON or run through a local server.`, true);
+    setStatus(`Could not load ${path}. Use Import or run through a local server.`, true);
   }
 }
 
-function loadCharacterData(data, sourceName) {
+function loadCharacterData(data, sourceName, options = {}) {
   const result = validateCharacterData(data);
   if (result.errors.length) {
     renderValidation(result.errors, true);
     setStatus(`Could not load ${sourceName}: ${result.errors[0]}`, true);
-    return;
+    return false;
+  }
+
+  if (options.persist !== false && options.confirmOverwrite) {
+    const name = storageCharacterName(data.character);
+    if (storedCharacterExists(name)) {
+      const confirmed = window.confirm(
+        `Replace the saved character "${name}" in this browser?\n\nImporting this JSON will autosave over the existing saved character with the same name. Export first if you want a backup.`
+      );
+      if (!confirmed) {
+        setStatus(`Import canceled; kept saved ${name}.`);
+        return false;
+      }
+    }
+    if (!storedCharacterExists(name) && storedCharacterLimitReached()) {
+      setStatus(`Saved character limit reached (${MAX_STORED_CHARACTERS}). Export or delete a saved character before importing ${name}.`, true);
+      return false;
+    }
   }
 
   state.character = data.character;
   state.warnings = result.warnings;
   state.latestCommand = "";
   state.history = [];
-  renderSheet();
+  state.suppressAutosave = true;
+  try {
+    renderSheet();
+  } finally {
+    state.suppressAutosave = false;
+  }
   renderValidation(result.warnings, false);
+  if (options.persist !== false) {
+    saveCharacterToStorage({ silent: true });
+  }
   setStatus(`Loaded ${state.character.name} from ${sourceName}.`);
+  return true;
 }
 
-function downloadCurrentJson() {
-  const data = {
+function getCurrentCharacterPayload() {
+  return {
     schemaVersion: 1,
     character: state.character || createBlankCharacterData().character
   };
+}
+
+function downloadCurrentJson() {
+  const data = getCurrentCharacterPayload();
   const json = `${JSON.stringify(data, null, 2)}\n`;
   const blob = new Blob([json], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -335,6 +456,220 @@ function downloadCurrentJson() {
   link.remove();
   URL.revokeObjectURL(url);
   setStatus("Downloaded character JSON.");
+}
+
+function saveCharacterToStorage({ silent = false } = {}) {
+  if (!storageAvailable()) {
+    if (!silent) setStatus("Browser storage is not available for this page.", true);
+    return false;
+  }
+
+  try {
+    const payload = getCurrentCharacterPayload();
+    const name = storageCharacterName(payload.character);
+    const library = getStorageLibrary();
+    const isNewCharacter = !library.characters[name];
+    if (isNewCharacter && Object.keys(library.characters).length >= MAX_STORED_CHARACTERS) {
+      if (!silent) {
+        setStatus(`Saved character limit reached (${MAX_STORED_CHARACTERS}). Export or delete a saved character before adding another.`, true);
+      }
+      return false;
+    }
+    const saved = {
+      ...payload,
+      savedAt: new Date().toISOString()
+    };
+    library.characters[name] = saved;
+    library.activeName = name;
+    writeStorageLibrary(library);
+    refreshLocalCharacterSelect(name);
+    if (silent) {
+      showAutosaveBadge();
+    } else {
+      setStatus(`Saved ${name} in this browser.`);
+    }
+    return true;
+  } catch (error) {
+    if (!silent) setStatus(`Could not save in browser storage: ${error.message}`, true);
+    return false;
+  }
+}
+
+function queueCharacterStorageSave() {
+  if (state.suppressAutosave || !state.character || !storageAvailable()) return;
+  window.clearTimeout(state.storageSaveTimer);
+  state.storageSaveTimer = window.setTimeout(() => {
+    saveCharacterToStorage({ silent: true });
+  }, 200);
+}
+
+function loadCharacterFromStorage({ silent = false, name = "" } = {}) {
+  if (!storageAvailable()) {
+    if (!silent) setStatus("Browser storage is not available for this page.", true);
+    return false;
+  }
+
+  const library = getStorageLibrary();
+  const names = Object.keys(library.characters).sort((a, b) => a.localeCompare(b));
+  const selectedName = name || library.activeName || names[0] || "";
+  const data = library.characters[selectedName];
+  if (!data) {
+    if (!silent) setStatus("No saved browser character found.");
+    refreshLocalCharacterSelect();
+    return false;
+  }
+
+  try {
+    const payload = data?.character ? data : { schemaVersion: 1, character: data };
+    if (!loadCharacterData(payload, "browser storage", { persist: false })) return false;
+    library.activeName = storageCharacterName(payload.character);
+    writeStorageLibrary(library);
+    refreshLocalCharacterSelect(library.activeName);
+    if (!silent) {
+      const savedAt = data.savedAt ? ` Saved ${formatDateTime(data.savedAt)}.` : "";
+      setStatus(`Loaded ${library.activeName} from browser storage.${savedAt}`);
+    }
+    return true;
+  } catch (error) {
+    if (!silent) setStatus(`Could not load browser storage: ${error.message}`, true);
+    return false;
+  }
+}
+
+function clearCharacterStorage() {
+  if (!storageAvailable()) {
+    setStatus("Browser storage is not available for this page.", true);
+    return;
+  }
+  const library = getStorageLibrary();
+  const selectedName = elements.localCharacterSelect.value || library.activeName;
+  if (!selectedName || !library.characters[selectedName]) {
+    setStatus("No saved character selected to delete.");
+    return;
+  }
+  const confirmed = window.confirm(
+    `Delete "${selectedName}" from this browser?\n\nExport the character JSON first if you want a backup. This cannot be undone.`
+  );
+  if (!confirmed) {
+    setStatus(`Kept ${selectedName}.`);
+    return;
+  }
+  delete library.characters[selectedName];
+  const names = Object.keys(library.characters).sort((a, b) => a.localeCompare(b));
+  library.activeName = names[0] || "";
+  writeStorageLibrary(library);
+  refreshLocalCharacterSelect(library.activeName);
+  setStatus(`Deleted ${selectedName}.`);
+}
+
+function storageAvailable() {
+  try {
+    return typeof window !== "undefined" && "localStorage" in window && window.localStorage;
+  } catch (error) {
+    return false;
+  }
+}
+
+function storedCharacterExists(name) {
+  if (!storageAvailable()) return false;
+  const library = getStorageLibrary();
+  return Boolean(library.characters[name]);
+}
+
+function storedCharacterLimitReached() {
+  if (!storageAvailable()) return false;
+  const library = getStorageLibrary();
+  return Object.keys(library.characters).length >= MAX_STORED_CHARACTERS;
+}
+
+function getStorageLibrary() {
+  const library = {
+    version: 1,
+    activeName: "",
+    characters: {}
+  };
+
+  try {
+    const rawLibrary = localStorage.getItem(LOCAL_STORAGE_LIBRARY_KEY);
+    if (rawLibrary) {
+      const parsed = JSON.parse(rawLibrary);
+      if (parsed && typeof parsed === "object") {
+        library.activeName = typeof parsed.activeName === "string" ? parsed.activeName : "";
+        library.characters = parsed.characters && typeof parsed.characters === "object" ? parsed.characters : {};
+      }
+    }
+
+    const legacyRaw = localStorage.getItem(LEGACY_LOCAL_STORAGE_KEY);
+    if (legacyRaw) {
+      const legacy = JSON.parse(legacyRaw);
+      if (legacy?.character) {
+        const name = storageCharacterName(legacy.character);
+        library.characters[name] = legacy;
+        library.activeName = library.activeName || name;
+        writeStorageLibrary(library);
+      }
+      localStorage.removeItem(LEGACY_LOCAL_STORAGE_KEY);
+    }
+  } catch (error) {
+    return library;
+  }
+
+  return library;
+}
+
+function writeStorageLibrary(library) {
+  localStorage.setItem(LOCAL_STORAGE_LIBRARY_KEY, JSON.stringify({
+    version: 1,
+    activeName: library.activeName || "",
+    characters: library.characters || {}
+  }));
+}
+
+function refreshLocalCharacterSelect(selectedName = "") {
+  if (!elements.localCharacterSelect) return;
+  const library = storageAvailable() ? getStorageLibrary() : { activeName: "", characters: {} };
+  const names = Object.keys(library.characters).sort((a, b) => a.localeCompare(b));
+  const target = selectedName || library.activeName || names[0] || "";
+  elements.localCharacterSelect.replaceChildren();
+
+  if (!names.length) {
+    elements.localCharacterSelect.append(new Option("No saved characters", ""));
+    elements.localCharacterSelect.disabled = true;
+    elements.clearLocalButton.disabled = true;
+    return;
+  }
+
+  names.forEach((name) => {
+    elements.localCharacterSelect.append(new Option(name, name));
+  });
+  elements.localCharacterSelect.value = names.includes(target) ? target : names[0];
+  elements.localCharacterSelect.disabled = false;
+  elements.clearLocalButton.disabled = false;
+}
+
+function storageCharacterName(character) {
+  const name = String(character?.name || "").trim();
+  return name || "Unnamed Character";
+}
+
+function showAutosaveBadge() {
+  if (!elements.autosaveBadge) return;
+  window.clearTimeout(state.autosaveBadgeTimer);
+  elements.autosaveBadge.hidden = false;
+  elements.autosaveBadge.classList.add("visible");
+  state.autosaveBadgeTimer = window.setTimeout(() => {
+    elements.autosaveBadge.classList.remove("visible");
+    elements.autosaveBadge.hidden = true;
+  }, 1400);
+}
+
+function formatDateTime(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleString([], {
+    dateStyle: "medium",
+    timeStyle: "short"
+  });
 }
 
 function validateCharacterData(data) {
@@ -427,6 +762,7 @@ function renderSheet() {
   renderCustomRolls(character);
   renderLogistics(character);
   renderOutbox();
+  queueCharacterStorageSave();
 }
 
 function renderCombatStats(character) {
@@ -1300,6 +1636,155 @@ function helpNodes(help) {
     }
   });
   return nodes.length ? nodes : [document.createTextNode("No help available.")];
+}
+
+function markdownToNodes(markdown) {
+  const nodes = [];
+  const lines = markdown.replace(/\r\n/g, "\n").split("\n");
+  let index = 0;
+
+  while (index < lines.length) {
+    const line = lines[index];
+    if (!line.trim()) {
+      index += 1;
+      continue;
+    }
+
+    const fence = line.match(/^```(\w*)\s*$/);
+    if (fence) {
+      const codeLines = [];
+      index += 1;
+      while (index < lines.length && !lines[index].startsWith("```")) {
+        codeLines.push(lines[index]);
+        index += 1;
+      }
+      if (index < lines.length) index += 1;
+      nodes.push(makeMarkdownCodeBlock(codeLines.join("\n"), fence[1]));
+      continue;
+    }
+
+    if (isMarkdownTableStart(lines, index)) {
+      const tableLines = [];
+      while (index < lines.length && lines[index].trim().startsWith("|")) {
+        tableLines.push(lines[index]);
+        index += 1;
+      }
+      nodes.push(makeMarkdownTable(tableLines));
+      continue;
+    }
+
+    const heading = line.match(/^(#{1,4})\s+(.+)$/);
+    if (heading) {
+      const level = Math.min(Number(heading[1].length) + 1, 4);
+      const element = document.createElement(`h${level}`);
+      appendInlineMarkdown(element, heading[2]);
+      nodes.push(element);
+      index += 1;
+      continue;
+    }
+
+    const listMatch = line.match(/^\s*[-*]\s+(.+)$/);
+    if (listMatch) {
+      const list = document.createElement("ul");
+      while (index < lines.length) {
+        const itemMatch = lines[index].match(/^\s*[-*]\s+(.+)$/);
+        if (!itemMatch) break;
+        const item = document.createElement("li");
+        appendInlineMarkdown(item, itemMatch[1]);
+        list.append(item);
+        index += 1;
+      }
+      nodes.push(list);
+      continue;
+    }
+
+    const paragraphLines = [];
+    while (index < lines.length && lines[index].trim() && !lines[index].startsWith("```") && !lines[index].match(/^(#{1,4})\s+/) && !lines[index].match(/^\s*[-*]\s+/) && !isMarkdownTableStart(lines, index)) {
+      paragraphLines.push(lines[index].trim());
+      index += 1;
+    }
+    const paragraph = document.createElement("p");
+    appendInlineMarkdown(paragraph, paragraphLines.join(" "));
+    nodes.push(paragraph);
+  }
+
+  return nodes;
+}
+
+function isMarkdownTableStart(lines, index) {
+  return Boolean(
+    lines[index]?.trim().startsWith("|") &&
+    lines[index + 1]?.trim().match(/^\|?\s*:?-{3,}:?\s*(\|\s*:?-{3,}:?\s*)+\|?$/)
+  );
+}
+
+function makeMarkdownTable(lines) {
+  const table = document.createElement("table");
+  const [headerLine, , ...bodyLines] = lines;
+  const headerCells = splitMarkdownTableRow(headerLine);
+  const head = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  headerCells.forEach((cell) => {
+    const th = document.createElement("th");
+    appendInlineMarkdown(th, cell);
+    headRow.append(th);
+  });
+  head.append(headRow);
+  table.append(head);
+
+  const body = document.createElement("tbody");
+  bodyLines.forEach((line) => {
+    const row = document.createElement("tr");
+    splitMarkdownTableRow(line).forEach((cell) => {
+      const td = document.createElement("td");
+      appendInlineMarkdown(td, cell);
+      row.append(td);
+    });
+    body.append(row);
+  });
+  table.append(body);
+  return table;
+}
+
+function splitMarkdownTableRow(line) {
+  return line.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((cell) => cell.trim());
+}
+
+function makeMarkdownCodeBlock(code, language = "") {
+  const pre = document.createElement("pre");
+  if (language) pre.dataset.language = language;
+  const codeElement = document.createElement("code");
+  codeElement.textContent = code;
+  pre.append(codeElement);
+  return pre;
+}
+
+function appendInlineMarkdown(parent, text) {
+  const pattern = /(`[^`]+`)|(\[([^\]]+)\]\(([^)]+)\))/g;
+  let cursor = 0;
+  let match;
+  while ((match = pattern.exec(text))) {
+    if (match.index > cursor) parent.append(document.createTextNode(text.slice(cursor, match.index)));
+    if (match[1]) {
+      const code = document.createElement("code");
+      code.textContent = match[1].slice(1, -1);
+      parent.append(code);
+    } else {
+      const link = document.createElement("a");
+      link.textContent = match[3];
+      link.href = resolveSpecLink(match[4]);
+      link.target = "_blank";
+      link.rel = "noreferrer";
+      parent.append(link);
+    }
+    cursor = pattern.lastIndex;
+  }
+  if (cursor < text.length) parent.append(document.createTextNode(text.slice(cursor)));
+}
+
+function resolveSpecLink(href) {
+  if (/^(https?:|mailto:|#|\/)/i.test(href)) return href;
+  return `docs/${href}`;
 }
 
 function formatTemplate(title, fields) {

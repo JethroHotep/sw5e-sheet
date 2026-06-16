@@ -4,8 +4,9 @@ A local, JavaScript-based SW5e character sheet that loads hand-authored JSON and
 
 ## Current Prototype
 
-- Starts with Nim's example character by default.
+- Starts with an empty character by default when no local save exists.
 - Can load any compatible local JSON file.
+- Can save and load multiple named characters from persistent browser storage for the current site origin.
 - Renders abilities, saves, skills, combat stats, resources, attacks, custom rolls, and reference actions.
 - Displays inventory grouped by category, plus credit totals when present in the JSON.
 - Tracks resource depletion hooks on actions and inventory items, including item-contained resources like loaded power cells.
@@ -36,7 +37,9 @@ Opening `index.html` directly still allows manual JSON loading, but browser secu
 
 See [docs/json-spec.md](docs/json-spec.md) and [examples/nim-sw5e-v8.json](examples/nim-sw5e-v8.json).
 
-The app header includes a `Download JSON` button for the current character and a `JSON Schema` link for [`docs/sw5e-character.schema.json`](docs/sw5e-character.schema.json).
+The app header includes a saved-character dropdown, delete control, and data help as the primary workflow. Selecting a saved character loads it. `Import/Export` contains JSON import, current-character JSON export, an in-app JSON spec viewer with raw `.md` and schema downloads, and the sample Nim importer.
+
+Loaded and imported characters autosave to browser storage by character name. Each different application URL has its own saved character list, with up to 12 saved characters per URL. Importing a JSON file asks before replacing an existing saved character with the same name. Export JSON before deleting a browser save if you want a backup.
 
 ## Optional Roll20 Bridge
 
