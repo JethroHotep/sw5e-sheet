@@ -46,6 +46,46 @@
           "minimum": 0,
           "maximum": 10
         },
+        "settings": {
+          "type": "object",
+          "description": "Per-character app settings saved with the sheet.",
+          "additionalProperties": false,
+          "properties": {
+            "d20Mode": {
+              "type": "string",
+              "enum": [
+                "normal",
+                "advantage",
+                "disadvantage",
+                "both"
+              ],
+              "default": "both"
+            },
+            "chatTarget": {
+              "type": "string",
+              "enum": [
+                "roll20",
+                "foundry"
+              ],
+              "default": "roll20"
+            },
+            "globalModifier": {
+              "type": [
+                "string",
+                "number"
+              ],
+              "default": "0"
+            },
+            "addInitiativeToTracker": {
+              "type": "boolean",
+              "default": false
+            },
+            "autoSendToRoll20Bridge": {
+              "type": "boolean",
+              "default": true
+            }
+          }
+        },
         "abilities": {
           "type": "object",
           "additionalProperties": false,

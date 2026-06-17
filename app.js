@@ -34,6 +34,8 @@ const SKILL_LABELS = {
 const LEGACY_LOCAL_STORAGE_KEY = "sw5e-sheet.character.v1";
 const LOCAL_STORAGE_LIBRARY_KEY = "sw5e-sheet.characters.v1";
 const MAX_STORED_CHARACTERS = 12;
+const ROLL_MODES = ["normal", "advantage", "disadvantage", "both"];
+const CHAT_TARGETS = ["roll20", "foundry"];
 
 const state = {
   character: null,
@@ -112,9 +114,8 @@ function bindEvents() {
   document.querySelectorAll("[data-roll-mode]").forEach((button) => {
     button.addEventListener("click", () => {
       state.rollMode = button.dataset.rollMode;
-      document.querySelectorAll("[data-roll-mode]").forEach((item) => {
-        item.classList.toggle("active", item === button);
-      });
+      updateSegmentedControl("[data-roll-mode]", state.rollMode);
+      syncCharacterSettings();
       setStatus(`D20 mode set to ${button.textContent}.`);
     });
   });
@@ -122,14 +123,16 @@ function bindEvents() {
   document.querySelectorAll("[data-chat-target]").forEach((button) => {
     button.addEventListener("click", () => {
       state.chatTarget = button.dataset.chatTarget;
-      document.querySelectorAll("[data-chat-target]").forEach((item) => {
-        item.classList.toggle("active", item === button);
-      });
-      elements.autoBridge.disabled = state.chatTarget !== "roll20";
-      if (state.chatTarget !== "roll20") elements.autoBridge.checked = false;
+      updateChatTargetControls();
+      syncCharacterSettings();
       setStatus(`Chat target set to ${button.textContent}.`);
     });
   });
+
+  elements.globalModifier.addEventListener("change", syncCharacterSettings);
+  elements.globalModifier.addEventListener("input", syncCharacterSettings);
+  elements.initiativeTracker.addEventListener("change", syncCharacterSettings);
+  elements.autoBridge.addEventListener("change", syncCharacterSettings);
 
   elements.fileInput.addEventListener("change", async (event) => {
     const file = event.target.files[0];
@@ -171,6 +174,64 @@ function bindEvents() {
   window.addEventListener("message", handleBridgeResponse);
   pingBridge();
   window.setInterval(pingBridge, 5000);
+}
+
+function defaultCharacterSettings() {
+  return {
+    d20Mode: "both",
+    chatTarget: "roll20",
+    globalModifier: "0",
+    addInitiativeToTracker: false,
+    autoSendToRoll20Bridge: true
+  };
+}
+
+function normalizeCharacterSettings(settings = {}) {
+  const defaults = defaultCharacterSettings();
+  return {
+    d20Mode: ROLL_MODES.includes(settings.d20Mode) ? settings.d20Mode : defaults.d20Mode,
+    chatTarget: CHAT_TARGETS.includes(settings.chatTarget) ? settings.chatTarget : defaults.chatTarget,
+    globalModifier: settings.globalModifier === undefined || settings.globalModifier === null ? defaults.globalModifier : String(settings.globalModifier),
+    addInitiativeToTracker: Boolean(settings.addInitiativeToTracker),
+    autoSendToRoll20Bridge: settings.autoSendToRoll20Bridge === undefined ? defaults.autoSendToRoll20Bridge : Boolean(settings.autoSendToRoll20Bridge)
+  };
+}
+
+function applyCharacterSettings(character) {
+  const settings = normalizeCharacterSettings(character.settings);
+  character.settings = settings;
+  state.rollMode = settings.d20Mode;
+  state.chatTarget = settings.chatTarget;
+  elements.globalModifier.value = settings.globalModifier;
+  elements.initiativeTracker.checked = settings.addInitiativeToTracker;
+  elements.autoBridge.checked = settings.autoSendToRoll20Bridge;
+  updateSegmentedControl("[data-roll-mode]", state.rollMode);
+  updateChatTargetControls();
+  character.settings.autoSendToRoll20Bridge = elements.autoBridge.checked;
+}
+
+function syncCharacterSettings() {
+  if (!state.character) return;
+  state.character.settings = {
+    d20Mode: state.rollMode,
+    chatTarget: state.chatTarget,
+    globalModifier: elements.globalModifier.value,
+    addInitiativeToTracker: elements.initiativeTracker.checked,
+    autoSendToRoll20Bridge: elements.autoBridge.checked
+  };
+  queueCharacterStorageSave();
+}
+
+function updateSegmentedControl(selector, activeValue) {
+  document.querySelectorAll(selector).forEach((item) => {
+    item.classList.toggle("active", item.dataset.rollMode === activeValue || item.dataset.chatTarget === activeValue);
+  });
+}
+
+function updateChatTargetControls() {
+  updateSegmentedControl("[data-chat-target]", state.chatTarget);
+  elements.autoBridge.disabled = state.chatTarget !== "roll20";
+  if (state.chatTarget !== "roll20") elements.autoBridge.checked = false;
 }
 
 function openImportExportHelp() {
@@ -262,6 +323,7 @@ function createBlankCharacterData() {
       inspiration: false,
       passivePerception: 10,
       proficiencyBonus: 2,
+      settings: defaultCharacterSettings(),
       abilities: {
         str: 10,
         dex: 10,
@@ -417,6 +479,7 @@ function loadCharacterData(data, sourceName, options = {}) {
   }
 
   state.character = data.character;
+  applyCharacterSettings(state.character);
   state.warnings = result.warnings;
   state.latestCommand = "";
   state.history = [];

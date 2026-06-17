@@ -41,6 +41,8 @@ The app header includes a saved-character dropdown, delete control, and data hel
 
 Loaded and imported characters autosave to browser storage by character name. Each different application URL has its own saved character list, with up to 12 saved characters per URL. Importing a JSON file asks before replacing an existing saved character with the same name. Export JSON before deleting a browser save if you want a backup.
 
+D20 mode, chat target, global modifier, initiative tracker, and Roll20 bridge autosend are saved in each character's JSON settings.
+
 ## Optional Roll20 Bridge
 
 The app always copies generated commands to the clipboard. To also send them into an open Roll20 game tab, load the unpacked extension in [roll20-extension](roll20-extension).

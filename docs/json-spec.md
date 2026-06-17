@@ -36,6 +36,7 @@ A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](s
 | `inspiration` | boolean | no | Inspiration checkbox state. |
 | `passivePerception` | number | no | Passive Perception display value. |
 | `proficiencyBonus` | number | yes | Stored directly for hand-authored simplicity. |
+| `settings` | object | no | Per-character app settings for D20 mode, chat target, global modifier, initiative tracker, and Roll20 bridge autosend. |
 | `abilities` | object | yes | Six SW5e ability scores. |
 | `savingThrows` | object | yes | Proficiency flags by ability. |
 | `skills` | object | yes | Skill definitions keyed by skill id. |
@@ -56,6 +57,32 @@ A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](s
 | `powercasting` | object | no | Tech/force point, save DC, attack modifier, alignment, and power-level grid data. |
 | `customRolls` | array | no | Hand-authored clickable rolls and reference actions. |
 | `notes` | string | no | Freeform player notes. |
+
+## Settings
+
+Settings are saved with each character so local saves, imported JSON, and exported JSON preserve the play configuration.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `d20Mode` | string | no | One of `normal`, `advantage`, `disadvantage`, or `both`. Defaults to `both`. |
+| `chatTarget` | string | no | One of `roll20` or `foundry`. Defaults to `roll20`. |
+| `globalModifier` | string or number | no | Global roll modifier text. Defaults to `"0"`. |
+| `addInitiativeToTracker` | boolean | no | Whether Roll20 initiative rolls include `&{tracker}`. Defaults to `false`. |
+| `autoSendToRoll20Bridge` | boolean | no | Whether generated Roll20 commands auto-send through the bridge extension. Defaults to `true`. |
+
+Example:
+
+```json
+{
+  "settings": {
+    "d20Mode": "both",
+    "chatTarget": "roll20",
+    "globalModifier": "0",
+    "addInitiativeToTracker": true,
+    "autoSendToRoll20Bridge": true
+  }
+}
+```
 
 ## Abilities
 
@@ -334,7 +361,7 @@ Actions, resources, inventory items, contained resources, and credits can includ
 
 ## D20 Roll Output
 
-D20 roll mode is UI state, not character data. The app should offer normal, advantage, disadvantage, and both. `Both` should be the default because it covers normal, advantage, and disadvantage from one Roll20 message.
+D20 roll mode is saved in `character.settings.d20Mode`. The app should offer normal, advantage, disadvantage, and both. `Both` should be the default because it covers normal, advantage, and disadvantage from one Roll20 message.
 
 | Situation | How to read the output |
 | --- | --- |

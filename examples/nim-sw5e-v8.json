@@ -6,6 +6,13 @@
     "class": "Engineer (Gadgeteer)",
     "background": "Scientist",
     "proficiencyBonus": 3,
+    "settings": {
+      "d20Mode": "both",
+      "chatTarget": "roll20",
+      "globalModifier": "0",
+      "addInitiativeToTracker": false,
+      "autoSendToRoll20Bridge": true
+    },
     "abilities": {
       "str": 8,
       "dex": 16,
