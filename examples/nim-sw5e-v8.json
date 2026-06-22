@@ -2094,10 +2094,16 @@
         }
       }
     ],
+    "journal": [
+      {
+        "id": "journal-nim-mission-prep",
+        "date": "2026-06-17",
+        "title": "Mission Preparation",
+        "text": "Updated credits, checked the light pistol power cell, and confirmed the gadgeteer harness is configured for the next operation."
+      }
+    ],
     "credits": {
-      "starting": 5000,
-      "spent": 4965,
-      "remaining": 35,
+      "current": 35,
       "notes": "Purchased mission gear package; fiber armor is infused after a long rest. Added Dexterity Enhancement (Basic) cybernetic augmentation for 200 cr.",
       "help": {
         "title": "Credits",
@@ -2105,9 +2111,7 @@
         "category": "Currency",
         "summary": "Purchased mission gear package; fiber armor is infused after a long rest. Added Dexterity Enhancement (Basic) cybernetic augmentation for 200 cr.",
         "details": [
-          "Starting: 5000.",
-          "Spent: 4965.",
-          "Remaining: 35."
+          "Current: 35 credits."
         ]
       }
     }

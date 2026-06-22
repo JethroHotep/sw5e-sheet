@@ -36,6 +36,7 @@ const LOCAL_STORAGE_LIBRARY_KEY = "sw5e-sheet.characters.v1";
 const MAX_STORED_CHARACTERS = 12;
 const ROLL_MODES = ["normal", "advantage", "disadvantage", "both"];
 const CHAT_TARGETS = ["roll20", "foundry"];
+const MAX_PORTRAIT_SIZE = 1200;
 
 const state = {
   character: null,
@@ -55,13 +56,17 @@ const state = {
 const elements = {
   characterName: document.querySelector("#characterName"),
   characterMeta: document.querySelector("#characterMeta"),
+  portraitButton: document.querySelector("#portraitButton"),
+  portraitThumb: document.querySelector("#portraitThumb"),
+  portraitPlaceholder: document.querySelector("#portraitPlaceholder"),
+  portraitInput: document.querySelector("#portraitInput"),
   fileInput: document.querySelector("#fileInput"),
   downloadJsonButton: document.querySelector("#downloadJsonButton"),
   jsonSpecButton: document.querySelector("#jsonSpecButton"),
   importExportHelpButton: document.querySelector("#importExportHelpButton"),
   localCharacterSelect: document.querySelector("#localCharacterSelect"),
   clearLocalButton: document.querySelector("#clearLocalButton"),
-  loadNimButton: document.querySelector("#loadNimButton"),
+  loadSampleButton: document.querySelector("#loadSampleButton"),
   globalModifier: document.querySelector("#globalModifier"),
   initiativeTracker: document.querySelector("#initiativeTracker"),
   autoBridge: document.querySelector("#autoBridge"),
@@ -75,15 +80,21 @@ const elements = {
   resources: document.querySelector("#resources"),
   credits: document.querySelector("#credits"),
   inventory: document.querySelector("#inventory"),
+  features: document.querySelector("#features"),
+  addJournalEntryButton: document.querySelector("#addJournalEntryButton"),
+  journalEntries: document.querySelector("#journalEntries"),
   characterDetails: document.querySelector("#characterDetails"),
   appearanceDetails: document.querySelector("#appearanceDetails"),
   personalityDetails: document.querySelector("#personalityDetails"),
-  proficienciesDetails: document.querySelector("#proficienciesDetails"),
+  languagesDetails: document.querySelector("#languagesDetails"),
   backstoryDetails: document.querySelector("#backstoryDetails"),
   skills: document.querySelector("#skills"),
-  attacks: document.querySelector("#attacks"),
-  customRolls: document.querySelector("#customRolls"),
-  references: document.querySelector("#references"),
+  actionGroupAction: document.querySelector("#actionGroupAction"),
+  actionGroupBonusAction: document.querySelector("#actionGroupBonusAction"),
+  actionGroupReaction: document.querySelector("#actionGroupReaction"),
+  actionGroupOther: document.querySelector("#actionGroupOther"),
+  powercastingSummary: document.querySelector("#powercastingSummary"),
+  powercastingActions: document.querySelector("#powercastingActions"),
   sensesMovement: document.querySelector("#sensesMovement"),
   defenseDetails: document.querySelector("#defenseDetails"),
   deathSaves: document.querySelector("#deathSaves"),
@@ -99,7 +110,11 @@ const elements = {
   helpTitle: document.querySelector("#helpTitle"),
   helpSource: document.querySelector("#helpSource"),
   helpBody: document.querySelector("#helpBody"),
-  helpCloseButton: document.querySelector("#helpCloseButton")
+  helpCloseButton: document.querySelector("#helpCloseButton"),
+  portraitOverlay: document.querySelector("#portraitOverlay"),
+  portraitTitle: document.querySelector("#portraitTitle"),
+  portraitFull: document.querySelector("#portraitFull"),
+  portraitCloseButton: document.querySelector("#portraitCloseButton")
 };
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -129,6 +144,10 @@ function bindEvents() {
     });
   });
 
+  document.querySelectorAll("[data-panel-tab]").forEach((button) => {
+    button.addEventListener("click", () => activatePanelTab(button.dataset.panelTab));
+  });
+
   elements.globalModifier.addEventListener("change", syncCharacterSettings);
   elements.globalModifier.addEventListener("input", syncCharacterSettings);
   elements.initiativeTracker.addEventListener("change", syncCharacterSettings);
@@ -151,6 +170,8 @@ function bindEvents() {
   elements.downloadJsonButton.addEventListener("click", downloadCurrentJson);
   elements.jsonSpecButton.addEventListener("click", openJsonSpec);
   elements.importExportHelpButton.addEventListener("click", openImportExportHelp);
+  elements.portraitInput.addEventListener("change", handlePortraitUpload);
+  elements.portraitButton.addEventListener("click", openPortrait);
   elements.localCharacterSelect.addEventListener("change", () => {
     if (!elements.localCharacterSelect.value) return;
     loadCharacterFromStorage({
@@ -159,7 +180,8 @@ function bindEvents() {
     });
   });
   elements.clearLocalButton.addEventListener("click", clearCharacterStorage);
-  elements.loadNimButton.addEventListener("click", () => loadExample("examples/nim-sw5e-v8.json", false, { confirmOverwrite: true }));
+  elements.loadSampleButton.addEventListener("click", () => loadExample("examples/han-solo-phb.json", false, { confirmOverwrite: true }));
+  elements.addJournalEntryButton.addEventListener("click", addJournalEntry);
   elements.shortRestButton.addEventListener("click", () => applyRest("short"));
   elements.longRestButton.addEventListener("click", () => applyRest("long"));
   elements.copyLatestButton.addEventListener("click", () => copyCommand(state.latestCommand));
@@ -168,12 +190,30 @@ function bindEvents() {
   elements.helpOverlay.addEventListener("click", (event) => {
     if (event.target === elements.helpOverlay) closeHelp();
   });
+  elements.portraitCloseButton.addEventListener("click", closePortrait);
+  elements.portraitOverlay.addEventListener("click", (event) => {
+    if (event.target === elements.portraitOverlay) closePortrait();
+  });
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !elements.helpOverlay.hidden) closeHelp();
+    if (event.key === "Escape" && !elements.portraitOverlay.hidden) closePortrait();
   });
   window.addEventListener("message", handleBridgeResponse);
   pingBridge();
   window.setInterval(pingBridge, 5000);
+}
+
+function activatePanelTab(tab) {
+  document.querySelectorAll("[data-panel-tab]").forEach((button) => {
+    const active = button.dataset.panelTab === tab;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-selected", String(active));
+  });
+  document.querySelectorAll("[data-panel-pane]").forEach((pane) => {
+    const active = pane.dataset.panelPane === tab;
+    pane.classList.toggle("active", active);
+    pane.hidden = !active;
+  });
 }
 
 function defaultCharacterSettings() {
@@ -242,7 +282,7 @@ function openImportExportHelp() {
     summary: "Import and export move character JSON between files and this browser's saved character library.",
     details: [
       "Import opens a JSON file from your computer, loads it into the sheet, and autosaves it by character name.",
-      "Import Sample Nim loads the bundled Nim example and autosaves it the same way as an imported JSON file.",
+      "Import Sample Han loads the bundled Player's Handbook Han Solo example and autosaves it the same way as an imported JSON file.",
       "Export downloads the current sheet as JSON. Use this before deleting a saved browser character or before replacing a saved character with an import.",
       "JSON Spec opens the human-readable character JSON guide in this app and offers raw .md and JSON Schema downloads.",
       "If an import would replace an existing saved browser character with the same name, the app asks for confirmation before changing the sheet."
@@ -318,6 +358,12 @@ function createBlankCharacterData() {
       background: "",
       alignment: "",
       playerName: "",
+      portrait: {
+        dataUrl: "",
+        mimeType: "",
+        fileName: "",
+        updatedAt: ""
+      },
       experiencePoints: 0,
       xpNextLevel: 0,
       inspiration: false,
@@ -346,11 +392,9 @@ function createBlankCharacterData() {
         initiativeBonus: 0,
         speed: 30,
         senses: {
-          vision: "",
-          passiveWisdom: 10
+          vision: ""
         },
         movement: {
-          base: 30,
           hour: "",
           day: "",
           special: ""
@@ -374,6 +418,7 @@ function createBlankCharacterData() {
       attacks: [],
       resources: [],
       inventory: [],
+      journal: [],
       carrying: {
         totalWeight: "",
         totalWeightOnCharacter: "",
@@ -384,7 +429,6 @@ function createBlankCharacterData() {
         notes: ""
       },
       valuables: {
-        creditsNotes: "",
         gemsAndTreasure: "",
         storage: "",
         loanedDepositedReceived: ""
@@ -409,11 +453,8 @@ function createBlankCharacterData() {
       placeOfBirth: "",
       backstory: "",
       backgroundFeature: "",
-      proficiencies: [],
       languages: [],
       powercasting: {
-        techPoints: "",
-        forcePoints: "",
         techSaveDc: "",
         forceSaveDc: "",
         techAttackModifier: "",
@@ -426,9 +467,7 @@ function createBlankCharacterData() {
         levels: []
       },
       credits: {
-        starting: 0,
-        spent: 0,
-        remaining: 0,
+        current: 0,
         notes: ""
       },
       customRolls: [],
@@ -454,7 +493,8 @@ async function loadExample(path, fallbackToBlank = false, options = {}) {
 }
 
 function loadCharacterData(data, sourceName, options = {}) {
-  const result = validateCharacterData(data);
+  const normalizedData = normalizeCharacterPayload(data);
+  const result = validateCharacterData(normalizedData);
   if (result.errors.length) {
     renderValidation(result.errors, true);
     setStatus(`Could not load ${sourceName}: ${result.errors[0]}`, true);
@@ -462,7 +502,7 @@ function loadCharacterData(data, sourceName, options = {}) {
   }
 
   if (options.persist !== false && options.confirmOverwrite) {
-    const name = storageCharacterName(data.character);
+    const name = storageCharacterName(normalizedData.character);
     if (storedCharacterExists(name)) {
       const confirmed = window.confirm(
         `Replace the saved character "${name}" in this browser?\n\nImporting this JSON will autosave over the existing saved character with the same name. Export first if you want a backup.`
@@ -478,7 +518,7 @@ function loadCharacterData(data, sourceName, options = {}) {
     }
   }
 
-  state.character = data.character;
+  state.character = normalizedData.character;
   applyCharacterSettings(state.character);
   state.warnings = result.warnings;
   state.latestCommand = "";
@@ -497,6 +537,74 @@ function loadCharacterData(data, sourceName, options = {}) {
   return true;
 }
 
+function normalizeCharacterPayload(data) {
+  const payload = JSON.parse(JSON.stringify(data || {}));
+  if (payload.character?.credits) {
+    payload.character.credits = normalizeCredits(payload.character.credits);
+  }
+  if (payload.character) {
+    normalizePowerResources(payload.character);
+    normalizeDeprecatedFields(payload.character);
+  }
+  return payload;
+}
+
+function normalizeDeprecatedFields(character) {
+  character.powercasting ||= {};
+
+  if (character.combat?.techcastingDc !== undefined && !character.powercasting.techSaveDc) {
+    character.powercasting.techSaveDc = character.combat.techcastingDc;
+  }
+  if (character.combat) {
+    delete character.combat.techcastingDc;
+    if (character.combat.senses) delete character.combat.senses.passiveWisdom;
+    if (character.combat.movement) delete character.combat.movement.base;
+  }
+  if (character.valuables) delete character.valuables.creditsNotes;
+  delete character.proficiencies;
+}
+
+function normalizeCredits(credits = {}) {
+  const current = credits.current !== undefined
+    ? credits.current
+    : Number.isFinite(credits.remaining)
+      ? clampNumber(credits.remaining, 0, Infinity)
+      : 0;
+  return {
+    current,
+    ...(credits.notes ? { notes: credits.notes } : {}),
+    ...(credits.help ? { help: credits.help } : {})
+  };
+}
+
+function normalizePowerResources(character) {
+  character.resources ||= [];
+  migratePowercastingPoints(character, "tech");
+  migratePowercastingPoints(character, "force");
+}
+
+function migratePowercastingPoints(character, powerKind) {
+  const field = powerKind === "force" ? "forcePoints" : "techPoints";
+  const value = character.powercasting?.[field];
+  if (value === undefined || value === null || value === "") return;
+  if (findPowerResource(character, powerKind)) {
+    delete character.powercasting[field];
+    return;
+  }
+
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return;
+  character.resources.push({
+    id: `${powerKind}-points`,
+    name: `${titleCase(powerKind)} Points`,
+    current: clampNumber(numeric, 0, Infinity),
+    max: clampNumber(numeric, 0, Infinity),
+    unit: "points",
+    restRecovery: "long"
+  });
+  delete character.powercasting[field];
+}
+
 function getCurrentCharacterPayload() {
   return {
     schemaVersion: 1,
@@ -511,7 +619,7 @@ function downloadCurrentJson() {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = `${slugify(data.character.name || "sw5e-character")}.json`;
+  link.download = `${slugify(data.character.name || "sw5e-character")}-${filenameTimestamp()}.json`;
   document.body.append(link);
   link.click();
   link.remove();
@@ -803,6 +911,24 @@ function validateCharacterData(data) {
     }
   });
 
+  (character.journal || []).forEach((entry) => {
+    if (!entry.id) errors.push("Each journal entry requires an id.");
+    if (!entry.date) errors.push(`Journal entry ${entry.id || "(missing id)"} requires a date.`);
+    if (entry.date && Number.isNaN(Date.parse(entry.date))) {
+      errors.push(`Journal entry ${entry.id || entry.title || "(untitled)"} has an invalid date.`);
+    }
+    if (entry.title !== undefined && typeof entry.title !== "string") {
+      errors.push(`Journal entry ${entry.id || "(missing id)"} title must be a string.`);
+    }
+    if (entry.text !== undefined && typeof entry.text !== "string") {
+      errors.push(`Journal entry ${entry.id || "(missing id)"} text must be a string.`);
+    }
+  });
+
+  if (character.credits?.current !== undefined && (!Number.isInteger(character.credits.current) || character.credits.current < 0)) {
+    errors.push("credits.current must be a non-negative integer.");
+  }
+
   return { errors, warnings };
 }
 
@@ -810,16 +936,19 @@ function renderSheet() {
   const character = state.character;
   elements.characterName.textContent = character.name;
   elements.characterMeta.textContent = `Level ${character.level} ${character.class}${character.background ? ` - ${character.background}` : ""}`;
+  renderPortrait(character);
 
   renderCombatStats(character);
   renderAbilities(character);
   renderResources(character);
   renderCredits(character);
   renderInventory(character);
+  renderFeatures(character);
+  renderJournal(character);
   renderCharacterRecord(character);
   renderSkills(character);
-  renderAttacks(character);
-  renderCustomRolls(character);
+  renderActions(character);
+  renderPowerTabs(character);
   renderLogistics(character);
   renderOutbox();
   queueCharacterStorageSave();
@@ -830,6 +959,7 @@ function renderCombatStats(character) {
   const initiative = getInitiativeModifier(character);
   const stats = [
     makeStat("AC", character.combat?.armorClass ?? "-"),
+    makeStat("Prof", formatModifier(character.proficiencyBonus)),
     makeNumberStat("HP", hp.current ?? 0, (value) => {
       hp.current = clampNumber(value, 0, Number(hp.max) || Infinity);
       renderSheet();
@@ -840,14 +970,96 @@ function renderCombatStats(character) {
       renderSheet();
       setStatus(`Temporary HP set to ${hp.temporary}.`);
     }, { step: 1, min: 0 }),
-    makeStat("Tech DC", getTechcastingDc(character)),
-    makeStat("Force DC", character.powercasting?.forceSaveDc || "-"),
-    makeStat("Speed", `${character.combat?.speed ?? "-"} ft`),
-    makeStat("Prof", formatModifier(character.proficiencyBonus)),
-    makeActionStat("Init", formatModifier(initiative), "Roll", () => handleInitiativeRoll(initiative))
+    makeActionStat("Init", formatModifier(initiative), "Roll", () => handleInitiativeRoll(initiative)),
+    makeToggleStat("Insp", Boolean(character.inspiration), (value) => {
+      character.inspiration = value;
+      renderSheet();
+      setStatus(`Inspiration ${value ? "set" : "cleared"}.`);
+    })
   ];
 
   elements.combatStats.replaceChildren(...stats);
+}
+
+function renderPortrait(character) {
+  const portrait = character.portrait || {};
+  const hasPortrait = Boolean(portrait.dataUrl);
+  elements.portraitButton.disabled = !hasPortrait;
+  elements.portraitThumb.hidden = !hasPortrait;
+  elements.portraitPlaceholder.hidden = hasPortrait;
+  if (hasPortrait) {
+    elements.portraitThumb.src = portrait.dataUrl;
+    elements.portraitThumb.alt = `${character.name} portrait`;
+    elements.portraitButton.title = "Open character portrait";
+  } else {
+    elements.portraitThumb.removeAttribute("src");
+    elements.portraitThumb.alt = "";
+    elements.portraitButton.title = "Upload a portrait to enable full view";
+  }
+}
+
+async function handlePortraitUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  try {
+    if (!file.type.startsWith("image/")) throw new Error("Choose an image file.");
+    const dataUrl = await resizeImageFile(file, MAX_PORTRAIT_SIZE);
+    state.character.portrait = {
+      dataUrl,
+      mimeType: dataUrl.slice(5, dataUrl.indexOf(";")) || file.type,
+      fileName: file.name,
+      updatedAt: new Date().toISOString()
+    };
+    renderSheet();
+    setStatus(`Portrait updated from ${file.name}.`);
+  } catch (error) {
+    setStatus(`Could not load portrait: ${error.message}`, true);
+  } finally {
+    event.target.value = "";
+  }
+}
+
+function resizeImageFile(file, maxSize) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("error", () => reject(new Error("Could not read image file.")));
+    reader.addEventListener("load", () => {
+      const image = new Image();
+      image.addEventListener("error", () => reject(new Error("Could not decode image file.")));
+      image.addEventListener("load", () => {
+        const scale = Math.min(1, maxSize / Math.max(image.naturalWidth, image.naturalHeight));
+        const width = Math.max(1, Math.round(image.naturalWidth * scale));
+        const height = Math.max(1, Math.round(image.naturalHeight * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext("2d");
+        context.drawImage(image, 0, 0, width, height);
+        const mimeType = file.type === "image/png" || file.type === "image/webp" ? file.type : "image/jpeg";
+        resolve(canvas.toDataURL(mimeType, 0.9));
+      });
+      image.src = reader.result;
+    });
+    reader.readAsDataURL(file);
+  });
+}
+
+function openPortrait() {
+  const portrait = state.character?.portrait;
+  if (!portrait?.dataUrl) return;
+  state.lastFocus = document.activeElement;
+  elements.portraitTitle.textContent = `${state.character.name} Portrait`;
+  elements.portraitFull.src = portrait.dataUrl;
+  elements.portraitFull.alt = `${state.character.name} portrait`;
+  elements.portraitOverlay.hidden = false;
+  elements.portraitCloseButton.focus();
+}
+
+function closePortrait() {
+  elements.portraitOverlay.hidden = true;
+  elements.portraitFull.removeAttribute("src");
+  elements.portraitFull.alt = "";
+  if (state.lastFocus?.focus) state.lastFocus.focus();
 }
 
 function renderAbilities(character) {
@@ -858,7 +1070,7 @@ function renderAbilities(character) {
     const saveModifier = checkModifier + (proficient ? character.proficiencyBonus : 0);
     const wrapper = document.createElement("div");
     wrapper.className = "ability";
-    wrapper.innerHTML = `<span>${ABILITY_LABELS[ability]}</span><strong>${score}</strong><div class="small">${formatModifier(checkModifier)}</div>`;
+    wrapper.innerHTML = `<span>${ABILITY_LABELS[ability]}</span><strong>${score}</strong>`;
     const actions = document.createElement("div");
     actions.className = "ability-actions";
     const checkButton = document.createElement("button");
@@ -891,28 +1103,30 @@ function makeAbilityActionLabel(label, modifier) {
 
 function renderResources(character) {
   const resources = character.resources || [];
-  const nodes = resources.map((resource) => {
-    const current = Number(resource.current) || 0;
-    const max = Number(resource.max) || 0;
-    const percentage = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
-    const wrapper = document.createElement("div");
-    wrapper.className = "resource";
-    wrapper.innerHTML = `
-      <div class="small">${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
-      <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
-      ${resource.notes ? `<p class="small">${escapeHtml(resource.notes)}</p>` : ""}
-    `;
-    const description = resourceDescription(resource, current, max);
-    wrapper.prepend(makeObjectHeader(resource.name, () => postDescription(resource.name, description), resource.help, "resource-title", description));
-    wrapper.append(makeStepper(current, (value) => {
-      resource.current = clampNumber(value, 0, max || Infinity);
-      renderSheet();
-      setStatus(`${resource.name} set to ${resource.current}.`);
-    }, { min: 0, max: max || Infinity, label: resource.name }));
-    return wrapper;
-  });
+  const nodes = resources.map((resource) => makeResourceCard(resource));
 
   elements.resources.replaceChildren(...nodes);
+}
+
+function makeResourceCard(resource) {
+  const current = Number(resource.current) || 0;
+  const max = Number(resource.max) || 0;
+  const percentage = max > 0 ? Math.max(0, Math.min(100, (current / max) * 100)) : 0;
+  const wrapper = document.createElement("div");
+  wrapper.className = "resource";
+  wrapper.innerHTML = `
+    <div class="small">${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
+    <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
+    ${resource.notes ? `<p class="small">${escapeHtml(resource.notes)}</p>` : ""}
+  `;
+  const description = resourceDescription(resource, current, max);
+  wrapper.prepend(makeObjectHeader(resource.name, () => postDescription(resource.name, description), resource.help, "resource-title", description));
+  wrapper.append(makeStepper(current, (value) => {
+    resource.current = clampNumber(value, 0, max || Infinity);
+    renderSheet();
+    setStatus(`${resource.name} set to ${resource.current}.`);
+  }, { min: 0, max: max || Infinity, label: resource.name }));
+  return wrapper;
 }
 
 function renderCredits(character) {
@@ -922,22 +1136,48 @@ function renderCredits(character) {
     return;
   }
 
+  credits.current = clampNumber(Number(credits.current) || 0, 0, Infinity);
   const wrapper = document.createElement("div");
   wrapper.className = "credits-card";
-  const values = [
-    ["Starting", credits.starting],
-    ["Spent", credits.spent],
-    ["Remaining", credits.remaining]
-  ].filter(([, value]) => value !== undefined && value !== null);
   wrapper.innerHTML = `
     <h3><span class="credits-title-anchor"></span></h3>
-    <div class="credit-grid">
-      ${values.map(([label, value]) => `<div><span>${escapeHtml(label)}</span><strong>${escapeHtml(String(value))}</strong></div>`).join("")}
+    <div class="credit-current">
+      <span>Current</span>
+      <strong>${escapeHtml(String(credits.current))}</strong>
+    </div>
+    <div class="credit-controls">
+      <span class="credit-balance-anchor"></span>
+      <label class="credit-transaction">
+        <span>Amount</span>
+        <input type="number" min="0" step="1" value="0" inputmode="numeric" aria-label="Credit transaction amount">
+      </label>
+      <button type="button" data-credit-add>Add</button>
+      <button type="button" data-credit-remove>Remove</button>
     </div>
     ${credits.notes ? `<p class="small">${escapeHtml(credits.notes)}</p>` : ""}
   `;
   const description = creditsDescription(credits);
   wrapper.querySelector(".credits-title-anchor").replaceWith(makeObjectHeader("Credits", () => postDescription("Credits", description), credits.help, "credits-title", description));
+  const balanceControl = makeStepper(credits.current, (value) => {
+    credits.current = clampNumber(value, 0, Infinity);
+    renderSheet();
+    setStatus(`Credits set to ${credits.current}.`);
+  }, { min: 0, label: "Credits" });
+  balanceControl.classList.add("credit-stepper");
+  wrapper.querySelector(".credit-balance-anchor").replaceWith(balanceControl);
+  const transactionInput = wrapper.querySelector(".credit-transaction input");
+  const adjustCredits = (direction) => {
+    const amount = clampNumber(Number(transactionInput.value), 0, Infinity);
+    if (!amount) {
+      setStatus("Enter a credit amount first.", true);
+      return;
+    }
+    credits.current = clampNumber(credits.current + (direction * amount), 0, Infinity);
+    renderSheet();
+    setStatus(`${direction > 0 ? "Added" : "Removed"} ${amount} credits. Current credits: ${credits.current}.`);
+  };
+  wrapper.querySelector("[data-credit-add]").addEventListener("click", () => adjustCredits(1));
+  wrapper.querySelector("[data-credit-remove]").addEventListener("click", () => adjustCredits(-1));
   elements.credits.replaceChildren(wrapper);
 }
 
@@ -1019,6 +1259,84 @@ function renderInventory(character) {
   elements.inventory.replaceChildren(...nodes);
 }
 
+function renderJournal(character) {
+  character.journal ||= [];
+  if (!character.journal.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-note";
+    empty.textContent = "No journal entries yet.";
+    elements.journalEntries.replaceChildren(empty);
+    return;
+  }
+
+  const entries = [...character.journal].sort((left, right) => {
+    const rightDate = Date.parse(right.date || "") || 0;
+    const leftDate = Date.parse(left.date || "") || 0;
+    return rightDate - leftDate;
+  });
+
+  const nodes = entries.map((entry) => {
+    const card = document.createElement("div");
+    card.className = "journal-entry";
+    card.innerHTML = `
+      <div class="journal-entry-grid">
+        <label>
+          <span>Date</span>
+          <input type="date" value="${escapeHtml(entry.date || todayIsoDate())}" data-journal-field="date">
+        </label>
+        <label>
+          <span>Title</span>
+          <input type="text" value="${escapeHtml(entry.title || "")}" placeholder="Entry title" data-journal-field="title">
+        </label>
+        <button type="button" class="danger-soft" data-journal-delete>Delete</button>
+      </div>
+      <label class="journal-text">
+        <span>Entry</span>
+        <textarea rows="5" placeholder="Session notes, discoveries, promises, debts, suspicious doors..." data-journal-field="text">${escapeHtml(entry.text || "")}</textarea>
+      </label>
+    `;
+
+    card.querySelectorAll("[data-journal-field]").forEach((field) => {
+      field.addEventListener("input", () => {
+        entry[field.dataset.journalField] = field.value;
+        queueCharacterStorageSave();
+      });
+      field.addEventListener("change", () => {
+        entry[field.dataset.journalField] = field.value;
+        queueCharacterStorageSave();
+        setStatus(`Updated journal entry for ${entry.date || "undated"}.`);
+      });
+    });
+
+    card.querySelector("[data-journal-delete]").addEventListener("click", () => {
+      const title = entry.title || entry.date || "this entry";
+      if (!window.confirm(`Delete journal entry "${title}"?`)) return;
+      character.journal = character.journal.filter((item) => item.id !== entry.id);
+      renderSheet();
+      setStatus(`Deleted journal entry "${title}".`);
+    });
+
+    return card;
+  });
+
+  elements.journalEntries.replaceChildren(...nodes);
+}
+
+function addJournalEntry() {
+  if (!state.character) return;
+  state.character.journal ||= [];
+  const entry = {
+    id: makeLocalId("journal"),
+    date: todayIsoDate(),
+    title: "",
+    text: ""
+  };
+  state.character.journal.unshift(entry);
+  renderSheet();
+  activatePanelTab("journal");
+  setStatus("Added journal entry.");
+}
+
 function renderCharacterRecord(character) {
   const appearance = character.appearance || {};
   const personality = character.personality || {};
@@ -1029,7 +1347,6 @@ function renderCharacterRecord(character) {
     ["Player", character.playerName],
     ["Experience", character.experiencePoints],
     ["Next Level", character.xpNextLevel],
-    ["Inspiration", character.inspiration ? "Yes" : "No"],
     ["Place of Birth", character.placeOfBirth]
   ]);
 
@@ -1052,8 +1369,7 @@ function renderCharacterRecord(character) {
     ["Flaws", personality.flaws]
   ]);
 
-  renderNoteGrid(elements.proficienciesDetails, [
-    ["Proficiencies", joinDisplay(character.proficiencies)],
+  renderNoteGrid(elements.languagesDetails, [
     ["Languages", joinDisplay(character.languages)]
   ]);
 
@@ -1076,10 +1392,8 @@ function renderLogistics(character) {
 
   renderRecordList(elements.sensesMovement, [
     ["Vision", senses.vision],
-    ["Passive Wisdom", senses.passiveWisdom],
     ["Passive Perception", character.passivePerception],
     ["Speed", combat.speed !== undefined ? `${combat.speed} ft` : ""],
-    ["Base Movement", movement.base !== undefined ? `${movement.base} ft` : ""],
     ["Hourly Travel", movement.hour],
     ["Daily Travel", movement.day],
     ["Special Movement", movement.special]
@@ -1108,19 +1422,12 @@ function renderLogistics(character) {
   ]);
 
   renderNoteGrid(elements.storageDetails, [
-    ["Credits Notes", valuables.creditsNotes],
     ["Gems and Treasure", valuables.gemsAndTreasure],
     ["Storage", valuables.storage],
     ["Loaned / Deposited / Received", valuables.loanedDepositedReceived]
   ]);
 
   renderRecordList(elements.powercastingDetails, [
-    ["Tech Points", powercasting.techPoints],
-    ["Force Points", powercasting.forcePoints],
-    ["Tech Save DC", powercasting.techSaveDc || getTechcastingDc(character)],
-    ["Force Save DC", powercasting.forceSaveDc],
-    ["Tech Attack Modifier", powercasting.techAttackModifier],
-    ["Force Attack Modifier", powercasting.forceAttackModifier],
     ["Light Side", alignment.lightSide],
     ["Dark Side", alignment.darkSide],
     ["Universal", alignment.universal]
@@ -1144,48 +1451,309 @@ function renderSkills(character) {
   elements.skills.replaceChildren(...rows);
 }
 
-function renderAttacks(character) {
-  const attacks = character.attacks || [];
-  const nodes = attacks.map((attack) => {
-    const attackModifier = attackRollModifier(character, attack);
-    const damageParts = (attack.damage || []).map((damage) => damageFormula(character, damage));
-    const meta = [
-      `Attack ${formatModifier(attackModifier)}`,
-      damageParts.length ? `Damage ${damageParts.map((part) => part.display).join(", ")}` : "",
-      (attack.properties || []).join(", ")
-    ].filter(Boolean).join(" - ");
-    const fullMeta = [meta, depletionSummary(attack)].filter(Boolean).join(" - ");
+function renderActions(character) {
+  const groups = {
+    action: [],
+    bonusAction: [],
+    reaction: [],
+    other: []
+  };
 
-    return makeActionItem(attack, fullMeta, attack.notes, "Roll", () => {
-      const command = buildAttackCommand(character, attack);
-      publishCommand(`${attack.name}`, command);
-      applyEntityDepletion(attack, attack.name);
-    }, depletionOptionActions(attack), actionTags(attack));
+  (character.attacks || []).forEach((attack) => {
+    groups[actionBucket(attack)].push(makeAttackActionItem(character, attack));
   });
 
-  elements.attacks.replaceChildren(...nodes);
+  const entries = character.customRolls || [];
+  entries
+    .filter((entry) => customEntryKind(entry) === "roll")
+    .forEach((entry) => {
+      groups[actionBucket(entry)].push(makeCustomActionItem(character, entry));
+    });
+
+  entries
+    .filter((entry) => customEntryKind(entry) === "reference")
+    .forEach((entry) => {
+      groups[actionBucket(entry)].push(makeReferenceActionItem(character, entry));
+    });
+
+  renderActionGroup(elements.actionGroupAction, groups.action);
+  renderActionGroup(elements.actionGroupBonusAction, groups.bonusAction);
+  renderActionGroup(elements.actionGroupReaction, groups.reaction);
+  renderActionGroup(elements.actionGroupOther, groups.other);
 }
 
-function renderCustomRolls(character) {
-  const entries = character.customRolls || [];
-  const rollNodes = entries
-    .filter((entry) => customEntryKind(entry) === "roll")
-    .map((entry) => makeActionItem(entry, [resolveFormula(character, entry.formula), depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Roll", () => {
-      const command = buildCustomRollCommand(character, entry);
-      publishCommand(entry.name, command);
-      applyEntityDepletion(entry, entry.name);
-    }, depletionOptionActions(entry), actionTags(entry)));
+function makeAttackActionItem(character, attack, extraTags = []) {
+  const attackModifier = attackRollModifier(character, attack);
+  const damageParts = (attack.damage || []).map((damage) => damageFormula(character, damage));
+  const meta = [
+    `Attack ${formatModifier(attackModifier)}`,
+    damageParts.length ? `Damage ${damageParts.map((part) => part.display).join(", ")}` : "",
+    (attack.properties || []).join(", ")
+  ].filter(Boolean).join(" - ");
+  const fullMeta = [meta, depletionSummary(attack)].filter(Boolean).join(" - ");
 
-  const referenceNodes = entries
-    .filter((entry) => customEntryKind(entry) === "reference")
-    .map((entry) => makeActionItem(entry, ["Reference", depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Post", () => {
-      const command = buildReferenceCommand(character, entry);
-      publishCommand(entry.name, command);
-      applyEntityDepletion(entry, entry.name);
-    }, depletionOptionActions(entry), actionTags(entry)));
+  return makeActionItem(attack, fullMeta, attack.notes, "Roll", () => {
+    const command = buildAttackCommand(character, attack);
+    publishCommand(`${attack.name}`, command);
+    applyEntityDepletion(attack, attack.name);
+  }, depletionOptionActions(attack), [...extraTags, ...actionTags(attack)]);
+}
 
-  elements.customRolls.replaceChildren(...rollNodes);
-  elements.references.replaceChildren(...referenceNodes);
+function makeCustomActionItem(character, entry, extraTags = []) {
+  return makeActionItem(entry, [resolveFormula(character, entry.formula), depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Roll", () => {
+    const command = buildCustomRollCommand(character, entry);
+    publishCommand(entry.name, command);
+    applyEntityDepletion(entry, entry.name);
+  }, depletionOptionActions(entry), [...extraTags, ...actionTags(entry)]);
+}
+
+function makeReferenceActionItem(character, entry, extraTags = []) {
+  return makeActionItem(entry, ["Reference", depletionSummary(entry)].filter(Boolean).join(" - "), entry.notes, "Post", () => {
+    const command = buildReferenceCommand(character, entry);
+    publishCommand(entry.name, command);
+    applyEntityDepletion(entry, entry.name);
+  }, depletionOptionActions(entry), [...extraTags, ...actionTags(entry)]);
+}
+
+function renderPowerTabs(character) {
+  const powercasting = character.powercasting || {};
+  renderPowerDetails(elements.powercastingSummary, character, [
+    ["Tech DC", powercasting.techSaveDc || getTechcastingDc(character)],
+    ["Tech Attack Modifier", powercasting.techAttackModifier || formatModifier(getTechAttackModifier(character))],
+    ["Tech Points", findPowerResource(character, "tech")],
+    ["Force DC", powercasting.forceSaveDc],
+    ["Force Attack Modifier", powercasting.forceAttackModifier],
+    ["Force Points", findPowerResource(character, "force")]
+  ]);
+  renderPowerActionGroups(character);
+}
+
+function renderFeatures(character) {
+  const featureEntries = (character.customRolls || [])
+    .filter((entry) => !inferPowerKind(entry))
+    .map((entry) => customEntryKind(entry) === "reference" ? makeReferenceActionItem(character, entry) : makeCustomActionItem(character, entry));
+  const representedResources = new Set((character.customRolls || []).flatMap((entry) => characterResourceIdsFor(entry)));
+  const resourceEntries = (character.resources || [])
+    .filter((resource) => isFeatureResource(resource, representedResources))
+    .map((resource) => makeResourceCard(resource));
+  const nodes = [...featureEntries, ...resourceEntries];
+
+  if (nodes.length) {
+    elements.features.replaceChildren(...nodes);
+    return;
+  }
+  const empty = document.createElement("p");
+  empty.className = "empty-note";
+  empty.textContent = "No class, species, background, or feat features found.";
+  elements.features.replaceChildren(empty);
+}
+
+function characterResourceIdsFor(entity) {
+  return entityDepletions(entity)
+    .map((depletion) => depletion?.target || {})
+    .filter((target) => !target.scope || target.scope === "character")
+    .map((target) => target.id || target.resourceId || target.resource)
+    .filter(Boolean);
+}
+
+function isFeatureResource(resource, representedResources = new Set()) {
+  if (representedResources.has(resource.id)) return false;
+  if (resourceMatchesPower(resource, "tech") || resourceMatchesPower(resource, "force")) return false;
+  const text = [resource.id, resource.name, resource.unit, resource.notes, resource.help?.category, resource.help?.source, resource.help?.summary]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  if (/\b(power\s*cell|power-cell|cells?|ammo|ammunition|shots?)\b/.test(text)) return false;
+  return /\b(class|species|trait|feature|feat|background|archetype)\b/.test(text);
+}
+
+function renderPowerDetails(container, character, rows) {
+  container.classList.add("power-summary-row");
+  const nodes = rows.map(([label, value]) => {
+    if (value && typeof value === "object") return makeResourceCard(value);
+    return makeRecordItem([label, value]);
+  });
+  container.replaceChildren(...nodes);
+}
+
+function renderPowerActionGroups(character) {
+  const items = powerActionItems(character);
+  if (!items.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-note";
+    empty.textContent = "No tech or force powers found.";
+    elements.powercastingActions.replaceChildren(empty);
+    return;
+  }
+
+  const groups = groupPowerActions(items);
+  const nodes = groups.map((group) => {
+    const section = document.createElement("section");
+    section.className = "power-action-group";
+    const heading = document.createElement("h3");
+    heading.textContent = powerLevelLabel(group.level);
+    const list = document.createElement("div");
+    list.className = "action-list";
+    list.replaceChildren(...group.items.map((item) => item.node));
+    section.append(heading, list);
+    return section;
+  });
+  elements.powercastingActions.replaceChildren(...nodes);
+}
+
+function powerActionItems(character) {
+  const attacks = (character.attacks || [])
+    .map((attack) => makePowerActionItem(character, attack, "attack"))
+    .filter(Boolean);
+  const custom = (character.customRolls || [])
+    .map((entry) => makePowerActionItem(character, entry, "custom"))
+    .filter(Boolean);
+  return [...attacks, ...custom];
+}
+
+function makePowerActionItem(character, entry, sourceType) {
+  const powerKind = inferPowerKind(entry);
+  if (!powerKind) return null;
+  const level = inferPowerLevel(entry);
+  const tags = [{ id: `power-${powerKind}`, label: powerKind }];
+  const node = sourceType === "attack"
+    ? makeAttackActionItem(character, entry, tags)
+    : customEntryKind(entry) === "reference"
+      ? makeReferenceActionItem(character, entry, tags)
+      : makeCustomActionItem(character, entry, tags);
+  return { entry, node, powerKind, level };
+}
+
+function groupPowerActions(items) {
+  const sorted = [...items].sort((left, right) => {
+    const levelCompare = powerLevelSortValue(left.level) - powerLevelSortValue(right.level);
+    if (levelCompare) return levelCompare;
+    return String(left.entry.name || "").localeCompare(String(right.entry.name || ""));
+  });
+  const groups = [];
+  sorted.forEach((item) => {
+    const key = powerLevelKey(item.level);
+    let group = groups.find((candidate) => candidate.key === key);
+    if (!group) {
+      group = { key, level: item.level, items: [] };
+      groups.push(group);
+    }
+    group.items.push(item);
+  });
+  return groups;
+}
+
+function inferPowerKind(entry) {
+  const explicit = String(entry.powerKind || entry.powerType || "").trim().toLowerCase();
+  if (["tech", "force"].includes(explicit)) return explicit;
+  if (usesPowerResource(entry, "tech")) return "tech";
+  if (usesPowerResource(entry, "force")) return "force";
+  const text = actionSearchText(entry);
+  if (/\btech\s+power\b/.test(text) || /\btechcasting\b/.test(text)) return "tech";
+  if (/\bforce\s+power\b/.test(text) || /\bforcecasting\b/.test(text)) return "force";
+  return "";
+}
+
+function inferPowerLevel(entry) {
+  const explicit = entry.powerLevel ?? entry.power?.level;
+  const normalized = normalizePowerLevel(explicit);
+  if (normalized !== null) return normalized;
+
+  const text = actionSearchText(entry);
+  if (/\bat[-\s]?will\b/.test(text)) return "at-will";
+  const levelMatch = text.match(/\b([1-9])(?:st|nd|rd|th)?[-\s]?level\b/);
+  if (levelMatch) return Number(levelMatch[1]);
+
+  const pointCost = firstPowerPointCost(entry);
+  if (Number.isFinite(pointCost) && pointCost > 0) return Math.max(1, pointCost - 1);
+  return "at-will";
+}
+
+function normalizePowerLevel(value) {
+  if (value === undefined || value === null || value === "") return null;
+  const text = String(value).trim().toLowerCase();
+  if (["at-will", "atwill", "will", "cantrip", "0", "zero"].includes(text)) return "at-will";
+  const numeric = Number(text.match(/\d+/)?.[0] ?? text);
+  return Number.isFinite(numeric) && numeric > 0 ? numeric : null;
+}
+
+function firstPowerPointCost(entry) {
+  const depletion = entityDepletions(entry).find((item) => {
+    const target = item?.target || {};
+    const text = [target.id, target.field, target.name, target.resource, target.resourceId].filter(Boolean).join(" ").toLowerCase();
+    return /\b(tech|force)[-\s]?points?\b/.test(text);
+  });
+  return Number(depletion?.amount);
+}
+
+function actionSearchText(entry) {
+  return [
+    entry.name,
+    entry.notes,
+    entry.help?.title,
+    entry.help?.category,
+    entry.help?.summary,
+    ...(entry.help?.details || []),
+    ...(entry.help?.sections || []).map((section) => `${section.heading || ""} ${section.text || ""}`)
+  ].filter(Boolean).join(" ").toLowerCase();
+}
+
+function powerLevelKey(level) {
+  return level === "at-will" ? "at-will" : String(level);
+}
+
+function powerLevelSortValue(level) {
+  return level === "at-will" ? 0 : Number(level) || 99;
+}
+
+function powerLevelLabel(level) {
+  if (level === "at-will") return "At-Will";
+  const number = Number(level);
+  return Number.isFinite(number) ? `${number}${ordinalSuffix(number)} Level` : "Other Powers";
+}
+
+function findPowerResource(character, powerKind) {
+  return (character.resources || []).find((resource) => resourceMatchesPower(resource, powerKind));
+}
+
+function resourceMatchesPower(resource, powerKind) {
+  const text = [resource.id, resource.name].filter(Boolean).join(" ").toLowerCase();
+  if (powerKind === "force") return /\bforce\b/.test(text) && /\bpoints?\b/.test(text);
+  return /\btech\b/.test(text) && /\bpoints?\b/.test(text);
+}
+
+function usesPowerResource(entity, powerKind) {
+  const expected = powerKind === "force" ? "force" : "tech";
+  return entityDepletions(entity).some((depletion) => depletionTargetsPower(depletion, expected));
+}
+
+function entityDepletions(entity) {
+  return [
+    ...depletionsFor(entity),
+    ...(entity?.depletionOptions || []).flatMap((option) => option.depletes || [])
+  ];
+}
+
+function depletionTargetsPower(depletion, expected) {
+  const target = depletion?.target || {};
+  const text = [target.id, target.field, target.name, target.resource, target.resourceId].filter(Boolean).join(" ").toLowerCase();
+  if (expected === "tech") return /\btech\b/.test(text) || text.includes("tech-points") || text.includes("techpoints");
+  return /\bforce\b/.test(text) || text.includes("force-points") || text.includes("forcepoints");
+}
+
+function actionBucket(entry) {
+  return ["action", "bonusAction", "reaction"].includes(entry.actionType) ? entry.actionType : "other";
+}
+
+function renderActionGroup(container, nodes) {
+  if (nodes.length) {
+    container.replaceChildren(...nodes);
+    return;
+  }
+  const empty = document.createElement("p");
+  empty.className = "empty-note";
+  empty.textContent = "None";
+  container.replaceChildren(empty);
 }
 
 function renderValidation(messages, isError) {
@@ -1208,13 +1776,15 @@ function renderValidation(messages, isError) {
 }
 
 function renderRecordList(container, rows) {
-  const nodes = rows.map(([label, value]) => {
-    const item = document.createElement("div");
-    item.className = "record-item";
-    item.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(displayValue(value))}</strong>`;
-    return item;
-  });
+  const nodes = rows.map(makeRecordItem);
   container.replaceChildren(...nodes);
+}
+
+function makeRecordItem([label, value]) {
+  const item = document.createElement("div");
+  item.className = "record-item";
+  item.innerHTML = `<span>${escapeHtml(label)}</span><strong>${escapeHtml(displayValue(value))}</strong>`;
+  return item;
 }
 
 function renderNoteGrid(container, rows) {
@@ -1285,6 +1855,22 @@ function makeActionStat(label, value, buttonText, onClick) {
   button.textContent = buttonText;
   button.addEventListener("click", onClick);
   node.append(button);
+  return node;
+}
+
+function makeToggleStat(label, checked, onChange) {
+  const node = document.createElement("div");
+  node.className = "stat toggle-stat";
+  const title = document.createElement("span");
+  title.textContent = label;
+  const value = document.createElement("strong");
+  value.textContent = checked ? "Yes" : "No";
+  const button = document.createElement("button");
+  button.type = "button";
+  button.setAttribute("aria-pressed", String(checked));
+  button.textContent = checked ? "Clear" : "Set";
+  button.addEventListener("click", () => onChange(!checked));
+  node.append(title, value, button);
   return node;
 }
 
@@ -1640,9 +2226,7 @@ function resourceDescription(resource, current, max) {
 
 function creditsDescription(credits) {
   return [
-    credits.starting !== undefined ? `Starting: ${credits.starting}` : "",
-    credits.spent !== undefined ? `Spent: ${credits.spent}` : "",
-    credits.remaining !== undefined ? `Remaining: ${credits.remaining}` : "",
+    credits.current !== undefined ? `Current: ${credits.current}` : "",
     credits.notes || ""
   ].filter(Boolean).join("\n");
 }
@@ -1666,6 +2250,7 @@ function containedResourceDescription(item, resource) {
     `${current} / ${max}${resource.unit ? ` ${resource.unit}` : ""}`,
     resource.restRecovery ? `Rest recovery: ${labelFromSlug(resource.restRecovery)}` : "",
     resource.rechargeFromResourceId ? `Reloads from: ${resource.rechargeFromResourceId}` : "",
+    resource.rechargeFromInventoryItemId ? `Reloads from inventory: ${resource.rechargeFromInventoryItemId}` : "",
     resource.notes || ""
   ].filter(Boolean).join("\n");
 }
@@ -2056,7 +2641,7 @@ function depletionSummary(entity) {
 function depletionOptionActions(entity) {
   return (entity.depletionOptions || []).map((option) => ({
     label: option.name,
-    onClick: () => applyDepletions(option.depletes || [], option.name)
+    onClick: () => applyDepletions(option.depletes || [], option.name, { sourceEntity: entity })
   }));
 }
 
@@ -2066,14 +2651,18 @@ function describeDepletion(depletion) {
   if (!resolved) return `${amount} unknown resource`;
   const unit = resolved.unit ? ` ${resolved.unit}` : "";
   const itemLabel = resolved.item ? ` (${resolved.item.name})` : "";
+  const operation = depletion.operation || "spend";
+  if (operation === "restore") return `restore ${resolved.name}${unit}${itemLabel}`;
+  if (operation === "set") return `set ${resolved.name}${unit}${itemLabel} to ${amount}`;
+  if (operation === "add") return `add ${amount} ${resolved.name}${unit}${itemLabel}`;
   return `${amount} ${resolved.name}${unit}${itemLabel}`;
 }
 
 function applyEntityDepletion(entity, label) {
-  applyDepletions(depletionsFor(entity), label);
+  applyDepletions(depletionsFor(entity), label, { sourceEntity: entity });
 }
 
-function applyDepletions(depletions, label) {
+function applyDepletions(depletions, label, options = {}) {
   if (!depletions?.length) return;
 
   const promptRequired = depletions.some((depletion) => depletion.prompt);
@@ -2081,19 +2670,53 @@ function applyDepletions(depletions, label) {
 
   const applied = [];
   const skipped = [];
+  const spentCharacterResourceIds = [];
+  const spentInventoryItemIds = [];
+  const explicitContainedTargets = new Set();
   depletions.forEach((depletion) => {
     const resolved = resolveDepletionTarget(depletion.target);
     const amount = Number(depletion.amount) || 0;
-    if (!resolved || amount <= 0) {
+    const operation = depletion.operation || "spend";
+    if (!resolved || (operation !== "restore" && amount <= 0)) {
       skipped.push("unknown resource");
       return;
     }
 
     const before = resolved.getCurrent();
-    resolved.setCurrent(Math.max(0, before - amount));
+    const max = resolved.getMax();
     const itemLabel = resolved.item ? ` (${resolved.item.name})` : "";
+    if (depletion.target?.scope === "inventoryItem") {
+      explicitContainedTargets.add(`${depletion.target.itemId}:${depletion.target.id}`);
+    }
+    if (operation === "restore") {
+      if (!Number.isFinite(max) || max <= 0) {
+        skipped.push(`${resolved.name}${itemLabel}`);
+        return;
+      }
+      resolved.setCurrent(max);
+      applied.push(`${resolved.name}${itemLabel} +${Math.max(0, max - before)}`);
+      return;
+    }
+    if (operation === "set") {
+      resolved.setCurrent(amount);
+      applied.push(`${resolved.name}${itemLabel} =${amount}`);
+      return;
+    }
+    if (operation === "add") {
+      resolved.setCurrent(before + amount);
+      applied.push(`${resolved.name}${itemLabel} +${amount}`);
+      return;
+    }
+    resolved.setCurrent(Math.max(0, before - amount));
+    if ((!depletion.target?.scope || depletion.target.scope === "character") && depletion.target?.id) {
+      spentCharacterResourceIds.push(depletion.target.id);
+    }
+    if (["inventoryQuantity", "inventoryItemQuantity", "inventoryItemCount"].includes(depletion.target?.scope)) {
+      spentInventoryItemIds.push(depletion.target.itemId || depletion.target.id);
+    }
     applied.push(`${resolved.name}${itemLabel} -${Math.min(before, amount)}`);
   });
+  applyImplicitReloads(options.sourceEntity, { spentCharacterResourceIds, spentInventoryItemIds, explicitContainedTargets, applied });
 
   if (state.character) renderSheet();
   if (applied.length) {
@@ -2103,6 +2726,22 @@ function applyDepletions(depletions, label) {
   } else if (skipped.length) {
     setStatus(`Could not spend resource for ${label}.`, true);
   }
+}
+
+function applyImplicitReloads(sourceEntity, context) {
+  const { spentCharacterResourceIds = [], spentInventoryItemIds = [], explicitContainedTargets, applied } = context;
+  if (!sourceEntity?.containedResources?.length) return;
+  sourceEntity.containedResources.forEach((resource) => {
+    const rechargedByCharacterResource = resource.rechargeFromResourceId && spentCharacterResourceIds.includes(resource.rechargeFromResourceId);
+    const rechargedByInventoryItem = resource.rechargeFromInventoryItemId && spentInventoryItemIds.includes(resource.rechargeFromInventoryItemId);
+    if (!rechargedByCharacterResource && !rechargedByInventoryItem) return;
+    if (explicitContainedTargets.has(`${sourceEntity.id}:${resource.id}`)) return;
+    const before = Number(resource.current) || 0;
+    const max = Number(resource.max) || 0;
+    if (max <= 0 || before >= max) return;
+    resource.current = max;
+    applied.push(`${resource.name} (${sourceEntity.name}) +${max - before}`);
+  });
 }
 
 function applyRest(type) {
@@ -2160,6 +2799,7 @@ function resolveDepletionTarget(target) {
       name: resource.name,
       unit: resource.unit,
       getCurrent: () => Number(resource.current) || 0,
+      getMax: () => Number(resource.max) || Infinity,
       setCurrent: (value) => {
         resource.current = clampNumber(value, 0, Number(resource.max) || Infinity);
       }
@@ -2174,6 +2814,7 @@ function resolveDepletionTarget(target) {
       unit: resource.unit,
       item,
       getCurrent: () => Number(resource.current) || 0,
+      getMax: () => Number(resource.max) || Infinity,
       setCurrent: (value) => {
         resource.current = clampNumber(value, 0, Number(resource.max) || Infinity);
       }
@@ -2188,6 +2829,7 @@ function resolveDepletionTarget(target) {
       name: field === "temporary" ? "Temporary HP" : field === "max" ? "Max HP" : "HP",
       unit: "hp",
       getCurrent: () => Number(hp[field]) || 0,
+      getMax: () => field === "current" ? Number(hp.max) || Infinity : Infinity,
       setCurrent: (value) => {
         hp[field] = clampNumber(value, 0, field === "current" ? Number(hp.max) || Infinity : Infinity);
       }
@@ -2201,6 +2843,7 @@ function resolveDepletionTarget(target) {
       unit: "item",
       item,
       getCurrent: () => Number(item.quantity ?? 1) || 0,
+      getMax: () => Infinity,
       setCurrent: (value) => {
         item.quantity = clampNumber(value, 0, Infinity);
       }
@@ -2263,7 +2906,11 @@ function getInitiativeModifier(character) {
 }
 
 function getTechcastingDc(character) {
-  return Number(character.combat?.techcastingDc) || 8 + character.proficiencyBonus + abilityMod(character.abilities.int);
+  return Number(character.powercasting?.techSaveDc) || 8 + character.proficiencyBonus + abilityMod(character.abilities.int);
+}
+
+function getTechAttackModifier(character) {
+  return character.proficiencyBonus + abilityMod(character.abilities.int);
 }
 
 function abilityMod(score) {
@@ -2470,6 +3117,31 @@ function cleanRoll20(value) {
 
 function cleanFoundry(value) {
   return value.replace(/[<>]/g, "");
+}
+
+function makeLocalId(prefix) {
+  if (window.crypto?.randomUUID) return `${prefix}-${window.crypto.randomUUID()}`;
+  return `${prefix}-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function todayIsoDate() {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+function filenameTimestamp(date = new Date()) {
+  const pad = (value) => String(value).padStart(2, "0");
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate())
+  ].join("") + "-" + [
+    pad(date.getHours()),
+    pad(date.getMinutes()),
+    pad(date.getSeconds())
+  ].join("");
 }
 
 function slugify(value) {

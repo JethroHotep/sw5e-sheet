@@ -35,9 +35,9 @@ Opening `index.html` directly still allows manual JSON loading, but browser secu
 
 ## Character JSON
 
-See [docs/json-spec.md](docs/json-spec.md) and [examples/nim-sw5e-v8.json](examples/nim-sw5e-v8.json).
+See [docs/json-spec.md](docs/json-spec.md), [examples/han-solo-phb.json](examples/han-solo-phb.json), and the fully populated [examples/one-with-everything.json](examples/one-with-everything.json) sample.
 
-The app header includes a saved-character dropdown, delete control, and data help as the primary workflow. Selecting a saved character loads it. `Import/Export` contains JSON import, current-character JSON export, an in-app JSON spec viewer with raw `.md` and schema downloads, and the sample Nim importer.
+The app header includes a saved-character dropdown, delete control, and data help as the primary workflow. Selecting a saved character loads it. `Import/Export` contains JSON import, current-character JSON export, an in-app JSON spec viewer with raw `.md` and schema downloads, and the sample Han Solo importer.
 
 Loaded and imported characters autosave to browser storage by character name. Each different application URL has its own saved character list, with up to 12 saved characters per URL. Importing a JSON file asks before replacing an existing saved character with the same name. Export JSON before deleting a browser save if you want a backup.
 

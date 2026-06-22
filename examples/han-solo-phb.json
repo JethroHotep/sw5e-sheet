@@ -1,0 +1,463 @@
+{
+  "schemaVersion": 1,
+  "character": {
+    "name": "Han Solo",
+    "level": 1,
+    "class": "Operative",
+    "background": "Scoundrel",
+    "proficiencyBonus": 2,
+    "settings": {
+      "d20Mode": "both",
+      "chatTarget": "roll20",
+      "globalModifier": "0",
+      "addInitiativeToTracker": false,
+      "autoSendToRoll20Bridge": true
+    },
+    "species": "Human",
+    "alignment": "Chaotic Light",
+    "playerName": "",
+    "experiencePoints": 0,
+    "xpNextLevel": 300,
+    "inspiration": false,
+    "passivePerception": 12,
+    "abilities": {
+      "str": 8,
+      "dex": 17,
+      "con": 12,
+      "int": 14,
+      "wis": 10,
+      "cha": 16
+    },
+    "savingThrows": {
+      "str": false,
+      "dex": true,
+      "con": false,
+      "int": true,
+      "wis": false,
+      "cha": false
+    },
+    "skills": {
+      "acrobatics": {
+        "ability": "dex",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "animalHandling": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "athletics": {
+        "ability": "str",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "deception": {
+        "ability": "cha",
+        "proficient": true,
+        "expertise": true,
+        "bonus": 0
+      },
+      "insight": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "intimidation": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "investigation": {
+        "ability": "int",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "lore": {
+        "ability": "int",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "medicine": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "nature": {
+        "ability": "int",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "perception": {
+        "ability": "wis",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "performance": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "persuasion": {
+        "ability": "cha",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "piloting": {
+        "ability": "dex",
+        "proficient": true,
+        "expertise": true,
+        "bonus": 0
+      },
+      "sleightOfHand": {
+        "ability": "dex",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "stealth": {
+        "ability": "dex",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "survival": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "technology": {
+        "ability": "int",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      }
+    },
+    "combat": {
+      "armorClass": 14,
+      "initiativeBonus": 0,
+      "speed": 30,
+      "hitPoints": {
+        "max": 9,
+        "current": 9,
+        "temporary": 0
+      },
+      "senses": {
+        "vision": ""
+      },
+      "movement": {
+        "hour": "",
+        "day": "",
+        "special": ""
+      },
+      "deathSaves": {
+        "successes": 0,
+        "failures": 0
+      },
+      "defenses": {
+        "armorShieldProtections": "Combat suit; AC 14.",
+        "advantages": "",
+        "resistances": "",
+        "immunities": ""
+      }
+    },
+    "attacks": [
+      {
+        "id": "light-pistol",
+        "name": "Light Pistol",
+        "attackAbility": "dex",
+        "proficient": true,
+        "attackBonus": 0,
+        "actionType": "action",
+        "damage": [
+          {
+            "formula": "1d4",
+            "ability": "dex",
+            "bonus": 0,
+            "type": "energy"
+          }
+        ],
+        "properties": [
+          "ranged",
+          "simple blaster"
+        ],
+        "notes": "PHB Step 5: +5 attack; 1d4+3 energy damage.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "inventoryItem",
+              "itemId": "light-pistol",
+              "id": "loaded-power-cell"
+            },
+            "amount": 1,
+            "trigger": "onAttack",
+            "notes": "Each shot spends one charge from the loaded power cell."
+          }
+        ],
+        "help": {
+          "title": "Light Pistol",
+          "source": "SW5e Player's Handbook, Chapter 1, Building Han Solo Step 5",
+          "category": "Attack",
+          "activation": "Action",
+          "summary": "Han chooses a light pistol as one of his starting weapons.",
+          "details": [
+            "The PHB example gives Han a +5 attack bonus with the light pistol.",
+            "The light pistol deals 1d4 energy damage plus Han's Dexterity modifier, for 1d4+3 energy damage."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "vibrodagger",
+        "name": "Vibrodagger",
+        "attackAbility": "dex",
+        "proficient": true,
+        "attackBonus": 0,
+        "actionType": "action",
+        "damage": [
+          {
+            "formula": "1d4",
+            "ability": "dex",
+            "bonus": 0,
+            "type": "kinetic"
+          }
+        ],
+        "properties": [
+          "finesse",
+          "simple vibroweapon"
+        ],
+        "notes": "PHB Step 5: +5 attack; 1d4+3 kinetic damage.",
+        "help": {
+          "title": "Vibrodagger",
+          "source": "SW5e Player's Handbook, Chapter 1, Building Han Solo Step 5",
+          "category": "Attack",
+          "activation": "Action",
+          "summary": "Han's vibrodagger uses Dexterity because it has the finesse property.",
+          "details": [
+            "The PHB example gives Han a +5 attack bonus with the vibrodagger.",
+            "The vibrodagger deals 1d4 kinetic damage plus Han's Dexterity modifier, for 1d4+3 kinetic damage."
+          ],
+          "sections": []
+        }
+      }
+    ],
+    "resources": [
+      {
+        "id": "defiant",
+        "name": "Defiant",
+        "current": 1,
+        "max": 1,
+        "unit": "use",
+        "restRecovery": "shortOrLong",
+        "notes": "Human trait: add 1d4 to an ability check, attack roll, or saving throw before the GM determines the outcome.",
+        "help": {
+          "title": "Defiant",
+          "source": "SW5e Player's Handbook, Human Traits",
+          "category": "Species Trait",
+          "summary": "Once per short or long rest, add 1d4 to a visible creature's ability check, attack roll, or saving throw.",
+          "details": [
+            "This resource tracks the once-per-rest use of the Human Defiant trait."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "spare-power-cells",
+        "name": "Spare Power Cells",
+        "current": 3,
+        "max": 3,
+        "unit": "cells",
+        "restRecovery": "none",
+        "notes": "Operative starting equipment can supply a simple blaster and power cells."
+      }
+    ],
+    "inventory": [
+      {
+        "id": "combat-suit",
+        "name": "Combat Suit",
+        "category": "armor",
+        "quantity": 1,
+        "equipped": true,
+        "armorClassFormula": "AC 14",
+        "source": "Operative starting equipment",
+        "notes": "PHB Step 5 states Han's combat suit gives him AC 14."
+      },
+      {
+        "id": "light-pistol",
+        "name": "Light Pistol",
+        "category": "weapon",
+        "quantity": 1,
+        "equipped": true,
+        "source": "Operative starting equipment choice",
+        "notes": "Ranged simple blaster used in the PHB Han example.",
+        "containedResources": [
+          {
+            "id": "loaded-power-cell",
+            "name": "Loaded Power Cell",
+            "kind": "power-cell",
+            "unit": "shots",
+            "current": 10,
+            "max": 10,
+            "rechargeFromResourceId": "spare-power-cells",
+            "notes": "Loaded ammunition counter for the app. Adjust max if your table uses a different reload value."
+          }
+        ]
+      },
+      {
+        "id": "vibrodagger",
+        "name": "Vibrodagger",
+        "category": "weapon",
+        "quantity": 1,
+        "equipped": true,
+        "source": "Operative starting equipment",
+        "notes": "Finesse weapon used in the PHB Han example."
+      },
+      {
+        "id": "burglar-pack",
+        "name": "Burglar's Pack",
+        "category": "pack",
+        "quantity": 1,
+        "source": "Operative starting equipment choice",
+        "notes": "Representative operative pack choice for a scoundrel build."
+      },
+      {
+        "id": "specialists-kit",
+        "name": "Specialist's Kit",
+        "category": "tool",
+        "quantity": 1,
+        "source": "Operative tool proficiency choice",
+        "notes": "PHB operative grants one specialist's kit proficiency. This sample leaves the exact kit generic."
+      },
+      {
+        "id": "fine-clothes",
+        "name": "Fine Clothes",
+        "category": "gear",
+        "quantity": 1,
+        "source": "Scoundrel background equipment"
+      },
+      {
+        "id": "disguise-kit",
+        "name": "Disguise Kit",
+        "category": "tool",
+        "quantity": 1,
+        "source": "Scoundrel background equipment"
+      },
+      {
+        "id": "former-con-memento",
+        "name": "Memento of a Former Con",
+        "category": "gear",
+        "quantity": 1,
+        "source": "Scoundrel background equipment"
+      }
+    ],
+    "journal": [
+      {
+        "id": "journal-phb-source",
+        "date": "2026-06-17",
+        "title": "PHB Example Source",
+        "text": "Built from the Player's Handbook Chapter 1 Han Solo example: Human Operative 1, Scoundrel background, Episode IV depiction."
+      }
+    ],
+    "credits": {
+      "current": 150,
+      "notes": "Scoundrel background belt pouch contains 150 cr."
+    },
+    "customRolls": [
+      {
+        "kind": "roll",
+        "id": "sneak-attack-damage",
+        "name": "Sneak Attack",
+        "formula": "1d6",
+        "notes": "Operative 1: once per turn when Sneak Attack conditions are met."
+      },
+      {
+        "kind": "roll",
+        "id": "defiant-die",
+        "name": "Defiant",
+        "formula": "1d4",
+        "notes": "Human trait: add to an ability check, attack roll, or saving throw before the outcome is determined.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "defiant"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "notes": "Spend the once-per-rest Defiant use."
+          }
+        ]
+      },
+      {
+        "kind": "reference",
+        "id": "false-identity",
+        "name": "False Identity",
+        "notes": "Scoundrel background feature: Han has a second identity with documentation, acquaintances, and disguises; he can forge documents he has seen examples of."
+      }
+    ],
+    "carrying": {
+      "totalWeight": "",
+      "totalWeightOnCharacter": "",
+      "encumbered": "",
+      "heavilyEncumbered": "",
+      "maxCarry": "120 lb",
+      "pushDragLift": "240 lb",
+      "notes": "Strength 8 x 15 = 120 lb carrying capacity."
+    },
+    "valuables": {
+      "gemsAndTreasure": "",
+      "storage": "",
+      "loanedDepositedReceived": ""
+    },
+    "appearance": {
+      "age": "",
+      "gender": "Male",
+      "height": "",
+      "weight": "",
+      "size": "Medium",
+      "hair": "",
+      "eyes": "",
+      "skin": "",
+      "description": "Human male as portrayed during Episode IV."
+    },
+    "personality": {
+      "traits": "Born gambler who cannot resist taking a risk for a potential payoff; sarcasm and insults are his weapons of choice.",
+      "ideals": "Independence. Han recognizes no one as his master.",
+      "bonds": "His flight from Jabba the Hutt.",
+      "flaws": "He often chooses himself and his ship over others."
+    },
+    "placeOfBirth": "",
+    "backstory": "PHB Chapter 1 uses Han Solo, as portrayed during Episode IV, as the step-by-step character creation example.",
+    "backgroundFeature": "False Identity",
+    "languages": [
+      "Galactic Basic",
+      "Shyriiwook"
+    ],
+    "powercasting": {
+      "techSaveDc": "",
+      "forceSaveDc": "",
+      "techAttackModifier": "",
+      "forceAttackModifier": "",
+      "forceAlignment": {
+        "lightSide": "",
+        "darkSide": "",
+        "universal": ""
+      },
+      "levels": []
+    },
+    "notes": "PHB-defined values used directly: Human, Operative 1, Scoundrel background, chaotic light alignment, Strength 8, Dexterity 17, Constitution 12, Intelligence 14, Wisdom 10, Charisma 16 after Silver-Tongued, 9 HP, AC 14, light pistol and vibrodagger at +5 for 1d4+3. Skill choices beyond the PHB's open-ended choices are Han-flavored sample choices for app playability."
+  }
+}

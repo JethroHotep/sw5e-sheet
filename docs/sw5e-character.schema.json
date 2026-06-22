@@ -47,44 +47,7 @@
           "maximum": 10
         },
         "settings": {
-          "type": "object",
-          "description": "Per-character app settings saved with the sheet.",
-          "additionalProperties": false,
-          "properties": {
-            "d20Mode": {
-              "type": "string",
-              "enum": [
-                "normal",
-                "advantage",
-                "disadvantage",
-                "both"
-              ],
-              "default": "both"
-            },
-            "chatTarget": {
-              "type": "string",
-              "enum": [
-                "roll20",
-                "foundry"
-              ],
-              "default": "roll20"
-            },
-            "globalModifier": {
-              "type": [
-                "string",
-                "number"
-              ],
-              "default": "0"
-            },
-            "addInitiativeToTracker": {
-              "type": "boolean",
-              "default": false
-            },
-            "autoSendToRoll20Bridge": {
-              "type": "boolean",
-              "default": true
-            }
-          }
+          "$ref": "#/$defs/appSettings"
         },
         "abilities": {
           "type": "object",
@@ -200,11 +163,6 @@
                 }
               }
             },
-            "techcastingDc": {
-              "type": "integer",
-              "minimum": 0,
-              "description": "Optional override for the displayed techcasting save DC. If omitted, the app uses 8 + proficiency + INT modifier."
-            },
             "senses": {
               "$ref": "#/$defs/senses"
             },
@@ -237,6 +195,12 @@
             "$ref": "#/$defs/inventoryItem"
           }
         },
+        "journal": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/journalEntry"
+          }
+        },
         "credits": {
           "$ref": "#/$defs/credits"
         },
@@ -257,6 +221,9 @@
         },
         "playerName": {
           "type": "string"
+        },
+        "portrait": {
+          "$ref": "#/$defs/portrait"
         },
         "experiencePoints": {
           "type": "integer",
@@ -287,12 +254,6 @@
         "backgroundFeature": {
           "type": "string"
         },
-        "proficiencies": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          }
-        },
         "languages": {
           "type": "array",
           "items": {
@@ -312,6 +273,46 @@
     }
   },
   "$defs": {
+    "appSettings": {
+      "type": "object",
+      "description": "Per-character app settings saved with the sheet.",
+      "additionalProperties": false,
+      "properties": {
+        "d20Mode": {
+          "type": "string",
+          "enum": [
+            "normal",
+            "advantage",
+            "disadvantage",
+            "both"
+          ],
+          "default": "both"
+        },
+        "chatTarget": {
+          "type": "string",
+          "enum": [
+            "roll20",
+            "foundry"
+          ],
+          "default": "roll20"
+        },
+        "globalModifier": {
+          "type": [
+            "string",
+            "number"
+          ],
+          "default": "0"
+        },
+        "addInitiativeToTracker": {
+          "type": "boolean",
+          "default": false
+        },
+        "autoSendToRoll20Bridge": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
     "abilityKey": {
       "enum": [
         "str",
@@ -329,7 +330,7 @@
     },
     "proficiencyFlag": {
       "type": "boolean",
-      "description": "True when the character is proficient and should display a PROF flag in the app."
+      "description": "True when the character is proficient with that saving throw. The matching ability save button uses the proficiency bonus and gold outline."
     },
     "skill": {
       "type": "object",
@@ -382,6 +383,12 @@
         },
         "actionType": {
           "$ref": "#/$defs/actionType"
+        },
+        "powerKind": {
+          "$ref": "#/$defs/powerKind"
+        },
+        "powerLevel": {
+          "$ref": "#/$defs/powerLevel"
         },
         "damage": {
           "type": "array",
@@ -580,15 +587,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "starting": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "spent": {
-          "type": "integer",
-          "minimum": 0
-        },
-        "remaining": {
+        "current": {
           "type": "integer",
           "minimum": 0
         },
@@ -597,6 +596,30 @@
         },
         "help": {
           "$ref": "#/$defs/help"
+        }
+      }
+    },
+    "journalEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "date"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "date": {
+          "type": "string",
+          "format": "date"
+        },
+        "title": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
         }
       }
     },
@@ -631,6 +654,12 @@
             },
             "actionType": {
               "$ref": "#/$defs/actionType"
+            },
+            "powerKind": {
+              "$ref": "#/$defs/powerKind"
+            },
+            "powerLevel": {
+              "$ref": "#/$defs/powerLevel"
             },
             "notes": {
               "type": "string"
@@ -675,6 +704,12 @@
             },
             "actionType": {
               "$ref": "#/$defs/actionType"
+            },
+            "powerKind": {
+              "$ref": "#/$defs/powerKind"
+            },
+            "powerLevel": {
+              "$ref": "#/$defs/powerLevel"
             },
             "notes": {
               "type": "string"
@@ -762,6 +797,16 @@
         "amount": {
           "type": "integer",
           "minimum": 1
+        },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "spend",
+            "restore",
+            "set",
+            "add"
+          ],
+          "description": "How to change the target. spend subtracts amount and is the default; restore sets the target to max; set assigns amount; add increases by amount."
         },
         "trigger": {
           "enum": [
@@ -853,6 +898,10 @@
           "type": "string",
           "description": "Optional character.resources[].id used to refill/reload this contained resource."
         },
+        "rechargeFromInventoryItemId": {
+          "type": "string",
+          "description": "Optional inventory[].id whose quantity is consumed to refill/reload this contained resource."
+        },
         "restRecovery": {
           "$ref": "#/$defs/restRecovery"
         },
@@ -880,6 +929,34 @@
         "reaction"
       ],
       "description": "Optional action timing tag displayed by the app."
+    },
+    "powerKind": {
+      "type": "string",
+      "enum": [
+        "tech",
+        "force"
+      ],
+      "description": "Marks an attack, custom roll, or reference as a tech or force power for the Powercasting tab."
+    },
+    "powerLevel": {
+      "description": "Power level for Powercasting grouping. Use at-will for at-will powers or a positive level number for leveled powers.",
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "at-will"
+          ]
+        },
+        {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9
+        },
+        {
+          "type": "string",
+          "pattern": "^[1-9]$"
+        }
+      ]
     },
     "help": {
       "type": "object",
@@ -963,6 +1040,26 @@
         }
       }
     },
+    "portrait": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dataUrl": {
+          "type": "string",
+          "description": "Browser-displayable data URL for the uploaded portrait image."
+        },
+        "mimeType": {
+          "type": "string"
+        },
+        "fileName": {
+          "type": "string"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "personality": {
       "type": "object",
       "additionalProperties": false,
@@ -987,9 +1084,6 @@
       "properties": {
         "vision": {
           "type": "string"
-        },
-        "passiveWisdom": {
-          "type": "integer"
         }
       }
     },
@@ -997,9 +1091,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "base": {
-          "type": "integer"
-        },
         "hour": {
           "type": "string"
         },
@@ -1076,9 +1167,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "creditsNotes": {
-          "type": "string"
-        },
         "gemsAndTreasure": {
           "type": "string"
         },
@@ -1094,12 +1182,6 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "techPoints": {
-          "type": "string"
-        },
-        "forcePoints": {
-          "type": "string"
-        },
         "techSaveDc": {
           "type": "string"
         },
@@ -1107,7 +1189,8 @@
           "type": "string"
         },
         "techAttackModifier": {
-          "type": "string"
+          "type": "string",
+          "description": "Optional override for displayed Tech Attack Modifier. If omitted, the app uses proficiency bonus + INT modifier."
         },
         "forceAttackModifier": {
           "type": "string"

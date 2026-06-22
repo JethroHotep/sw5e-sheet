@@ -1,0 +1,873 @@
+{
+  "schemaVersion": 1,
+  "character": {
+    "name": "One With Everything",
+    "level": 9,
+    "class": "Engineer / Consular",
+    "background": "Galactic Surveyor",
+    "proficiencyBonus": 4,
+    "settings": {
+      "d20Mode": "both",
+      "chatTarget": "roll20",
+      "globalModifier": "1",
+      "addInitiativeToTracker": true,
+      "autoSendToRoll20Bridge": true
+    },
+    "species": "Mirialan",
+    "alignment": "Balanced Light",
+    "playerName": "Example Player",
+    "portrait": {
+      "mimeType": "",
+      "fileName": "",
+      "updatedAt": "2026-06-17T00:00:00Z"
+    },
+    "experiencePoints": 48000,
+    "xpNextLevel": 64000,
+    "inspiration": true,
+    "passivePerception": 17,
+    "abilities": {
+      "str": 12,
+      "dex": 16,
+      "con": 14,
+      "int": 18,
+      "wis": 15,
+      "cha": 13
+    },
+    "savingThrows": {
+      "str": false,
+      "dex": true,
+      "con": true,
+      "int": true,
+      "wis": false,
+      "cha": false
+    },
+    "skills": {
+      "acrobatics": {
+        "ability": "dex",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "animalHandling": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 1
+      },
+      "athletics": {
+        "ability": "str",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "deception": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "insight": {
+        "ability": "wis",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "intimidation": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "investigation": {
+        "ability": "int",
+        "proficient": true,
+        "expertise": true,
+        "bonus": 0
+      },
+      "lore": {
+        "ability": "int",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "medicine": {
+        "ability": "wis",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "nature": {
+        "ability": "int",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 2
+      },
+      "perception": {
+        "ability": "wis",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 1
+      },
+      "performance": {
+        "ability": "cha",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "persuasion": {
+        "ability": "cha",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "piloting": {
+        "ability": "dex",
+        "proficient": true,
+        "expertise": false,
+        "bonus": 0
+      },
+      "sleightOfHand": {
+        "ability": "dex",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "stealth": {
+        "ability": "dex",
+        "proficient": true,
+        "expertise": true,
+        "bonus": 0
+      },
+      "survival": {
+        "ability": "wis",
+        "proficient": false,
+        "expertise": false,
+        "bonus": 0
+      },
+      "technology": {
+        "ability": "int",
+        "proficient": true,
+        "expertise": true,
+        "bonus": 1
+      }
+    },
+    "combat": {
+      "armorClass": 18,
+      "initiativeBonus": 2,
+      "speed": 30,
+      "hitPoints": {
+        "max": 72,
+        "current": 61,
+        "temporary": 8
+      },
+      "senses": {
+        "vision": "Darkvision 60 ft; passive sensor sweep while helmet is active."
+      },
+      "movement": {
+        "hour": "3 miles at normal pace",
+        "day": "24 miles at normal pace",
+        "special": "Jet boots allow brief vertical repositioning when charged."
+      },
+      "deathSaves": {
+        "successes": 1,
+        "failures": 0
+      },
+      "defenses": {
+        "armorShieldProtections": "Modified mesh armor, light physical shield, reactive tech bracing.",
+        "advantages": "Advantage on checks to navigate ancient technology.",
+        "resistances": "Ion resistance while shield matrix is active.",
+        "immunities": "Immune to standard vacuum exposure for 10 minutes while sealed."
+      }
+    },
+    "attacks": [
+      {
+        "id": "integrated-blaster",
+        "name": "Integrated Blaster",
+        "attackAbility": "dex",
+        "proficient": true,
+        "attackBonus": 1,
+        "actionType": "action",
+        "damage": [
+          {
+            "formula": "1d8",
+            "ability": "dex",
+            "bonus": 1,
+            "type": "energy"
+          }
+        ],
+        "properties": [
+          "range 80/320",
+          "reload 20",
+          "integrated"
+        ],
+        "notes": "Primary ranged weapon; consumes one loaded power-cell shot per attack.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "inventoryItem",
+              "itemId": "integrated-blaster",
+              "id": "loaded-power-cell"
+            },
+            "amount": 1,
+            "trigger": "onAttack",
+            "prompt": false,
+            "notes": "Spend one shot from the loaded power cell."
+          }
+        ],
+        "depletionOptions": [
+          {
+            "id": "overcharge-shot",
+            "name": "Overcharge Shot",
+            "depletes": [
+              {
+                "target": {
+                  "scope": "inventoryItem",
+                  "itemId": "integrated-blaster",
+                  "id": "loaded-power-cell"
+                },
+                "amount": 3,
+                "trigger": "onAttack",
+                "prompt": true,
+                "notes": "Spend extra shots for the overcharge option."
+              }
+            ],
+            "notes": "Optional stronger shot used to test depletion options."
+          }
+        ],
+        "help": {
+          "title": "Integrated Blaster",
+          "source": "One With Everything sample",
+          "category": "Attack",
+          "activation": "Action",
+          "summary": "A sample weapon attack that spends an item-contained resource.",
+          "details": [
+            "Uses Dexterity and proficiency.",
+            "Demonstrates attack damage, properties, depletion, and depletion options."
+          ],
+          "sections": [
+            {
+              "heading": "Table Note",
+              "text": "This is a synthetic example, not a published SW5e item.",
+              "items": [
+                "Normal shot spends one charge.",
+                "Overcharge spends three charges."
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "phase-saber",
+        "name": "Phase Saber",
+        "attackAbility": "dex",
+        "proficient": true,
+        "attackBonus": 0,
+        "actionType": "action",
+        "damage": [
+          {
+            "formula": "1d8",
+            "ability": "dex",
+            "bonus": 0,
+            "type": "energy"
+          },
+          {
+            "formula": "1d4",
+            "ability": "int",
+            "bonus": 0,
+            "type": "ion"
+          }
+        ],
+        "properties": [
+          "finesse",
+          "versatile",
+          "tech focus"
+        ],
+        "notes": "Melee sample with multiple damage parts."
+      },
+      {
+        "id": "force-thrown-debris",
+        "name": "Force Thrown Debris",
+        "attackAbility": "wis",
+        "proficient": true,
+        "attackBonus": 0,
+        "actionType": "action",
+        "powerKind": "force",
+        "powerLevel": "at-will",
+        "damage": [
+          {
+            "formula": "2d6",
+            "ability": "wis",
+            "bonus": 0,
+            "type": "kinetic"
+          }
+        ],
+        "properties": [
+          "force power",
+          "range 60"
+        ],
+        "notes": "At-will Force attack entry included to test power attacks."
+      }
+    ],
+    "resources": [
+      {
+        "id": "tech-points",
+        "name": "Tech Points",
+        "current": 12,
+        "max": 15,
+        "unit": "points",
+        "restRecovery": "long",
+        "notes": "Primary spendable techcasting pool.",
+        "help": {
+          "title": "Tech Points",
+          "source": "One With Everything sample",
+          "category": "Class Resource",
+          "summary": "A long-rest power resource used by tech powers.",
+          "details": [
+            "Included to test Powercasting point display and depletion."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "id": "force-points",
+        "name": "Force Points",
+        "current": 7,
+        "max": 9,
+        "unit": "points",
+        "restRecovery": "long",
+        "notes": "Primary spendable forcecasting pool."
+      },
+      {
+        "id": "tactical-surge",
+        "name": "Tactical Surge",
+        "current": 2,
+        "max": 3,
+        "unit": "uses",
+        "restRecovery": "short",
+        "notes": "Class feature: spend to add a tactical die to an ally's roll."
+      },
+      {
+        "id": "ancestral-focus",
+        "name": "Ancestral Focus",
+        "current": 1,
+        "max": 1,
+        "unit": "use",
+        "restRecovery": "shortOrLong",
+        "notes": "Species trait: center yourself before a crucial check."
+      }
+    ],
+    "inventory": [
+      {
+        "id": "integrated-blaster",
+        "name": "Integrated Blaster",
+        "category": "weapon",
+        "quantity": 1,
+        "cost": 750,
+        "equipped": true,
+        "infused": true,
+        "armorClassFormula": "",
+        "notes": "Custom sidearm wired into the bracer rig.",
+        "source": "Class equipment",
+        "contents": [
+          "Barrel stabilizer",
+          "Smartlink"
+        ],
+        "attuned": true,
+        "modifications": [
+          "Overcharge capacitor",
+          "Silent cycling"
+        ],
+        "containedResources": [
+          {
+            "id": "loaded-power-cell",
+            "name": "Loaded Power Cell",
+            "kind": "power-cell",
+            "unit": "shots",
+            "current": 17,
+            "max": 20,
+            "rechargeFromInventoryItemId": "power-cell-pack",
+            "restRecovery": "none",
+            "notes": "Loaded cell for the integrated blaster.",
+            "help": {
+              "title": "Loaded Power Cell",
+              "source": "One With Everything sample",
+              "category": "Contained Resource",
+              "summary": "A resource stored inside an inventory item.",
+              "details": [
+                "Used by attacks that target inventoryItem resources."
+              ],
+              "sections": []
+            }
+          }
+        ],
+        "depletes": [
+          {
+            "target": {
+              "scope": "inventoryQuantity",
+              "id": "power-cell-pack"
+            },
+            "amount": 1,
+            "trigger": "manual",
+            "prompt": true,
+            "notes": "Reload from the loose cell pack if desired."
+          }
+        ],
+        "depletionOptions": [
+          {
+            "id": "field-reload",
+            "name": "Field Reload",
+            "depletes": [
+              {
+                "target": {
+                  "scope": "inventoryQuantity",
+                  "id": "power-cell-pack"
+                },
+                "amount": 1,
+                "operation": "spend",
+                "trigger": "manual",
+                "notes": "Spend one spare power cell."
+              },
+              {
+                "target": {
+                  "scope": "inventoryItem",
+                  "itemId": "integrated-blaster",
+                  "id": "loaded-power-cell"
+                },
+                "amount": 1,
+                "operation": "restore",
+                "trigger": "manual",
+                "notes": "Refill the loaded blaster power cell to its maximum shots."
+              }
+            ],
+            "notes": "Alternative reload option for the sample."
+          }
+        ],
+        "help": {
+          "title": "Integrated Blaster",
+          "source": "One With Everything sample",
+          "category": "Inventory Item",
+          "summary": "Weapon entry with equipment fields, contained resources, and depletion hooks.",
+          "details": [
+            "Shows equipped, infused, attuned, contents, modifications, and containedResources."
+          ],
+          "sections": [
+            {
+              "heading": "Storage",
+              "text": "Mounted on the right forearm."
+            }
+          ]
+        },
+        "donned": true,
+        "backpack": false,
+        "pouch": false,
+        "location": "Right bracer",
+        "weight": 2.5
+      },
+      {
+        "id": "survey-pack",
+        "name": "Survey Pack",
+        "category": "pack",
+        "quantity": 1,
+        "cost": 100,
+        "equipped": false,
+        "infused": false,
+        "notes": "Contains exploration and mapping supplies.",
+        "source": "Background equipment",
+        "contents": [
+          "Beacon stakes",
+          "Sample jars",
+          "Glowrod"
+        ],
+        "attuned": false,
+        "modifications": [
+          "Waterproof lining"
+        ],
+        "donned": false,
+        "backpack": true,
+        "pouch": false,
+        "location": "Backpack",
+        "weight": "18 lb"
+      },
+      {
+        "id": "datacron-shard",
+        "name": "Datacron Shard",
+        "category": "trinket",
+        "quantity": 1,
+        "cost": 0,
+        "equipped": false,
+        "infused": false,
+        "notes": "A non-credit valuable carried for story reasons.",
+        "source": "Adventure reward",
+        "contents": [],
+        "attuned": false,
+        "modifications": [],
+        "donned": false,
+        "backpack": false,
+        "pouch": true,
+        "location": "Belt pouch",
+        "weight": "0.1 lb"
+      },
+      {
+        "id": "field-rations",
+        "name": "Field Rations",
+        "category": "consumable",
+        "quantity": 6,
+        "cost": 6,
+        "equipped": false,
+        "infused": false,
+        "notes": "Loose consumable inventory count; no maximum resource pool.",
+        "source": "Purchased supplies",
+        "donned": false,
+        "backpack": true,
+        "pouch": false,
+        "location": "Survey pack",
+        "weight": "6 lb"
+      },
+      {
+        "id": "power-cell-pack",
+        "name": "Power Cell Pack",
+        "category": "ammunition",
+        "quantity": 4,
+        "cost": 40,
+        "equipped": false,
+        "infused": false,
+        "notes": "Loose power cells for reload tests.",
+        "source": "Purchased gear",
+        "donned": false,
+        "backpack": true,
+        "pouch": false,
+        "location": "Backpack side pocket",
+        "weight": 1
+      }
+    ],
+    "journal": [
+      {
+        "id": "journal-001",
+        "date": "2026-06-17",
+        "title": "Sample Created",
+        "text": "This entry exists to demonstrate dated journal data and local autosave/export behavior."
+      },
+      {
+        "id": "journal-002",
+        "date": "2026-06-18",
+        "title": "Field Note",
+        "text": "Recovered a datacron shard, spent tech points, and marked a hidden vault for later."
+      }
+    ],
+    "credits": {
+      "current": 2350,
+      "notes": "Spendable credits only; other treasure is listed under valuables.",
+      "help": {
+        "title": "Credits",
+        "source": "One With Everything sample",
+        "category": "Money",
+        "summary": "Current spendable credit balance.",
+        "details": [
+          "Use valuables for non-credit treasure."
+        ],
+        "sections": []
+      }
+    },
+    "customRolls": [
+      {
+        "kind": "roll",
+        "id": "tactical-surge-die",
+        "name": "Tactical Surge Die",
+        "formula": "1d8",
+        "actionType": "bonusAction",
+        "notes": "Class feature: add this die to a nearby ally's ability check, attack roll, or saving throw.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tactical-surge"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "prompt": false,
+            "notes": "Spend one Tactical Surge use."
+          }
+        ],
+        "help": {
+          "title": "Tactical Surge Die",
+          "source": "One With Everything sample",
+          "category": "Class Feature",
+          "activation": "Bonus Action",
+          "summary": "A sample rollable class feature that spends a resource.",
+          "details": [
+            "Included to test feature grouping and resource depletion."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "kind": "reference",
+        "id": "ancestral-focus",
+        "name": "Ancestral Focus",
+        "actionType": "reaction",
+        "notes": "Species trait: reroll one failed Intelligence or Wisdom check after seeing the result.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "ancestral-focus"
+            },
+            "amount": 1,
+            "trigger": "onUse",
+            "prompt": true,
+            "notes": "Spend Ancestral Focus."
+          }
+        ],
+        "help": {
+          "title": "Ancestral Focus",
+          "source": "One With Everything sample",
+          "category": "Species Trait",
+          "activation": "Reaction",
+          "summary": "A sample species trait that posts a reference card.",
+          "details": [
+            "Demonstrates a reference action with a resource cost."
+          ],
+          "sections": []
+        }
+      },
+      {
+        "kind": "reference",
+        "id": "surveyors-eye",
+        "name": "Surveyor's Eye",
+        "actionType": "action",
+        "notes": "Background feature: identify safe routes, unstable ruins, and valuable survey markers.",
+        "help": {
+          "title": "Surveyor's Eye",
+          "source": "One With Everything sample",
+          "category": "Background Feature",
+          "activation": "Action",
+          "summary": "A non-resource background feature for the Features tab.",
+          "details": [
+            "This demonstrates feature references that do not deplete anything."
+          ],
+          "sections": [
+            {
+              "heading": "Use Case",
+              "text": "Ask the GM what the terrain or structure reveals.",
+              "items": [
+                "Safe path",
+                "Hidden hazard",
+                "Survey value"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "kind": "roll",
+        "id": "scanner-sweep",
+        "name": "Scanner Sweep",
+        "formula": "1d20 + @int + @prof + 1",
+        "actionType": "action",
+        "notes": "Technology check using scanner tools and the global sample bonus."
+      },
+      {
+        "kind": "roll",
+        "id": "ion-bolt",
+        "name": "Ion Bolt",
+        "formula": "2d4 + @int",
+        "actionType": "action",
+        "powerKind": "tech",
+        "powerLevel": "at-will",
+        "notes": "At-will tech power; one target makes a Dexterity save or takes ion damage."
+      },
+      {
+        "kind": "reference",
+        "id": "energy-shield",
+        "name": "Energy Shield",
+        "actionType": "reaction",
+        "powerKind": "tech",
+        "powerLevel": 1,
+        "notes": "1st-level tech power; gain +5 AC until the start of your next turn.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "tech-points"
+            },
+            "amount": 2,
+            "trigger": "onCast",
+            "prompt": false,
+            "notes": "Spend tech points to cast Energy Shield."
+          }
+        ]
+      },
+      {
+        "kind": "roll",
+        "id": "kolto-pack",
+        "name": "Kolto Pack",
+        "formula": "1d4 + @int",
+        "actionType": "bonusAction",
+        "powerKind": "tech",
+        "powerLevel": 1,
+        "notes": "1st-level tech power; restore hit points to a creature within touch range.",
+        "depletionOptions": [
+          {
+            "id": "free-field-medtech",
+            "name": "Use Free Field Medtech",
+            "depletes": [
+              {
+                "target": {
+                  "scope": "character",
+                  "id": "tactical-surge"
+                },
+                "amount": 1,
+                "trigger": "onCast",
+                "notes": "Spend a feature use instead of tech points."
+              }
+            ],
+            "notes": "Demonstrates an alternate payment option."
+          },
+          {
+            "id": "spend-tech-points",
+            "name": "Spend Tech Points",
+            "depletes": [
+              {
+                "target": {
+                  "scope": "character",
+                  "id": "tech-points"
+                },
+                "amount": 2,
+                "trigger": "onCast",
+                "notes": "Cast Kolto Pack normally."
+              }
+            ],
+            "notes": "Normal power point cost."
+          }
+        ]
+      },
+      {
+        "kind": "reference",
+        "id": "battle-meditation",
+        "name": "Battle Meditation",
+        "actionType": "action",
+        "powerKind": "force",
+        "powerLevel": 2,
+        "notes": "2nd-level force power; allies in range gain coordinated focus while concentration lasts.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "force-points"
+            },
+            "amount": 3,
+            "trigger": "onCast",
+            "prompt": false,
+            "notes": "Spend force points to cast Battle Meditation."
+          }
+        ]
+      },
+      {
+        "kind": "roll",
+        "id": "force-heal",
+        "name": "Force Heal",
+        "formula": "2d8 + @wis",
+        "actionType": "action",
+        "powerKind": "force",
+        "powerLevel": 3,
+        "notes": "3rd-level force power; restore hit points with a visible roll.",
+        "depletes": [
+          {
+            "target": {
+              "scope": "character",
+              "id": "force-points"
+            },
+            "amount": 4,
+            "trigger": "onCast",
+            "prompt": false,
+            "notes": "Spend force points to cast Force Heal."
+          }
+        ]
+      }
+    ],
+    "notes": "This synthetic sample intentionally populates every current standard schema element except an embedded portrait image and deprecated legacy fields.",
+    "appearance": {
+      "age": "34",
+      "gender": "Nonbinary",
+      "height": "5 ft 9 in",
+      "weight": "155 lb",
+      "size": "Medium",
+      "hair": "Black with silver beads",
+      "eyes": "Green",
+      "skin": "Olive with geometric tattoos",
+      "description": "A composed surveyor in patched field armor, carrying both precision tools and old temple charms."
+    },
+    "personality": {
+      "traits": "Keeps a field log for everything and speaks to machines as if they are coworkers.",
+      "ideals": "Knowledge. Every ruin deserves to be understood before it is looted.",
+      "bonds": "Protects the crew that helped recover the first datacron shard.",
+      "flaws": "Cannot resist opening sealed doors with warning signs."
+    },
+    "placeOfBirth": "Mirial orbital enclave over Alpheridies",
+    "backstory": "Raised among survey crews, this character learned to read broken machines, buried roads, and old Force echoes with equal curiosity.",
+    "backgroundFeature": "Surveyor's Eye",
+    "languages": [
+      "Galactic Basic",
+      "Mirialan",
+      "Binary",
+      "Huttese"
+    ],
+    "carrying": {
+      "totalWeight": "42.6 lb",
+      "totalWeightOnCharacter": "24.6 lb",
+      "encumbered": "180 lb",
+      "heavilyEncumbered": "240 lb",
+      "maxCarry": "180 lb",
+      "pushDragLift": "360 lb",
+      "notes": "Strength 12 sample carrying values; exact table rules may vary."
+    },
+    "valuables": {
+      "gemsAndTreasure": "Datacron shard, two polished kyber fragments, survey claim marker.",
+      "storage": "Tool crate and sealed sample case stored aboard the ship.",
+      "loanedDepositedReceived": "Loaned a calibrated scanner to the party mechanic; deposited one relic map with the archive."
+    },
+    "powercasting": {
+      "techSaveDc": "16",
+      "forceSaveDc": "14",
+      "techAttackModifier": "+8",
+      "forceAttackModifier": "+6",
+      "forceAlignment": {
+        "lightSide": "Mercy, protection, and restoration.",
+        "darkSide": "Fear of losing control around ancient vaults.",
+        "universal": "Curiosity and balance."
+      },
+      "levels": [
+        {
+          "level": "At-Will",
+          "powers": [
+            "Ion Bolt",
+            "Force Thrown Debris"
+          ],
+          "pointsUsed": 0
+        },
+        {
+          "level": 1,
+          "powers": [
+            "Energy Shield",
+            "Kolto Pack"
+          ],
+          "pointsUsed": 4
+        },
+        {
+          "level": 2,
+          "powers": [
+            "Battle Meditation"
+          ],
+          "pointsUsed": 3
+        },
+        {
+          "level": 3,
+          "powers": [
+            "Force Heal"
+          ],
+          "pointsUsed": "4 this session"
+        }
+      ]
+    }
+  }
+}

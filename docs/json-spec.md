@@ -6,6 +6,8 @@ The format is intentionally explicit. Derived values such as ability modifiers, 
 
 A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](sw5e-character.schema.json).
 
+The web sheet is organized around a top summary band for the most-used play values: ability scores with check/save buttons, AC, proficiency, HP, initiative, inspiration, and core DC/speed values. The remaining JSON sections feed the Actions, Tech, Force, Inventory, Logistics, Record, Journal, Skills, Resources, and Outbox panels below that band.
+
 ## Top Level
 
 ```json
@@ -31,6 +33,7 @@ A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](s
 | `background` | string | no | Display value. |
 | `alignment` | string | no | Alignment display value. |
 | `playerName` | string | no | Player name. |
+| `portrait` | object | no | Uploaded character portrait stored as a browser-displayable data URL. |
 | `experiencePoints` | number | no | Current XP. |
 | `xpNextLevel` | number | no | XP needed for next level. |
 | `inspiration` | boolean | no | Inspiration checkbox state. |
@@ -44,19 +47,21 @@ A downloadable JSON Schema is available at [`docs/sw5e-character.schema.json`](s
 | `attacks` | array | no | Weapons or attack-like actions. |
 | `resources` | array | no | Trackable expendable resources. |
 | `inventory` | array | no | Gear, tools, armor, ammo, and other carried items. |
-| `credits` | object | no | Starting, spent, and remaining credits. |
+| `journal` | array | no | Dated character journal entries. |
+| `credits` | object | no | Current credit balance, notes, and optional help text. |
 | `appearance` | object | no | Age, gender, height, weight, size, hair, eyes, skin, appearance text. |
 | `personality` | object | no | Traits, ideals, bonds, flaws. |
 | `placeOfBirth` | string | no | Birthplace text. |
 | `backstory` | string | no | Backstory text. |
 | `backgroundFeature` | string | no | Background feature text. |
-| `proficiencies` | array | no | Proficiencies not already represented as skills. |
 | `languages` | array | no | Known languages. |
 | `carrying` | object | no | Encumbrance, carrying capacity, and weight totals. |
-| `valuables` | object | no | Valuables, treasure, storage, loaned/deposited/received goods. |
-| `powercasting` | object | no | Tech/force point, save DC, attack modifier, alignment, and power-level grid data. |
+| `valuables` | object | no | Non-credit valuables, treasure, storage, loaned/deposited/received goods. Spendable money belongs in `credits.current`. |
+| `powercasting` | object | no | Tech/force save DC, attack modifier, alignment, and power-level grid data. Track Tech Points and Force Points in `resources`. |
 | `customRolls` | array | no | Hand-authored clickable rolls and reference actions. |
 | `notes` | string | no | Freeform player notes. |
+
+Proficiency should live on the thing it affects: `skills[*].proficient`, `savingThrows[*]`, and `attacks[*].proficient`.
 
 ## Settings
 
@@ -145,17 +150,44 @@ Example:
 | --- | --- | --- | --- |
 | `armorClass` | number | yes | Display only for now. |
 | `initiativeBonus` | number | no | Additional bonus beyond Dexterity modifier. Defaults to `0`. |
-| `techcastingDc` | number | no | Optional override for displayed Tech DC. If omitted, app uses `8 + proficiency + INT modifier`. |
 | `speed` | number | yes | Walking speed. |
 | `hitPoints` | object | yes | Current/max/temp HP. |
-| `senses` | object | no | Vision and passive Wisdom values. |
-| `movement` | object | no | Base, hourly, daily, and special movement. |
+| `senses` | object | no | Vision notes. |
+| `movement` | object | no | Hourly, daily, and special movement. Use `combat.speed` for normal walking speed. |
 | `deathSaves` | object | no | Success and failure counts. |
 | `defenses` | object | no | Armor/shield/protections plus advantages, resistances, immunities. |
+
+## Powercasting
+
+Use `powercasting` for displayed save DCs, attack modifiers, force alignment, and power-level notes. Track expendable Tech Points and Force Points in `resources`.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `techSaveDc` | string | no | Optional displayed Tech DC. If omitted, app uses `8 + proficiency bonus + INT modifier`. |
+| `forceSaveDc` | string | no | Optional displayed Force DC. |
+| `techAttackModifier` | string | no | Optional displayed Tech Attack Modifier. If omitted, app uses `proficiency bonus + INT modifier`. |
+| `forceAttackModifier` | string | no | Optional displayed Force Attack Modifier. |
+| `forceAlignment` | object | no | Light side, dark side, and universal alignment notes. |
+| `levels` | array | no | Power-level grid data. |
+
+The app combines tech and force powers into one Powercasting tab. It groups action cards by `powerLevel` (`at-will`, then 1st through 9th level) and adds a color-coded Tech or Force badge from `powerKind`. When those fields are absent, the app attempts to infer them from tech/force point depletion and notes.
+
+## Portrait
+
+The app can store an uploaded character portrait directly in the character JSON. Uploaded images are resized in-browser before saving so they can be used for the header thumbnail and full-frame portrait view.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `dataUrl` | string | no | Image data URL used by the browser. |
+| `mimeType` | string | no | Stored image MIME type. |
+| `fileName` | string | no | Original uploaded filename. |
+| `updatedAt` | string | no | ISO timestamp for the last portrait update. |
 
 ## Resources
 
 Resources track expendable class features, powers, ammunition pools, and other counters. The app lets players adjust them manually.
+
+Use `resources` for Tech Points and Force Points so the Resources, Tech, and Force panels all edit the same live counter. Recommended ids are `tech-points` and `force-points`.
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -180,6 +212,8 @@ Attack entries represent weapons, powers, or any action with attack and damage r
 | `proficient` | boolean | no | Adds proficiency bonus when true. |
 | `attackBonus` | number | no | Flat bonus or penalty. Defaults to `0`. |
 | `actionType` | string | no | `action`, `bonusAction`, or `reaction`. Displays a timing tag on the action card. |
+| `powerKind` | string | no | `tech` or `force`. Marks this attack for the Powercasting tab. |
+| `powerLevel` | string/number | no | `at-will` or a level number. Used to group powers in the Powercasting tab. |
 | `damage` | array | no | Damage parts. |
 | `properties` | array | no | Display notes, such as `range` or `two-handed`. |
 | `notes` | string | no | Extra Roll20 note text. |
@@ -217,18 +251,44 @@ Inventory entries represent carried or owned gear.
 | `armorClassFormula` | string | no | Display-only AC explanation. |
 | `notes` | string | no | Freeform item notes. |
 | `help` | object | no | Full in-app help page content for the item. |
-| `containedResources` | array | no | Item-contained resources, such as a loaded power cell. |
+| `containedResources` | array | no | Item-contained resources, such as a loaded power cell. Use inventory quantity items for loose consumables like spare cells or rations. |
 | `depletes` | array | no | Resource costs this item spends when used. |
 | `depletionOptions` | array | no | Alternative resource payment choices. |
+
+Contained resources can include `rechargeFromResourceId` for a character resource source or `rechargeFromInventoryItemId` for an inventory quantity source. Prefer `rechargeFromInventoryItemId` for loose consumables such as spare power cells.
 
 Credits:
 
 ```json
 {
-  "starting": 5000,
-  "spent": 4995,
-  "remaining": 5,
+  "current": 35,
   "notes": "Purchased mission gear package."
+}
+```
+
+## Journal
+
+Journal entries are dated notes managed in the Journal tab. The app sorts entries newest first.
+
+| Field | Type | Required | Notes |
+| --- | --- | --- | --- |
+| `id` | string | yes | Stable entry id. |
+| `date` | string | yes | ISO date, such as `2026-06-17`. |
+| `title` | string | no | Short entry title. |
+| `text` | string | no | Freeform journal body. |
+
+Example:
+
+```json
+{
+  "journal": [
+    {
+      "id": "journal-session-1",
+      "date": "2026-06-17",
+      "title": "Arrival on Ord Mantell",
+      "text": "Logged the job, met the contact, and marked the suspicious crate for later."
+    }
+  ]
 }
 ```
 
@@ -242,10 +302,13 @@ Character-level resource target:
 {
   "target": { "scope": "character", "id": "tech-points" },
   "amount": 2,
+  "operation": "spend",
   "trigger": "onCast",
   "notes": "Cast Energy Shield."
 }
 ```
+
+`operation` defaults to `spend`. Use `restore` to refill a target to its max, `set` to assign `amount`, or `add` to increase by `amount`. Reload-style options can combine multiple depletion entries: spend a spare cell, then restore the loaded cell.
 
 Inventory-contained resource target:
 
@@ -298,6 +361,8 @@ Legacy note-only entries with no `formula`, or with `formula` set to `"0"`, are 
 | `id` | string | yes | Stable id. |
 | `name` | string | yes | Display and Roll20 title. |
 | `actionType` | string | no | `action`, `bonusAction`, or `reaction`. Displays a timing tag on the action card. |
+| `powerKind` | string | no | `tech` or `force`. Marks this custom roll/reference for the Powercasting tab. |
+| `powerLevel` | string/number | no | `at-will` or a level number. Used to group powers in the Powercasting tab. |
 | `formula` | string | for `roll` | Roll formula using supported placeholders. Omit for `reference`. |
 | `notes` | string | no | Extra Roll20 note text. |
 | `help` | object | no | Full in-app help page content for the custom roll or reference. |
@@ -319,6 +384,27 @@ Example:
   "name": "Scanner Sweep",
   "formula": "1d20 + @int + @prof",
   "notes": "Technology check using scanner tools"
+}
+```
+
+Powercasting entries can be declared explicitly. The app also tries to infer older entries from tech/force point depletion and notes such as "At-will tech power" or "2nd-level force power", but explicit fields are preferred:
+
+```json
+{
+  "kind": "reference",
+  "id": "energy-shield",
+  "name": "Energy Shield",
+  "actionType": "reaction",
+  "powerKind": "tech",
+  "powerLevel": 1,
+  "notes": "Reaction defense; spend tech points to gain +5 AC until the start of your next turn.",
+  "depletes": [
+    {
+      "target": { "scope": "character", "id": "tech-points" },
+      "amount": 2,
+      "trigger": "onCast"
+    }
+  ]
 }
 ```
 
@@ -346,7 +432,7 @@ Actions, resources, inventory items, contained resources, and credits can includ
     "activation": "Reaction",
     "summary": "Reaction defense used when hit, raising AC until the start of your next turn.",
     "details": [
-      "Costs 2 tech points in Nim's sheet.",
+      "Costs 2 tech points in this sheet.",
       "The sheet marks this as a reaction."
     ],
     "sections": [

@@ -9,149 +9,184 @@
   </head>
   <body>
     <header class="app-header">
-      <div>
-        <p class="eyebrow">SW5e VTT Sheet <span class="app-version">v0.8.0</span></p>
-        <h1 id="characterName">Loading character...</h1>
-        <p id="characterMeta" class="muted">Preparing dashboard</p>
+      <div class="identity-header">
+        <button id="portraitButton" class="portrait-button" type="button" aria-label="Open character portrait" disabled>
+          <img id="portraitThumb" alt="" hidden>
+          <span id="portraitPlaceholder">No Portrait</span>
+        </button>
+        <div>
+          <p class="eyebrow">SW5e VTT Sheet <span class="app-version">v0.8.0</span></p>
+          <h1 id="characterName">Loading character...</h1>
+          <p id="characterMeta" class="muted">Preparing dashboard</p>
+          <label class="portrait-upload">
+            Upload Portrait
+            <input id="portraitInput" type="file" accept="image/*">
+          </label>
+        </div>
       </div>
-      <div class="header-actions">
-        <span id="autosaveBadge" class="autosave-badge" aria-live="polite" hidden>Autosaved</span>
-        <button id="importExportHelpButton" type="button">Data Help</button>
-        <select id="localCharacterSelect" aria-label="Saved local characters"></select>
-        <details class="import-export-menu">
-          <summary>Import/Export</summary>
-          <div class="import-export-panel">
-            <label class="file-button">
-              Import
-              <input id="fileInput" type="file" accept="application/json,.json">
-            </label>
-            <button id="loadNimButton" type="button">Import Sample Nim</button>
-            <button id="downloadJsonButton" type="button">Export</button>
-            <button id="jsonSpecButton" type="button">JSON Spec</button>
+      <div class="header-controls">
+        <section class="toolbar" aria-label="Roll settings">
+          <div class="field-group roll-mode-group">
+            <span class="label">D20 mode</span>
+            <div class="segmented" role="group" aria-label="D20 roll mode">
+              <button class="segment" type="button" data-roll-mode="normal">Normal</button>
+              <button class="segment" type="button" data-roll-mode="advantage">Advantage</button>
+              <button class="segment" type="button" data-roll-mode="disadvantage">Disadvantage</button>
+              <button class="segment active" type="button" data-roll-mode="both">Both</button>
+            </div>
           </div>
-        </details>
-        <button id="clearLocalButton" class="danger-button" type="button">Delete</button>
+          <div class="field-group chat-target-group">
+            <span class="label">Chat target</span>
+            <div class="segmented target-segmented" role="group" aria-label="Chat target">
+              <button class="segment active" type="button" data-chat-target="roll20">Roll20</button>
+              <button class="segment" type="button" data-chat-target="foundry">Foundry</button>
+            </div>
+          </div>
+          <label class="field-group">
+            <span class="label">Global modifier</span>
+            <input id="globalModifier" type="text" inputmode="text" value="0" aria-label="Global modifier">
+          </label>
+          <label class="field-group checkbox-row">
+            <input id="initiativeTracker" type="checkbox">
+            <span>Add initiative to tracker</span>
+          </label>
+          <label class="field-group checkbox-row">
+            <input id="autoBridge" type="checkbox" checked>
+            <span>Auto-send to Roll20 bridge</span>
+          </label>
+          <div class="header-actions">
+            <button id="importExportHelpButton" type="button">Data Help</button>
+            <select id="localCharacterSelect" aria-label="Saved local characters"></select>
+            <details class="import-export-menu">
+              <summary>Import/Export</summary>
+              <div class="import-export-panel">
+                <label class="file-button">
+                  Import
+                  <input id="fileInput" type="file" accept="application/json,.json">
+                </label>
+                <button id="loadSampleButton" type="button">Import Sample Han</button>
+                <button id="downloadJsonButton" type="button">Export</button>
+                <button id="jsonSpecButton" type="button">JSON Spec</button>
+              </div>
+            </details>
+            <button id="clearLocalButton" class="danger-button" type="button">Delete</button>
+            <div class="header-status">
+              <span id="autosaveBadge" class="autosave-badge" aria-live="polite" hidden>Autosaved</span>
+              <p id="statusMessage" class="status" role="status">Ready</p>
+            </div>
+          </div>
+        </section>
       </div>
     </header>
 
     <main class="shell">
-      <section class="toolbar" aria-label="Roll settings">
-        <div class="field-group roll-mode-group">
-          <span class="label">D20 mode</span>
-          <div class="segmented" role="group" aria-label="D20 roll mode">
-            <button class="segment" type="button" data-roll-mode="normal">Normal</button>
-            <button class="segment" type="button" data-roll-mode="advantage">Advantage</button>
-            <button class="segment" type="button" data-roll-mode="disadvantage">Disadvantage</button>
-            <button class="segment active" type="button" data-roll-mode="both">Both</button>
-          </div>
-        </div>
-        <div class="field-group chat-target-group">
-          <span class="label">Chat target</span>
-          <div class="segmented target-segmented" role="group" aria-label="Chat target">
-            <button class="segment active" type="button" data-chat-target="roll20">Roll20</button>
-            <button class="segment" type="button" data-chat-target="foundry">Foundry</button>
-          </div>
-        </div>
-        <label class="field-group">
-          <span class="label">Global modifier</span>
-          <input id="globalModifier" type="text" inputmode="text" value="0" aria-label="Global modifier">
-        </label>
-        <p class="roll-note">Both gives two d20 results; use the higher for advantage or lower for disadvantage.</p>
-        <label class="field-group checkbox-row">
-          <input id="initiativeTracker" type="checkbox">
-          <span>Add initiative to tracker</span>
-        </label>
-        <label class="field-group checkbox-row">
-          <input id="autoBridge" type="checkbox" checked>
-          <span>Auto-send to Roll20 bridge</span>
-        </label>
-        <p id="statusMessage" class="status" role="status">Ready</p>
-      </section>
-
       <section id="validationPanel" class="validation" hidden></section>
 
+      <section class="summary-band" aria-label="Character summary">
+        <div id="abilities" class="ability-grid"></div>
+        <div id="combatStats" class="stat-grid"></div>
+      </section>
+
       <div class="dashboard">
+        <section class="panel tabbed-panel record-actions-panel" aria-labelledby="actionsTab">
+          <div class="section-heading">
+            <div class="panel-tabs" role="tablist" aria-label="Character section tabs">
+              <button id="actionsTab" class="panel-tab active" type="button" role="tab" aria-selected="true" aria-controls="actionsPane" data-panel-tab="actions">Actions</button>
+              <button id="powercastingTab" class="panel-tab" type="button" role="tab" aria-selected="false" aria-controls="powercastingPane" data-panel-tab="powercasting">Powercasting</button>
+              <button id="inventoryTab" class="panel-tab" type="button" role="tab" aria-selected="false" aria-controls="inventoryPane" data-panel-tab="inventory">Inventory</button>
+              <button id="featuresTab" class="panel-tab" type="button" role="tab" aria-selected="false" aria-controls="featuresPane" data-panel-tab="features">Features</button>
+              <button id="logisticsTab" class="panel-tab" type="button" role="tab" aria-selected="false" aria-controls="logisticsPane" data-panel-tab="logistics">Logistics</button>
+              <button id="recordTab" class="panel-tab" type="button" role="tab" aria-selected="false" aria-controls="recordPane" data-panel-tab="record">Record</button>
+              <button id="journalTab" class="panel-tab" type="button" role="tab" aria-selected="false" aria-controls="journalPane" data-panel-tab="journal">Journal</button>
+            </div>
+          </div>
+          <div id="recordPane" class="tab-pane" role="tabpanel" aria-labelledby="recordTab" data-panel-pane="record" hidden>
+            <h3>Character Data</h3>
+            <div id="characterDetails" class="record-list"></div>
+            <h3>Appearance</h3>
+            <div id="appearanceDetails" class="record-list"></div>
+            <h3>Personality</h3>
+            <div id="personalityDetails" class="note-grid"></div>
+            <h3>Languages</h3>
+            <div id="languagesDetails" class="note-grid"></div>
+            <h3>Backstory</h3>
+            <div id="backstoryDetails" class="note-grid"></div>
+          </div>
+          <div id="actionsPane" class="tab-pane active" role="tabpanel" aria-labelledby="actionsTab" data-panel-pane="actions">
+            <h3>Action</h3>
+            <div id="actionGroupAction" class="action-list"></div>
+            <h3>Bonus Action</h3>
+            <div id="actionGroupBonusAction" class="action-list"></div>
+            <h3>Reaction</h3>
+            <div id="actionGroupReaction" class="action-list"></div>
+            <h3>Other</h3>
+            <div id="actionGroupOther" class="action-list"></div>
+          </div>
+          <div id="powercastingPane" class="tab-pane" role="tabpanel" aria-labelledby="powercastingTab" data-panel-pane="powercasting" hidden>
+            <div id="powercastingSummary" class="record-list"></div>
+            <div id="powercastingActions" class="powercasting-actions"></div>
+          </div>
+          <div id="inventoryPane" class="tab-pane" role="tabpanel" aria-labelledby="inventoryTab" data-panel-pane="inventory" hidden>
+            <div id="credits" class="credits-panel"></div>
+            <div id="inventory" class="inventory-list"></div>
+          </div>
+          <div id="featuresPane" class="tab-pane" role="tabpanel" aria-labelledby="featuresTab" data-panel-pane="features" hidden>
+            <div id="features" class="features-list"></div>
+          </div>
+          <div id="logisticsPane" class="tab-pane" role="tabpanel" aria-labelledby="logisticsTab" data-panel-pane="logistics" hidden>
+            <h3>Senses & Movement</h3>
+            <div id="sensesMovement" class="record-list"></div>
+            <h3>Defenses</h3>
+            <div id="defenseDetails" class="note-grid"></div>
+            <h3>Death Saves</h3>
+            <div id="deathSaves" class="record-list"></div>
+            <h3>Carrying Capacity</h3>
+            <div id="carryingDetails" class="record-list"></div>
+            <h3>Valuables & Storage</h3>
+            <div id="storageDetails" class="note-grid"></div>
+            <h3>Powercasting</h3>
+            <div id="powercastingDetails" class="record-list"></div>
+            <div id="powerLevels" class="power-levels"></div>
+          </div>
+          <div id="journalPane" class="tab-pane" role="tabpanel" aria-labelledby="journalTab" data-panel-pane="journal" hidden>
+            <div class="journal-toolbar">
+              <button id="addJournalEntryButton" type="button">Add Entry</button>
+            </div>
+            <div id="journalEntries" class="journal-list"></div>
+          </div>
+        </section>
+
+        <div class="skills-stack">
+          <section class="panel rolls-panel" aria-labelledby="rollsHeading">
+            <div class="section-heading">
+              <h2 id="rollsHeading">Skills</h2>
+            </div>
+            <div id="skills" class="roll-list"></div>
+          </section>
+
+          <aside class="panel outbox-panel" aria-labelledby="outboxHeading">
+            <div class="section-heading">
+              <h2 id="outboxHeading">Chat Outbox</h2>
+              <div class="outbox-actions">
+                <button id="sendLatestButton" type="button">Send Latest</button>
+                <button id="copyLatestButton" type="button">Copy Latest</button>
+              </div>
+            </div>
+            <textarea id="latestCommand" aria-label="Latest chat command" readonly></textarea>
+            <div id="history" class="history-list"></div>
+          </aside>
+        </div>
+
         <section class="panel identity-panel" aria-labelledby="identityHeading">
           <div class="section-heading">
-            <h2 id="identityHeading">Character</h2>
+            <h2 id="identityHeading">Resources</h2>
           </div>
-          <div id="combatStats" class="stat-grid"></div>
           <div class="rest-actions" aria-label="Rest controls">
             <button id="shortRestButton" type="button">Short Rest</button>
             <button id="longRestButton" type="button">Long Rest</button>
           </div>
-          <div id="abilities" class="ability-grid"></div>
           <div id="resources" class="resource-list"></div>
-          <div id="credits" class="credits-panel"></div>
-          <div id="inventory" class="inventory-list"></div>
         </section>
-
-        <section class="panel rolls-panel" aria-labelledby="rollsHeading">
-          <div class="section-heading">
-            <h2 id="rollsHeading">Rolls</h2>
-          </div>
-          <h3>Skills</h3>
-          <div id="skills" class="roll-list"></div>
-        </section>
-
-        <section class="panel record-panel" aria-labelledby="recordHeading">
-          <div class="section-heading">
-            <h2 id="recordHeading">Record</h2>
-          </div>
-          <h3>Character Data</h3>
-          <div id="characterDetails" class="record-list"></div>
-          <h3>Appearance</h3>
-          <div id="appearanceDetails" class="record-list"></div>
-          <h3>Personality</h3>
-          <div id="personalityDetails" class="note-grid"></div>
-          <h3>Proficiencies</h3>
-          <div id="proficienciesDetails" class="note-grid"></div>
-          <h3>Backstory</h3>
-          <div id="backstoryDetails" class="note-grid"></div>
-        </section>
-
-        <section class="panel actions-panel" aria-labelledby="actionsHeading">
-          <div class="section-heading">
-            <h2 id="actionsHeading">Actions</h2>
-          </div>
-          <h3>Attacks</h3>
-          <div id="attacks" class="action-list"></div>
-          <h3>Custom Rolls</h3>
-          <div id="customRolls" class="action-list"></div>
-          <h3>References</h3>
-          <div id="references" class="action-list"></div>
-        </section>
-
-        <section class="panel logistics-panel" aria-labelledby="logisticsHeading">
-          <div class="section-heading">
-            <h2 id="logisticsHeading">Logistics</h2>
-          </div>
-          <h3>Senses & Movement</h3>
-          <div id="sensesMovement" class="record-list"></div>
-          <h3>Defenses</h3>
-          <div id="defenseDetails" class="note-grid"></div>
-          <h3>Death Saves</h3>
-          <div id="deathSaves" class="record-list"></div>
-          <h3>Carrying Capacity</h3>
-          <div id="carryingDetails" class="record-list"></div>
-          <h3>Valuables & Storage</h3>
-          <div id="storageDetails" class="note-grid"></div>
-          <h3>Powercasting</h3>
-          <div id="powercastingDetails" class="record-list"></div>
-          <div id="powerLevels" class="power-levels"></div>
-        </section>
-
-        <aside class="panel outbox-panel" aria-labelledby="outboxHeading">
-          <div class="section-heading">
-            <h2 id="outboxHeading">Chat Outbox</h2>
-            <div class="outbox-actions">
-              <button id="sendLatestButton" type="button">Send Latest</button>
-              <button id="copyLatestButton" type="button">Copy Latest</button>
-            </div>
-          </div>
-          <textarea id="latestCommand" aria-label="Latest chat command" readonly></textarea>
-          <div id="history" class="history-list"></div>
-        </aside>
       </div>
     </main>
 
@@ -172,6 +207,16 @@
           <button id="helpCloseButton" type="button">Close</button>
         </div>
         <div id="helpBody" class="help-body"></div>
+      </article>
+    </section>
+
+    <section id="portraitOverlay" class="portrait-overlay" hidden>
+      <article class="portrait-frame" role="dialog" aria-modal="true" aria-labelledby="portraitTitle">
+        <div class="portrait-frame-header">
+          <h2 id="portraitTitle">Character Portrait</h2>
+          <button id="portraitCloseButton" type="button">Close</button>
+        </div>
+        <img id="portraitFull" alt="">
       </article>
     </section>
 
