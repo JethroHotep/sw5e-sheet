@@ -36,6 +36,7 @@ const LOCAL_STORAGE_LIBRARY_KEY = "sw5e-sheet.characters.v1";
 const MAX_STORED_CHARACTERS = 12;
 const ROLL_MODES = ["normal", "advantage", "disadvantage", "both"];
 const CHAT_TARGETS = ["roll20", "foundry"];
+const DICE_SIZES = [4, 6, 8, 10, 12, 20, 100];
 const MAX_PORTRAIT_SIZE = 1200;
 
 const state = {
@@ -47,6 +48,7 @@ const state = {
   bridgeDetected: false,
   latestCommand: "",
   history: [],
+  diceCounts: Object.fromEntries(DICE_SIZES.map((size) => [size, 0])),
   lastFocus: null,
   storageSaveTimer: null,
   autosaveBadgeTimer: null,
@@ -70,6 +72,14 @@ const elements = {
   globalModifier: document.querySelector("#globalModifier"),
   initiativeTracker: document.querySelector("#initiativeTracker"),
   autoBridge: document.querySelector("#autoBridge"),
+  diceRollerButton: document.querySelector("#diceRollerButton"),
+  diceRollerOverlay: document.querySelector("#diceRollerOverlay"),
+  diceButtons: document.querySelector("#diceButtons"),
+  diceBonusInput: document.querySelector("#diceBonusInput"),
+  diceFormulaPreview: document.querySelector("#diceFormulaPreview"),
+  diceRollButton: document.querySelector("#diceRollButton"),
+  diceClearButton: document.querySelector("#diceClearButton"),
+  diceRollerCloseButton: document.querySelector("#diceRollerCloseButton"),
   autosaveBadge: document.querySelector("#autosaveBadge"),
   statusMessage: document.querySelector("#statusMessage"),
   validationPanel: document.querySelector("#validationPanel"),
@@ -172,6 +182,15 @@ function bindEvents() {
   elements.importExportHelpButton.addEventListener("click", openImportExportHelp);
   elements.portraitInput.addEventListener("change", handlePortraitUpload);
   elements.portraitButton.addEventListener("click", openPortrait);
+  elements.diceRollerButton.addEventListener("click", openDiceRoller);
+  elements.diceRollerCloseButton.addEventListener("click", closeDiceRoller);
+  elements.diceRollerOverlay.addEventListener("click", (event) => {
+    if (event.target === elements.diceRollerOverlay) closeDiceRoller();
+  });
+  elements.diceBonusInput.addEventListener("input", renderDiceRoller);
+  elements.diceRollButton.addEventListener("click", rollCustomDice);
+  elements.diceClearButton.addEventListener("click", clearDiceRoller);
+  buildDiceButtons();
   elements.localCharacterSelect.addEventListener("change", () => {
     if (!elements.localCharacterSelect.value) return;
     loadCharacterFromStorage({
@@ -197,6 +216,7 @@ function bindEvents() {
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && !elements.helpOverlay.hidden) closeHelp();
     if (event.key === "Escape" && !elements.portraitOverlay.hidden) closePortrait();
+    if (event.key === "Escape" && !elements.diceRollerOverlay.hidden) closeDiceRoller();
   });
   window.addEventListener("message", handleBridgeResponse);
   pingBridge();
@@ -1060,6 +1080,92 @@ function closePortrait() {
   elements.portraitFull.removeAttribute("src");
   elements.portraitFull.alt = "";
   if (state.lastFocus?.focus) state.lastFocus.focus();
+}
+
+function buildDiceButtons() {
+  const buttons = DICE_SIZES.map((size) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "dice-size-button";
+    button.dataset.dieSize = String(size);
+    button.innerHTML = `<span class="die-face">d${size}</span><strong data-die-count="${size}">0</strong>`;
+    button.addEventListener("click", () => {
+      state.diceCounts[size] += 1;
+      renderDiceRoller();
+    });
+    return button;
+  });
+  elements.diceButtons.replaceChildren(...buttons);
+  renderDiceRoller();
+}
+
+function openDiceRoller() {
+  state.lastFocus = document.activeElement;
+  renderDiceRoller();
+  elements.diceRollerOverlay.hidden = false;
+  elements.diceButtons.querySelector("button")?.focus();
+}
+
+function closeDiceRoller() {
+  elements.diceRollerOverlay.hidden = true;
+  if (state.lastFocus?.focus) state.lastFocus.focus();
+}
+
+function clearDiceRoller() {
+  DICE_SIZES.forEach((size) => {
+    state.diceCounts[size] = 0;
+  });
+  elements.diceBonusInput.value = "0";
+  renderDiceRoller();
+}
+
+function renderDiceRoller() {
+  DICE_SIZES.forEach((size) => {
+    const count = state.diceCounts[size] || 0;
+    const countNode = elements.diceButtons.querySelector(`[data-die-count="${size}"]`);
+    const button = elements.diceButtons.querySelector(`[data-die-size="${size}"]`);
+    if (countNode) countNode.textContent = String(count);
+    if (button) button.classList.toggle("active", count > 0);
+  });
+  const formula = diceFormula();
+  elements.diceFormulaPreview.textContent = formula || "0";
+  elements.diceRollButton.disabled = !formula;
+}
+
+function diceFormula() {
+  const parts = DICE_SIZES
+    .map((size) => [size, state.diceCounts[size] || 0])
+    .filter(([, count]) => count > 0)
+    .map(([size, count]) => `${count}d${size}`);
+  const bonus = parseDiceBonus();
+  let formula = parts.join(" + ");
+  if (bonus > 0) formula = formula ? `${formula} + ${bonus}` : String(bonus);
+  if (bonus < 0) formula = formula ? `${formula} - ${Math.abs(bonus)}` : String(bonus);
+  return formula;
+}
+
+function parseDiceBonus() {
+  const value = Number(elements.diceBonusInput.value);
+  return Number.isFinite(value) ? Math.trunc(value) : 0;
+}
+
+function rollCustomDice() {
+  const formula = diceFormula();
+  if (!formula) {
+    setStatus("Choose at least one die or enter a bonus.", true);
+    return;
+  }
+  const title = "Dice Roll";
+  const command = state.chatTarget === "foundry"
+    ? formatFoundryCard(title, [
+        ["Character", state.character.name],
+        ["Roll", foundryInline(formula)]
+      ])
+    : formatTemplate(title, {
+        character: state.character.name,
+        roll: inline(formula)
+      });
+  publishCommand(title, command);
 }
 
 function renderAbilities(character) {

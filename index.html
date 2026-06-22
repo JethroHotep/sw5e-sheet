@@ -55,6 +55,9 @@
             <span>Auto-send to Roll20 bridge</span>
           </label>
           <div class="header-actions">
+            <button id="diceRollerButton" class="dice-roller-button" type="button" aria-label="Open dice roller">
+              <span>20</span>
+            </button>
             <button id="importExportHelpButton" type="button">Data Help</button>
             <select id="localCharacterSelect" aria-label="Saved local characters"></select>
             <details class="import-export-menu">
@@ -217,6 +220,30 @@
           <button id="portraitCloseButton" type="button">Close</button>
         </div>
         <img id="portraitFull" alt="">
+      </article>
+    </section>
+
+    <section id="diceRollerOverlay" class="dice-roller-overlay" hidden>
+      <article class="dice-roller-dialog" role="dialog" aria-modal="true" aria-labelledby="diceRollerTitle">
+        <div class="dice-roller-header">
+          <h2 id="diceRollerTitle">Dice Roller</h2>
+          <button id="diceRollerCloseButton" type="button">Close</button>
+        </div>
+        <div class="dice-roller-body">
+          <div id="diceButtons" class="dice-button-grid" aria-label="Dice sizes"></div>
+          <label class="dice-bonus-field">
+            <span>Static bonus</span>
+            <input id="diceBonusInput" type="number" step="1" value="0">
+          </label>
+          <div class="dice-formula-box">
+            <span>Roll</span>
+            <strong id="diceFormulaPreview">0</strong>
+          </div>
+          <div class="dice-roller-actions">
+            <button id="diceRollButton" type="button">Roll</button>
+            <button id="diceClearButton" type="button">Clear</button>
+          </div>
+        </div>
       </article>
     </section>
 
