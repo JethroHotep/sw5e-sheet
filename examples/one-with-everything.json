@@ -385,7 +385,7 @@
             "unit": "shots",
             "current": 17,
             "max": 20,
-            "rechargeFromInventoryItemId": "power-cell-pack",
+            "rechargeFromInventoryItemId": "spare-power-cells",
             "restRecovery": "none",
             "notes": "Loaded cell for the integrated blaster.",
             "help": {
@@ -404,7 +404,7 @@
           {
             "target": {
               "scope": "inventoryQuantity",
-              "id": "power-cell-pack"
+              "id": "spare-power-cells"
             },
             "amount": 1,
             "trigger": "manual",
@@ -420,7 +420,7 @@
               {
                 "target": {
                   "scope": "inventoryQuantity",
-                  "id": "power-cell-pack"
+                  "id": "spare-power-cells"
                 },
                 "amount": 1,
                 "operation": "spend",
@@ -509,7 +509,7 @@
       },
       {
         "id": "field-rations",
-        "name": "Field Rations",
+        "name": "Field Rations (days)",
         "category": "consumable",
         "quantity": 6,
         "cost": 6,
@@ -524,8 +524,8 @@
         "weight": "6 lb"
       },
       {
-        "id": "power-cell-pack",
-        "name": "Power Cell Pack",
+        "id": "spare-power-cells",
+        "name": "Spare Power Cells",
         "category": "ammunition",
         "quantity": 4,
         "cost": 40,
@@ -538,6 +538,54 @@
         "pouch": false,
         "location": "Backpack side pocket",
         "weight": 1
+      },
+      {
+        "id": "medpacs",
+        "name": "Medpacs",
+        "category": "medical",
+        "quantity": 2,
+        "cost": 100,
+        "equipped": false,
+        "infused": false,
+        "notes": "Simple counted medical inventory.",
+        "source": "Purchased gear",
+        "donned": false,
+        "backpack": true,
+        "pouch": false,
+        "location": "Medical pouch",
+        "weight": "2 lb"
+      },
+      {
+        "id": "traumakit",
+        "name": "Traumakit",
+        "category": "medical",
+        "quantity": 1,
+        "cost": 50,
+        "equipped": false,
+        "infused": false,
+        "notes": "Simple counted medical inventory.",
+        "source": "Purchased gear",
+        "donned": false,
+        "backpack": true,
+        "pouch": false,
+        "location": "Medical pouch",
+        "weight": "3 lb"
+      },
+      {
+        "id": "glow-rods",
+        "name": "Glow Rods",
+        "category": "gear",
+        "quantity": 5,
+        "cost": 10,
+        "equipped": false,
+        "infused": false,
+        "notes": "Simple counted utility inventory.",
+        "source": "Purchased gear",
+        "donned": false,
+        "backpack": true,
+        "pouch": false,
+        "location": "Survey pack",
+        "weight": "5 lb"
       }
     ],
     "journal": [

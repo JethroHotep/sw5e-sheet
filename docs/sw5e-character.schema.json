@@ -446,6 +446,7 @@
     },
     "resource": {
       "type": "object",
+      "description": "A capped character-level pool such as Tech Points, Force Points, hit-die-like uses, or rest-recovering features. Ordinary carried consumables such as Spare Power Cells, Medpacs, Traumakit, Glow Rods, and Field Rations (days) should be inventory items with quantity instead.",
       "additionalProperties": false,
       "required": [
         "id",
@@ -472,7 +473,7 @@
         },
         "unit": {
           "type": "string",
-          "description": "Optional display unit, such as points, uses, cells, shots, days, or charges."
+          "description": "Optional display unit, such as points, uses, or charges."
         },
         "restRecovery": {
           "$ref": "#/$defs/restRecovery"
@@ -506,7 +507,8 @@
         },
         "quantity": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "description": "Current carried count. Use this for simple consumables such as Spare Power Cells, Medpacs, Traumakit, Glow Rods, and Field Rations (days)."
         },
         "cost": {
           "type": "integer",
@@ -900,7 +902,7 @@
         },
         "rechargeFromInventoryItemId": {
           "type": "string",
-          "description": "Optional inventory[].id whose quantity is consumed to refill/reload this contained resource."
+          "description": "Optional inventory[].id whose quantity is consumed to refill/reload this contained resource. Use this for loose consumables such as spare power cells."
         },
         "restRecovery": {
           "$ref": "#/$defs/restRecovery"

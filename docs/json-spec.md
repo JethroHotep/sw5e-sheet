@@ -185,9 +185,11 @@ The app can store an uploaded character portrait directly in the character JSON.
 
 ## Resources
 
-Resources track expendable class features, powers, ammunition pools, and other counters. The app lets players adjust them manually.
+Resources track expendable class features, powers, item-contained counters, and other capped pools. The app lets players adjust them manually.
 
 Use `resources` for Tech Points and Force Points so the Resources, Tech, and Force panels all edit the same live counter. Recommended ids are `tech-points` and `force-points`.
+
+Use `inventory[].quantity` for ordinary carried consumables with no separate maximum tracker. This includes Spare Power Cells, Medpacs, Traumakit, Glow Rods, and Field Rations (days).
 
 | Field | Type | Required | Notes |
 | --- | --- | --- | --- |
@@ -195,8 +197,8 @@ Use `resources` for Tech Points and Force Points so the Resources, Tech, and For
 | `name` | string | yes | Display name. |
 | `current` | number | yes | Current value. |
 | `max` | number | yes | Maximum value. |
-| `unit` | string | no | Display unit, such as `points`, `uses`, or `cells`. |
-| `restRecovery` | string | no | `none`, `short`, `long`, or `shortOrLong`. Used by the Short Rest and Long Rest buttons. Omit or use `none` for consumables. |
+| `unit` | string | no | Display unit, such as `points`, `uses`, or `charges`. |
+| `restRecovery` | string | no | `none`, `short`, `long`, or `shortOrLong`. Used by the Short Rest and Long Rest buttons. |
 | `notes` | string | no | Freeform notes. |
 | `help` | object | no | Full in-app help page content for the resource. |
 
@@ -255,7 +257,7 @@ Inventory entries represent carried or owned gear.
 | `depletes` | array | no | Resource costs this item spends when used. |
 | `depletionOptions` | array | no | Alternative resource payment choices. |
 
-Contained resources can include `rechargeFromResourceId` for a character resource source or `rechargeFromInventoryItemId` for an inventory quantity source. Prefer `rechargeFromInventoryItemId` for loose consumables such as spare power cells.
+Contained resources can include `rechargeFromResourceId` for a character resource source or `rechargeFromInventoryItemId` for an inventory quantity source. Use `rechargeFromInventoryItemId` for loose consumables such as spare power cells.
 
 Credits:
 

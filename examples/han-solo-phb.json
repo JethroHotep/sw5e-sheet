@@ -273,15 +273,6 @@
           ],
           "sections": []
         }
-      },
-      {
-        "id": "spare-power-cells",
-        "name": "Spare Power Cells",
-        "current": 3,
-        "max": 3,
-        "unit": "cells",
-        "restRecovery": "none",
-        "notes": "Operative starting equipment can supply a simple blaster and power cells."
       }
     ],
     "inventory": [
@@ -311,10 +302,18 @@
             "unit": "shots",
             "current": 10,
             "max": 10,
-            "rechargeFromResourceId": "spare-power-cells",
+            "rechargeFromInventoryItemId": "spare-power-cells",
             "notes": "Loaded ammunition counter for the app. Adjust max if your table uses a different reload value."
           }
         ]
+      },
+      {
+        "id": "spare-power-cells",
+        "name": "Spare Power Cells",
+        "category": "ammunition",
+        "quantity": 3,
+        "source": "Operative starting equipment",
+        "notes": "Loose power cells carried for reloads."
       },
       {
         "id": "vibrodagger",

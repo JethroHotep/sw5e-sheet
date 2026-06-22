@@ -564,6 +564,7 @@ function normalizeCharacterPayload(data) {
   }
   if (payload.character) {
     normalizePowerResources(payload.character);
+    normalizeSimpleConsumables(payload.character);
     normalizeDeprecatedFields(payload.character);
   }
   return payload;
@@ -623,6 +624,79 @@ function migratePowercastingPoints(character, powerKind) {
     restRecovery: "long"
   });
   delete character.powercasting[field];
+}
+
+function normalizeSimpleConsumables(character) {
+  const resources = character.resources || [];
+  const inventory = character.inventory || [];
+  const simpleResources = resources.filter(isSimpleInventoryConsumableResource);
+  const ids = new Set([
+    ...simpleResources.map((resource) => resource.id),
+    ...inventory.filter(isSimpleInventoryConsumableResource).map((item) => item.id)
+  ]);
+  if (!ids.size) return;
+
+  character.inventory ||= [];
+  simpleResources.forEach((resource) => {
+    const existing = character.inventory.find((item) => item.id === resource.id);
+    if (existing) {
+      existing.quantity = Number(existing.quantity ?? resource.current ?? 0) || 0;
+      existing.category ||= simpleConsumableCategory(resource);
+      existing.notes ||= resource.notes || "";
+    } else {
+      character.inventory.push({
+        id: resource.id,
+        name: resource.name,
+        category: simpleConsumableCategory(resource),
+        quantity: Number(resource.current) || 0,
+        notes: resource.notes || ""
+      });
+    }
+  });
+
+  if (simpleResources.length) {
+    const resourceIds = new Set(simpleResources.map((resource) => resource.id));
+    character.resources = resources.filter((resource) => !resourceIds.has(resource.id));
+  }
+  normalizeConsumableReferences(character, ids);
+}
+
+function isSimpleInventoryConsumableResource(resource) {
+  const text = [resource.id, resource.name].filter(Boolean).join(" ").toLowerCase();
+  return /\b(spare[-\s]?power[-\s]?cells?|power[-\s]?cells?|medpacs?|traumakits?|glow[-\s]?rods?|field[-\s]?rations?(?:[-\s]?days)?)\b/.test(text);
+}
+
+function simpleConsumableCategory(resource) {
+  const text = [resource.id, resource.name].filter(Boolean).join(" ").toLowerCase();
+  if (/power[-\s]?cells?|ammo|ammunition/.test(text)) return "ammunition";
+  if (/medpacs?|traumakits?/.test(text)) return "medical";
+  if (/rations?/.test(text)) return "consumable";
+  if (/glow[-\s]?rods?/.test(text)) return "gear";
+  return "consumable";
+}
+
+function normalizeConsumableReferences(character, ids) {
+  const updateDepletion = (depletion) => {
+    const target = depletion?.target;
+    if (!target || target.scope !== "character" || !ids.has(target.id)) return;
+    target.scope = "inventoryQuantity";
+  };
+  const updateEntity = (entity) => {
+    (entity.depletes || []).forEach(updateDepletion);
+    (entity.depletionOptions || []).forEach((option) => (option.depletes || []).forEach(updateDepletion));
+  };
+
+  (character.attacks || []).forEach(updateEntity);
+  (character.customRolls || []).forEach(updateEntity);
+  (character.inventory || []).forEach((item) => {
+    updateEntity(item);
+    (item.containedResources || []).forEach((resource) => {
+      if (resource.rechargeFromResourceId && ids.has(resource.rechargeFromResourceId)) {
+        resource.rechargeFromInventoryItemId = resource.rechargeFromResourceId;
+        delete resource.rechargeFromResourceId;
+      }
+    });
+  });
 }
 
 function getCurrentCharacterPayload() {
