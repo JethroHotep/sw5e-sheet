@@ -747,6 +747,42 @@ h3 {
   line-height: 1;
 }
 
+.editable-text-block {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.editable-text-block span {
+  min-width: 0;
+  flex: 1 1 auto;
+}
+
+.text-edit-button,
+.action-item .text-edit-button {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0;
+  border-radius: 6px;
+  background: rgba(31, 45, 55, 0.92);
+  color: var(--accent-strong);
+}
+
+.text-edit-button svg {
+  width: 12px;
+  height: 12px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .editable-stat strong {
   margin-bottom: 4px;
 }
@@ -1316,6 +1352,14 @@ h3 {
   background: linear-gradient(180deg, rgba(31, 45, 55, 0.98), rgba(15, 24, 31, 0.98));
 }
 
+.action-item .text-edit-button {
+  width: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0;
+  background: rgba(31, 45, 55, 0.92);
+}
+
 .outbox-panel {
   position: sticky;
   top: 12px;
@@ -1389,12 +1433,38 @@ h3 {
   backdrop-filter: blur(5px);
 }
 
+.text-edit-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(2, 6, 10, 0.78);
+  backdrop-filter: blur(5px);
+}
+
 .dice-roller-overlay[hidden] {
+  display: none;
+}
+
+.text-edit-overlay[hidden] {
   display: none;
 }
 
 .dice-roller-dialog {
   width: min(560px, 100%);
+  border: 1px solid rgba(244, 197, 66, 0.72);
+  border-radius: 8px;
+  background:
+    linear-gradient(180deg, rgba(25, 35, 43, 0.98), rgba(8, 13, 18, 0.99)),
+    var(--surface-strong);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.62);
+  overflow: hidden;
+}
+
+.text-edit-dialog {
+  width: min(620px, 100%);
   border: 1px solid rgba(244, 197, 66, 0.72);
   border-radius: 8px;
   background:
@@ -1413,7 +1483,21 @@ h3 {
   border-bottom: 1px solid var(--line);
 }
 
+.text-edit-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
 .dice-roller-header h2 {
+  margin: 0;
+  color: #fff7d0;
+}
+
+.text-edit-header h2 {
   margin: 0;
   color: #fff7d0;
 }
@@ -1422,6 +1506,35 @@ h3 {
   display: grid;
   gap: 12px;
   padding: 12px;
+}
+
+.text-edit-body {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+}
+
+.text-edit-body textarea {
+  width: 100%;
+  min-height: 180px;
+  resize: vertical;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: #03070a;
+  color: #e8fbff;
+  font: inherit;
+}
+
+.text-edit-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.text-edit-actions button {
+  padding: 7px 10px;
+  font-weight: 800;
 }
 
 .dice-button-grid {

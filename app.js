@@ -49,6 +49,7 @@ const state = {
   latestCommand: "",
   history: [],
   diceCounts: Object.fromEntries(DICE_SIZES.map((size) => [size, 0])),
+  textEdit: null,
   lastFocus: null,
   storageSaveTimer: null,
   autosaveBadgeTimer: null,
@@ -80,6 +81,12 @@ const elements = {
   diceRollButton: document.querySelector("#diceRollButton"),
   diceClearButton: document.querySelector("#diceClearButton"),
   diceRollerCloseButton: document.querySelector("#diceRollerCloseButton"),
+  textEditOverlay: document.querySelector("#textEditOverlay"),
+  textEditTitle: document.querySelector("#textEditTitle"),
+  textEditArea: document.querySelector("#textEditArea"),
+  textEditSaveButton: document.querySelector("#textEditSaveButton"),
+  textEditCancelButton: document.querySelector("#textEditCancelButton"),
+  textEditCloseButton: document.querySelector("#textEditCloseButton"),
   autosaveBadge: document.querySelector("#autosaveBadge"),
   statusMessage: document.querySelector("#statusMessage"),
   validationPanel: document.querySelector("#validationPanel"),
@@ -190,6 +197,12 @@ function bindEvents() {
   elements.diceBonusInput.addEventListener("input", renderDiceRoller);
   elements.diceRollButton.addEventListener("click", rollCustomDice);
   elements.diceClearButton.addEventListener("click", clearDiceRoller);
+  elements.textEditSaveButton.addEventListener("click", saveTextEdit);
+  elements.textEditCancelButton.addEventListener("click", closeTextEdit);
+  elements.textEditCloseButton.addEventListener("click", closeTextEdit);
+  elements.textEditOverlay.addEventListener("click", (event) => {
+    if (event.target === elements.textEditOverlay) closeTextEdit();
+  });
   buildDiceButtons();
   elements.localCharacterSelect.addEventListener("change", () => {
     if (!elements.localCharacterSelect.value) return;
@@ -217,6 +230,7 @@ function bindEvents() {
     if (event.key === "Escape" && !elements.helpOverlay.hidden) closeHelp();
     if (event.key === "Escape" && !elements.portraitOverlay.hidden) closePortrait();
     if (event.key === "Escape" && !elements.diceRollerOverlay.hidden) closeDiceRoller();
+    if (event.key === "Escape" && !elements.textEditOverlay.hidden) closeTextEdit();
   });
   window.addEventListener("message", handleBridgeResponse);
   pingBridge();
@@ -1193,6 +1207,30 @@ function clearDiceRoller() {
   renderDiceRoller();
 }
 
+function openTextEdit(title, value, onSave) {
+  state.lastFocus = document.activeElement;
+  state.textEdit = { onSave };
+  elements.textEditTitle.textContent = `Edit ${title}`;
+  elements.textEditArea.value = value || "";
+  elements.textEditOverlay.hidden = false;
+  elements.textEditArea.focus();
+  elements.textEditArea.select();
+}
+
+function closeTextEdit() {
+  elements.textEditOverlay.hidden = true;
+  elements.textEditArea.value = "";
+  state.textEdit = null;
+  if (state.lastFocus?.focus) state.lastFocus.focus();
+}
+
+function saveTextEdit() {
+  const editor = state.textEdit;
+  if (!editor?.onSave) return;
+  editor.onSave(elements.textEditArea.value.trim());
+  closeTextEdit();
+}
+
 function renderDiceRoller() {
   DICE_SIZES.forEach((size) => {
     const count = state.diceCounts[size] || 0;
@@ -1297,10 +1335,16 @@ function makeResourceCard(resource) {
   wrapper.innerHTML = `
     <div class="small">${current} / ${max}${resource.unit ? ` ${escapeHtml(resource.unit)}` : ""}</div>
     <div class="resource-meter" aria-hidden="true"><div class="resource-fill" style="width: ${percentage}%"></div></div>
-    ${resource.notes ? `<p class="small">${escapeHtml(resource.notes)}</p>` : ""}
   `;
   const description = resourceDescription(resource, current, max);
   wrapper.prepend(makeObjectHeader(resource.name, () => postDescription(resource.name, description), resource.help, "resource-title", description));
+  if (resource.notes) {
+    wrapper.append(makeEditableTextBlock(resource.notes, `${resource.name} text`, (value) => {
+      resource.notes = value;
+      renderSheet();
+      setStatus(`Updated ${resource.name} text.`);
+    }));
+  }
   wrapper.append(makeStepper(current, (value) => {
     resource.current = clampNumber(value, 0, max || Infinity);
     renderSheet();
@@ -1395,7 +1439,7 @@ function renderInventory(character) {
           <div class="small">${inventoryMeta(item, false)}</div>
           ${depletionSummary(item) ? `<p class="small spend-line">${escapeHtml(depletionSummary(item))}</p>` : ""}
           ${containedResourcesHtml(item)}
-          ${item.notes ? `<p class="small">${escapeHtml(item.notes)}</p>` : ""}
+          <span class="inventory-notes-anchor"></span>
           ${item.armorClassFormula ? `<p class="small">AC: ${escapeHtml(item.armorClassFormula)}</p>` : ""}
         </div>
         <div class="inventory-side">
@@ -1405,6 +1449,16 @@ function renderInventory(character) {
       `;
       const description = inventoryDescription(item);
       row.querySelector(".title-anchor").replaceWith(makeObjectHeader(item.name, () => postDescription(item.name, description), item.help, "inventory-title", description));
+      const notesAnchor = row.querySelector(".inventory-notes-anchor");
+      if (item.notes) {
+        notesAnchor.replaceWith(makeEditableTextBlock(item.notes, `${item.name} text`, (value) => {
+          item.notes = value;
+          renderSheet();
+          setStatus(`Updated ${item.name} text.`);
+        }));
+      } else {
+        notesAnchor.remove();
+      }
       const useButton = row.querySelector("[data-use-item]");
       if (useButton) {
         useButton.addEventListener("click", () => applyEntityDepletion(item, item.name));
@@ -2083,6 +2137,32 @@ function makeHelpButton(title, help, fallbackDetails = "") {
   return button;
 }
 
+function makeEditableTextBlock(text, title, onSave) {
+  const wrapper = document.createElement("p");
+  wrapper.className = "small editable-text-block";
+  const content = document.createElement("span");
+  content.textContent = text;
+  const button = makeEditTextButton(title, () => openTextEdit(title, text, onSave));
+  wrapper.append(content, button);
+  return wrapper;
+}
+
+function makeEditTextButton(title, onClick) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "text-edit-button";
+  button.title = `Edit ${title}`;
+  button.setAttribute("aria-label", `Edit ${title}`);
+  button.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="M4 20h4l11-11-4-4L4 16v4z"></path>
+      <path d="M14 6l4 4"></path>
+    </svg>
+  `;
+  button.addEventListener("click", onClick);
+  return button;
+}
+
 function makeNumberStat(label, value, onChange, options = {}) {
   const node = document.createElement("div");
   node.className = "stat editable-stat";
@@ -2173,10 +2253,11 @@ function makeActionItem(entity, meta, notes, buttonText, onClick, secondaryActio
   text.append(heading, detail);
 
   if (notes) {
-    const note = document.createElement("p");
-    note.className = "small";
-    note.textContent = notes;
-    text.append(note);
+    text.append(makeEditableTextBlock(notes, `${title} text`, (value) => {
+      entity.notes = value;
+      renderSheet();
+      setStatus(`Updated ${title} text.`);
+    }));
   }
 
   const button = document.createElement("button");

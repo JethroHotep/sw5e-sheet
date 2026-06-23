@@ -247,6 +247,22 @@
       </article>
     </section>
 
+    <section id="textEditOverlay" class="text-edit-overlay" hidden>
+      <article class="text-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="textEditTitle">
+        <div class="text-edit-header">
+          <h2 id="textEditTitle">Edit Text</h2>
+          <button id="textEditCloseButton" type="button">Close</button>
+        </div>
+        <div class="text-edit-body">
+          <textarea id="textEditArea" rows="8"></textarea>
+          <div class="text-edit-actions">
+            <button id="textEditSaveButton" type="button">Save</button>
+            <button id="textEditCancelButton" type="button">Cancel</button>
+          </div>
+        </div>
+      </article>
+    </section>
+
     <script src="app.js"></script>
   </body>
 </html>
